@@ -9,7 +9,6 @@ intents = discord.Intents.default()
 intents.message_content = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
-bot = commands.Bot(command_prefix='!')
 
 @bot.command(name='roll', help='Simula el lanzamiento de un dado. Usa !roll numdados numlados')
 async def roll(ctx, number_of_dice: int, number_of_sides: int): #importante el Converter :int
