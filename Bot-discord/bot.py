@@ -2,13 +2,8 @@ import os
 import random
 import discord
 from discord.ext import commands
-from dotenv import load_dotenv
 
-
-
-load_dotenv()
-#TOKEN = os.getenv('DISCORD_TOKEN')
-TOKEN = 'MTA5MDk4NTc4NjMzNTMwNTgyMA.GdFag7.c2dkiD0zZt8Qt2MWHN9Q4sTi4G0bH4VtsmoWyg'
+TOKEN = os.environ.get('DISCORD_TOKEN')
 
 intents = discord.Intents.default()
 intents.message_content = True
