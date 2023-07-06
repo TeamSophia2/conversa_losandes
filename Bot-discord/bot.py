@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from utils.tools import Tools
 
-TOKEN = os.environ.get('DISCORD_TOKEN') 
+TOKEN = "MTA4ODUyMDI1ODc0MDAzNTY0NA.GKi86b.iupdxQ2nq3fYuZ9-znlBKiQGLCoNSSBwlOAu9o"
 
 class BOT(commands.Cog):
     def __init__(self, bot):
@@ -29,12 +29,16 @@ class BOT(commands.Cog):
                 #print(df)
                 # 
                 # conectarse a la base de datos y agregar
+                #...
             else:
                 await ctx.send('El archivo CSV no cumple con las columnas requeridas.')
         else:
             await ctx.send('No se ha adjuntado ningún archivo al mensaje.')
 
+
 intents = discord.Intents.default()
+intents.messages = True  # Habilitar el permiso intents.MessageContent
+
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 # Agregar el cog al bot
