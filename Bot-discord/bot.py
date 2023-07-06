@@ -10,8 +10,7 @@ TOKEN = os.environ.get('DISCORD_TOKEN')
 class BOT(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.tools = Tools()
-
+        
     @commands.Cog.listener()
     async def on_ready(self):
         print(f'Conectado como {self.bot.user}')
@@ -22,21 +21,23 @@ class BOT(commands.Cog):
         # Verifica si se adjuntó un archivo al mensaje
         if len(message.attachments) > 0:
             file = message.attachments[0]
-            
+            # Guarda el archivo en el sistema
             # Guardar el archivo adjunto en el directorio temporal
             with tempfile.NamedTemporaryFile(delete=False) as f:
                 temp_filepath = f.name
                 await file.save(f)
 
             # Lee y valida el archivo CSV
-            df = self.tools.readCSV(temp_filepath)
+            tools = Tools()
+            df = tools.readCSV(temp_filepath)
             if df is not None:
                 await ctx.send('El archivo CSV ha sido validado correctamente.')
+                os.remove(temp_filepath)
                 #print(df)
-                # Envía el documento como un archivo CSV al canal
-
-            # Eliminar el archivo temporal
-            os.remove(temp_filepath)
+                # conectarse a la base de datos y agregar
+                os.remove('documento.csv')
+            else:
+                await ctx.send('El archivo CSV no cumple con las columnas requeridas.')
         else:
             await ctx.send('No se ha adjuntado ningún archivo al mensaje.')
 
@@ -49,7 +50,7 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 @bot.event
 async def on_ready():
     print(f'Conectado como {bot.user}')
-    bot.add_cog(BOT(bot))
+    await bot.add_cog(BOT(bot))
 
 # Inicia el bot
 bot.run(TOKEN)
