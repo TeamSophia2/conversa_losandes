@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from utils.tools import Tools
 
-TOKEN = "MTA4ODUyMDI1ODc0MDAzNTY0NA.GKi86b.iupdxQ2nq3fYuZ9-znlBKiQGLCoNSSBwlOAu9o"
+TOKEN = os.environ.get('DISCORD_TOKEN')
 
 class BOT(commands.Cog):
     def __init__(self, bot):
