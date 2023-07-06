@@ -32,7 +32,6 @@ class BOT(commands.Cog):
                 await ctx.send('El archivo CSV ha sido validado correctamente.')
                 #print(df)
                 # conectarse a la base de datos y agregar
-                os.remove('documento.csv')
             else:
                 await ctx.send('El archivo CSV no cumple con las columnas requeridas.')
         else:
