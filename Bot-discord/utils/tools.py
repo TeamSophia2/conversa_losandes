@@ -1,10 +1,14 @@
 import pandas as pd
 
 class Tools:
-    def readCSV(self, filename):
+    def readCSV(self, file_data):
+        # Convierte los datos del archivo en un objeto StringIO
+        csv_data = file_data.decode('utf-8')
+        csv_file = pd.compat.StringIO(csv_data)
+
         # Lee el archivo CSV utilizando pandas
         try:
-            df = pd.read_csv(filename)
+            df = pd.read_csv(csv_file)
         except pd.errors.ParserError:
             return None
 
@@ -18,4 +22,5 @@ class Tools:
 
     def readPdf(self, filename):
         # Lee el archivo PDF 
-        return 0
+        return 
+    

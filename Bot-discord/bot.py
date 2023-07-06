@@ -23,16 +23,13 @@ class BOT(commands.Cog):
             file = message.attachments[0]
             # Guarda el archivo en el sistema
             # Guardar el archivo adjunto en el directorio temporal
-            with tempfile.NamedTemporaryFile(delete=False) as f:
-                temp_filepath = f.name
-                await file.save(f)
-
+            
+            file_data = await file.read()
             # Lee y valida el archivo CSV
             tools = Tools()
-            df = tools.readCSV(temp_filepath)
+            df = tools.readCSV(file_data)
             if df is not None:
                 await ctx.send('El archivo CSV ha sido validado correctamente.')
-                os.remove(temp_filepath)
                 #print(df)
                 # conectarse a la base de datos y agregar
                 os.remove('documento.csv')
