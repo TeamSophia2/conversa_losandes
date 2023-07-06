@@ -23,7 +23,8 @@ class BOT(commands.Cog):
             
             # Lee y valida el archivo CSV
             tools = Tools()
-            df = await tools.readCSV(file)
+            file_bytes = await file.read()
+            df = await tools.readCSV(file_bytes)
             if df is not None:
                 await ctx.send('El archivo CSV ha sido validado correctamente.')
                 #print(df)
@@ -37,7 +38,7 @@ class BOT(commands.Cog):
 
 
 intents = discord.Intents.default()
-intents.message_content = True
+intents.messages = True  # Habilitar el permiso intents.MessageContent
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
