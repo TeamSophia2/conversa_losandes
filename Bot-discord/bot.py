@@ -37,12 +37,15 @@ class BOT(commands.Cog):
 
 
 intents = discord.Intents.default()
-intents.messages = True  # Habilitar el permiso intents.MessageContent
+intents.messages = True
+intents.typing = False  # Puedes desactivar este permiso si no lo necesitas
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
-# Agregar el cog al bot
-bot.add_cog(BOT(bot))
+@bot.event
+async def on_ready():
+    print(f'Conectado como {bot.user}')
+    await bot.add_cog(BOT(bot))
 
 # Inicia el bot
 bot.run(TOKEN)
