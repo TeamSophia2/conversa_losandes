@@ -37,8 +37,7 @@ class BOT(commands.Cog):
 
 
 intents = discord.Intents.default()
-intents.messages = True
-intents.typing = False  # Puedes desactivar este permiso si no lo necesitas
+intents.message_content = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
