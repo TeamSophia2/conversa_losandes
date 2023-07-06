@@ -44,7 +44,7 @@ async def on_message(message):
     if message.author == bot.user:
         return
     print(2)
-    if message.content.startswith('!add'):
+    if message.content.startswith('!addDocument'):
         print("hola")
         await bot.addDocument(message)
         print("chao")
