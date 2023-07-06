@@ -1,5 +1,5 @@
 import pandas as pd
-from pandas.compat import StringIO
+from io import StringIO
 
 class Tools:
     def readCSV(self, file_data):
