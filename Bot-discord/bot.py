@@ -20,17 +20,18 @@ class BOT(commands.Cog):
         # Verifica si se adjuntó un archivo al mensaje
         if len(message.attachments) > 0:
             file = message.attachments[0]
-            
+            # Guarda el archivo en el sistema
+            with open('documento.csv', 'wb') as f:
+                await file.save(f)
+
             # Lee y valida el archivo CSV
             tools = Tools()
-            file_bytes = await file.read()
-            df = await tools.readCSV(file_bytes)
+            df = tools.readCSV('documento.csv')
             if df is not None:
                 await ctx.send('El archivo CSV ha sido validado correctamente.')
                 #print(df)
-                # 
                 # conectarse a la base de datos y agregar
-                #...
+                os.remove('documento.csv')
             else:
                 await ctx.send('El archivo CSV no cumple con las columnas requeridas.')
         else:
