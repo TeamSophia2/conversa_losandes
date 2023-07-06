@@ -4,7 +4,7 @@ class Tools:
     def readCSV(self, file_data):
         # Convierte los datos del archivo en un objeto StringIO
         csv_data = file_data.decode('utf-8')
-        csv_file = pd.compat.StringIO(csv_data)
+        csv_file = pd.StringIO(csv_data)
 
         # Lee el archivo CSV utilizando pandas
         try:
