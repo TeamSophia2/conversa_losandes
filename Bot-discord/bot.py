@@ -39,7 +39,7 @@ class BOT(commands.Cog):
 
 
 intents = discord.Intents.default()
-intents.messages = True  # Habilitar el permiso intents.MessageContent
+intents.message_content = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
