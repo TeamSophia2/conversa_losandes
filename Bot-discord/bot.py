@@ -40,9 +40,10 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
+    print(1)
     if message.author == bot.user:
         return
-
+    print(2)
     if message.content.startswith('!add'):
         print("hola")
         await bot.addDocument(message)
