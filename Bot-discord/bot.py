@@ -30,8 +30,8 @@ class BOT(discord.Client):
         else:
             await message.channel.send('No se ha adjuntado ningún archivo al mensaje.')
 
-
-bot = BOT()
+intents = discord.Intents.default()
+bot = BOT(intents=intents)
 
 @bot.event
 async def on_ready():
