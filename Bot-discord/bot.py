@@ -3,13 +3,15 @@ import random
 import discord
 from discord.ext import commands
 from utils.tools import Tools
+import tempfile
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
 
 class BOT(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        
+        self.tools = Tools()
+
     @commands.Cog.listener()
     async def on_ready(self):
         print(f'Conectado como {self.bot.user}')
@@ -20,20 +22,21 @@ class BOT(commands.Cog):
         # Verifica si se adjuntó un archivo al mensaje
         if len(message.attachments) > 0:
             file = message.attachments[0]
-            # Guarda el archivo en el sistema
-            with open('documento.csv', 'wb') as f:
+            
+            # Guardar el archivo adjunto en el directorio temporal
+            with tempfile.NamedTemporaryFile(delete=False) as f:
+                temp_filepath = f.name
                 await file.save(f)
 
             # Lee y valida el archivo CSV
-            tools = Tools()
-            df = tools.readCSV('documento.csv')
+            df = self.tools.readCSV(temp_filepath)
             if df is not None:
                 await ctx.send('El archivo CSV ha sido validado correctamente.')
                 #print(df)
-                # conectarse a la base de datos y agregar
-                os.remove('documento.csv')
-            else:
-                await ctx.send('El archivo CSV no cumple con las columnas requeridas.')
+                # Envía el documento como un archivo CSV al canal
+
+            # Eliminar el archivo temporal
+            os.remove(temp_filepath)
         else:
             await ctx.send('No se ha adjuntado ningún archivo al mensaje.')
 
@@ -46,7 +49,7 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 @bot.event
 async def on_ready():
     print(f'Conectado como {bot.user}')
-    await bot.add_cog(BOT(bot))
+    bot.add_cog(BOT(bot))
 
 # Inicia el bot
 bot.run(TOKEN)
