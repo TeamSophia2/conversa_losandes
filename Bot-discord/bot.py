@@ -3,6 +3,7 @@ import random
 import discord
 from discord.ext import commands
 from utils.tools import Tools
+
 TOKEN = os.environ.get('DISCORD_TOKEN')
 
 class BOT(discord.Client):
@@ -43,7 +44,9 @@ async def on_message(message):
         return
 
     if message.content.startswith('!add'):
+        print("hola")
         await bot.addDocument(message)
+        print("chao")
 
 # Inicia el bot
 bot.run(TOKEN)
