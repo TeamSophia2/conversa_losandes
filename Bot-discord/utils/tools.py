@@ -1,5 +1,8 @@
 import pandas as pd
 from io import StringIO
+import PyPDF2
+from langdetect import detect
+
 
 class Tools:
     def readCSV(self, file_data):
@@ -21,7 +24,35 @@ class Tools:
         else:
             return None
 
-    def readPdf(self, filename):
-        # Lee el archivo PDF 
-        return 
+
+    """Toma un archivo y devuelve un dataframe solamente con dos atributos(Columnas): 
+    texto completo del pdf(text) y el idioma(lang)"""
+    def readPdf(self,filename):
+        # Abrir el archivo PDF en modo binario
+        with open(filename, "rb") as file:
+            # Crear un lector de PDF
+            reader = PyPDF2.PdfFileReader(file)
+            
+            # Inicializar listas para almacenar el texto y el idioma
+            text_list = []
+            lang_list = []
+            
+            # Leer cada página del PDF
+            for page_num in range(reader.numPages):
+                page = reader.getPage(page_num)
+                text = page.extractText()
+                
+                # Si el texto no está vacío, agregarlo a la lista y detectar el idioma
+                if text.strip():
+                    text_list.append(text)
+                    lang = detect(text)
+                    lang_list.append(lang)
+        
+        # Crear el DataFrame con las listas
+        df = pd.DataFrame({"text": text_list, "lang": lang_list})
+        return df
+
+
+
+        
     
