@@ -15,7 +15,7 @@ class BOT(commands.Cog):
     async def on_ready(self):
         print(f'Conectado como {self.bot.user}')
     
-    """@commands.command(name='addDocument')
+    @commands.command(name='addDocument')
     async def addDocument(self, ctx):
         message = ctx.message
         # Verifica si se adjuntó un archivo al mensaje
@@ -35,7 +35,7 @@ class BOT(commands.Cog):
             else:
                 await ctx.send('El archivo CSV no cumple con las columnas requeridas.')
         else:
-            await ctx.send('No se ha adjuntado ningún archivo al mensaje.')"""
+            await ctx.send('No se ha adjuntado ningún archivo al mensaje.')
     
     @commands.command(name='addPdf')  # Agregar el comando para agregar el PDF
     async def addPdf(self, ctx):
