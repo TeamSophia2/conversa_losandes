@@ -36,6 +36,28 @@ class BOT(commands.Cog):
                 await ctx.send('El archivo CSV no cumple con las columnas requeridas.')
         else:
             await ctx.send('No se ha adjuntado ningún archivo al mensaje.')
+    
+    @commands.command(name='addPdf')  # Agregar el comando para agregar el PDF
+    async def addPdf(self, ctx):
+        message = ctx.message
+        # Verifica si se adjuntó un archivo al mensaje
+        if len(message.attachments) > 0:
+            file = message.attachments[0]
+            # Guarda el archivo en el sistema
+            # Guardar el archivo adjunto en el directorio temporal
+            
+            file_data = await file.read()
+            # Leer y procesar el archivo PDF
+            tools = Tools()
+            df = tools.readPdf(file_data)
+            if df is not None:
+                await ctx.send('El archivo PDF ha sido procesado correctamente.')
+                print(df)
+                # conectarse a la base de datos y agregar
+            else:
+                await ctx.send('No se pudo procesar el archivo PDF.')
+        else:
+            await ctx.send('No se ha adjuntado ningún archivo al mensaje.')
 
 
 intents = discord.Intents.default()
