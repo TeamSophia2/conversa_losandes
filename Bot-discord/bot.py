@@ -58,13 +58,13 @@ class BOT(commands.Cog):
                     # Convierte el DataFrame a un formato legible (por ejemplo, a formato tabular)
                     df_str = df.to_string(index=False)
 
-                    # Divide el contenido del DataFrame en mensajes más pequeños
-                    MAX_MESSAGE_LENGTH = 2000
-                    messages = [df_str[i:i+MAX_MESSAGE_LENGTH] for i in range(0, len(df_str), MAX_MESSAGE_LENGTH)]
+                    # Divide el contenido del DataFrame en partes más pequeñas
+                    MAX_MESSAGE_LENGTH = 1500
+                    messages = [df_str[i:i + MAX_MESSAGE_LENGTH] for i in range(0, len(df_str), MAX_MESSAGE_LENGTH)]
 
-                    # Envía cada mensaje en Discord
-                    for message in messages:
-                        await ctx.send(f'```{message}```')
+                    # Envía cada parte del mensaje en Discord
+                    for i, message in enumerate(messages, start=1):
+                        await ctx.send(f'Parte {i}/{len(messages)}:\n```{message}```')
                 else:
                     await ctx.send('Ha ocurrido un error al procesar el archivo PDF.')
 
