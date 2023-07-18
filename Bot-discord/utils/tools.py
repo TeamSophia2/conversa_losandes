@@ -2,7 +2,7 @@ import pandas as pd
 from io import StringIO, BytesIO
 import pdfplumber
 from langdetect import detect
-
+import PyPDF2
 
 class Tools:
     def readCSV(self, file_data):
