@@ -36,7 +36,7 @@ class BOT(commands.Cog):
         else:
             await ctx.send('No se ha adjuntado ningún archivo al mensaje.')
     
-    @commands.command(name='addPdf')  
+    @commands.command(name='addPdf')
     async def addPdf(self, ctx):
         message = ctx.message
         # Verifica si se adjuntó un archivo al mensaje
@@ -52,7 +52,7 @@ class BOT(commands.Cog):
                 # Lee y valida el archivo PDF
                 tools = Tools()
                 with open(pdf_path, 'rb') as pdf_file:
-                    pdf_data = pdf_file.read()
+                    pdf_data = pdf_file.read().decode("utf-8")
                     df = tools.readPdf(pdf_data)
 
                 if df is not None:
