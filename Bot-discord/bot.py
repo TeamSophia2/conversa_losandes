@@ -55,7 +55,9 @@ class BOT(commands.Cog):
 
                 if df is not None:
                     await ctx.send('El archivo PDF ha sido procesado correctamente.')
-                    print(df)
+                    # Convertir el DataFrame a una cadena y enviarlo en el mensaje
+                    df_string = df.to_string(index=False)
+                    await ctx.send(f"Contenido del DataFrame:\n```\n{df_string}\n```")
                     # Aquí puedes trabajar con el DataFrame 'df' que contiene el texto y el lenguaje.
                 else:
                     await ctx.send('Ha ocurrido un error al procesar el archivo PDF.')
