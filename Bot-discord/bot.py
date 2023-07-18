@@ -37,7 +37,7 @@ class BOT(commands.Cog):
         else:
             await ctx.send('No se ha adjuntado ningún archivo al mensaje.')
     
-     @commands.command(name='addPdf')
+    @commands.command(name='addPdf')
     async def addPdf(self, ctx):
         message = ctx.message
         # Verifica si se adjuntó un archivo al mensaje
