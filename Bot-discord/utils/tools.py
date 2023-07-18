@@ -35,8 +35,8 @@ class Tools:
         # Lee el archivo PDF utilizando PyPDF2
         try:
             pdf_reader = PyPDF2.PdfFileReader(pdf_stream)
-        except:
-            print("Error al leer el archivo PDF.")
+        except Exception as e:
+            print("Error al leer el archivo PDF:", e)
             return None
 
         # Procesar el PDF y extraer el texto y el lenguaje
