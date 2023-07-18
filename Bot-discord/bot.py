@@ -48,7 +48,7 @@ class BOT(commands.Cog):
             file_data = await file.read()
             # Leer y procesar el archivo PDF
             tools = Tools()
-            df = tools.readPdf(file_data)
+            df = readPdf(file_data)
             if df is not None:
                 await ctx.send('El archivo PDF ha sido procesado correctamente.')
                 print(df)

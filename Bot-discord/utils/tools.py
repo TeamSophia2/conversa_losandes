@@ -27,33 +27,27 @@ class Tools:
 
     """Toma un archivo y devuelve un dataframe solamente con dos atributos(Columnas): 
     texto completo del pdf(text) y el idioma(lang)"""
-    def readPdf(self,filename):
-        # Abrir el archivo PDF en modo binario con PyPDF4
-        with open(filename, "rb") as file:
-            # Crear un lector de PDF
-            reader = PyPDF4.PdfReader(file)
-            
-            # Inicializar listas para almacenar el texto y el idioma
-            text_list = []
-            lang_list = []
-            
-            # Leer cada página del PDF
-            for page_num in range(len(reader.pages)):
-                page = reader.pages[page_num]
-                text = page.extract_text()
-                
-                # Si el texto no está vacío, agregarlo a la lista y detectar el idioma
-                if text.strip():
-                    # Decodificar el texto usando utf-8
-                    text = text.decode('utf-8', errors='ignore')
-                    text_list.append(text)
-                    lang = detect(text)
-                    lang_list.append(lang)
-        
-        # Crear el DataFrame con las listas
-        df = pd.DataFrame({"text": text_list, "lang": lang_list})
-        return df
+    def readPdf(self, file_data, encoding='utf-8'):
+        text_list = []
+        pdf_file = StringIO(file_data.decode('utf-8'))
+        pdf_document = fitz.open(stream=pdf_file, filetype="pdf")
 
+        for page_number in range(pdf_document.page_count):
+            page = pdf_document.load_page(page_number)
+            text_list.append(page.get_text(encoding=encoding))
+
+        pdf_document.close()
+
+        # Detectar el lenguaje del texto en el PDF
+        lang_list = [detect(text) for text in text_list]
+
+        # Crear el DataFrame con las columnas "text" y "lang"
+        df = pd.DataFrame({
+            'text': text_list,
+            'lang': lang_list
+        })
+
+        return df
 
 
         
