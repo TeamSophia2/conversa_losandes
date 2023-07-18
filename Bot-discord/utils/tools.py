@@ -34,7 +34,7 @@ class Tools:
 
         # Lee el archivo PDF utilizando PyPDF2
         try:
-            pdf_reader = PyPDF2.PdfFileReader(pdf_stream)
+            pdf_reader = PdfReader(pdf_stream)
         except Exception as e:
             print("Error al leer el archivo PDF:", e)
             return None
