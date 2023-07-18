@@ -55,10 +55,16 @@ class BOT(commands.Cog):
 
                 if df is not None:
                     await ctx.send('El archivo PDF ha sido procesado correctamente.')
-                    # Convertir el DataFrame a una cadena y enviarlo en el mensaje
-                    df_string = df.to_string(index=False)
-                    await ctx.send(f"Contenido del DataFrame:\n```\n{df_string}\n```")
-                    # Aquí puedes trabajar con el DataFrame 'df' que contiene el texto y el lenguaje.
+                    # Convierte el DataFrame a un formato legible (por ejemplo, a formato tabular)
+                    df_str = df.to_string(index=False)
+
+                    # Divide el contenido del DataFrame en mensajes más pequeños
+                    MAX_MESSAGE_LENGTH = 2000
+                    messages = [df_str[i:i+MAX_MESSAGE_LENGTH] for i in range(0, len(df_str), MAX_MESSAGE_LENGTH)]
+
+                    # Envía cada mensaje en Discord
+                    for message in messages:
+                        await ctx.send(f'```{message}```')
                 else:
                     await ctx.send('Ha ocurrido un error al procesar el archivo PDF.')
 
