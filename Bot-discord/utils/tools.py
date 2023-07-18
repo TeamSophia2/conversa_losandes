@@ -27,7 +27,7 @@ class Tools:
 
     """Toma un archivo y devuelve un dataframe solamente con dos atributos(Columnas): 
     texto completo del pdf(text) y el idioma(lang)"""
-    def readPdf(filename):
+    def readPdf(self,filename):
         # Abrir el archivo PDF en modo binario con PyPDF4
         with open(filename, "rb") as file:
             # Crear un lector de PDF

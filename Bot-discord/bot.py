@@ -4,7 +4,6 @@ import discord
 from discord.ext import commands
 from utils.tools import Tools
 import tempfile
-
 TOKEN = os.environ.get('DISCORD_TOKEN')
 
 class BOT(commands.Cog):
