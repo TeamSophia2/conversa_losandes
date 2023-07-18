@@ -55,6 +55,7 @@ class BOT(commands.Cog):
 
                 if df is not None:
                     await ctx.send('El archivo PDF ha sido procesado correctamente.')
+                    print(df)
                     # Aquí puedes trabajar con el DataFrame 'df' que contiene el texto y el lenguaje.
                 else:
                     await ctx.send('Ha ocurrido un error al procesar el archivo PDF.')
