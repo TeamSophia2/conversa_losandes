@@ -42,8 +42,7 @@ class Tools:
 
         # Procesar el PDF y extraer el texto y el lenguaje
         text = ""
-        for page_num in range(pdf_reader.numPages):
-            page = pdf_reader.getPage(page_num)
+        for page in pdf_reader.pages:
             text += page.extract_text()
 
         lang = detect(text)
