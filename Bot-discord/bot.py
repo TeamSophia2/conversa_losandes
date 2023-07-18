@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from utils.tools import Tools
 import tempfile
-import chardet
+
 TOKEN = os.environ.get('DISCORD_TOKEN')
 
 class BOT(commands.Cog):
@@ -37,42 +37,25 @@ class BOT(commands.Cog):
         else:
             await ctx.send('No se ha adjuntado ningún archivo al mensaje.')
     
+    
     @commands.command(name='addPdf')
-    async def addPdf(self, ctx):
+    async def addDocument(self, ctx):
         message = ctx.message
         # Verifica si se adjuntó un archivo al mensaje
         if len(message.attachments) > 0:
-            file = message.attachments[0]
-            # Verifica si el archivo es un PDF
-            if file.filename.lower().endswith('.pdf'):
-                # Guardar el archivo adjunto en el directorio temporal
-                with tempfile.NamedTemporaryFile(delete=False) as tmp:
-                    tmp.write(await file.read())
-                    pdf_path = tmp.name
+            # Lee el archivo PDF desde el sistema de archivos en modo binario ('rb')
+            with open('ruta_del_archivo.pdf', 'rb') as pdf_file:
+                pdf_data = pdf_file.read()
 
-                # Detectar la codificación del archivo PDF
-                with open(pdf_path, 'rb') as pdf_file:
-                    raw_data = pdf_file.read()
-                    result = chardet.detect(raw_data)
-                    encoding = result['encoding']
-
-                # Lee y valida el archivo PDF
-                tools = Tools()
-                with open(pdf_path, 'r', encoding=encoding) as pdf_file:
-                    pdf_data = pdf_file.read()
-                    df = tools.readPdf(pdf_data)
-
-                if df is not None:
-                    await ctx.send('El archivo PDF ha sido procesado correctamente.')
-                    # Aquí puedes trabajar con el DataFrame 'df' que contiene el texto y el lenguaje.
-                else:
-                    await ctx.send('Ha ocurrido un error al procesar el archivo PDF.')
-                
-                # Borra el archivo temporal después de utilizarlo
-                os.remove(pdf_path)
-
+            # Llama a la función readPdf con los datos del archivo PDF
+            tools = Tools()
+            df = tools.readPdf(pdf_data)
+            
+            # Verifica si se ha obtenido el DataFrame con el texto y el lenguaje
+            if df is not None:
+                print(df)
             else:
-                await ctx.send('El archivo adjunto no es un PDF válido.')
+                print("Ha ocurrido un error al procesar el archivo PDF.")
         else:
             await ctx.send('No se ha adjuntado ningún archivo al mensaje.')
 

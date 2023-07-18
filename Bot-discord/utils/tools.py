@@ -29,18 +29,21 @@ class Tools:
     texto completo del pdf(text) y el idioma(lang)"""
     def readPdf(self, pdf_data):
         # Convierte los datos del archivo en un objeto StringIO
-        pdf_stream = StringIO(pdf_data)
+        #pdf = pdf_data.decode('utf-8')
+        pdf_stream = StringIO(pdf)
 
-        # Lee el archivo PDF utilizando pdfplumber
+        # Lee el archivo PDF utilizando PyPDF2
         try:
-            with pdfplumber.open(pdf_stream) as pdf:
-                text = ""
-                for page in pdf.pages:
-                    text += page.extract_text()
+            pdf_reader = PyPDF2.PdfFileReader(pdf_stream)
         except:
             return None
 
-        # Detectar el lenguaje
+        # Procesar el PDF y extraer el texto y el lenguaje
+        text = ""
+        for page_num in range(pdf_reader.numPages):
+            page = pdf_reader.getPage(page_num)
+            text += page.extract_text()
+
         lang = detect(text)
 
         # Crea un DataFrame con el texto y el lenguaje
