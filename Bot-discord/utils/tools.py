@@ -1,8 +1,7 @@
 import pandas as pd
 from io import StringIO
-import PyPDF4
+import pdfplumber
 from langdetect import detect
-import fitz
 
 
 class Tools:
@@ -28,25 +27,24 @@ class Tools:
 
     """Toma un archivo y devuelve un dataframe solamente con dos atributos(Columnas): 
     texto completo del pdf(text) y el idioma(lang)"""
-    def readPdf(self, file_data, encoding='utf-8'):
-        text_list = []
-        pdf_file = StringIO(file_data.decode('utf-8'))
-        pdf_document = fitz.open(stream=pdf_file, filetype="pdf")
+    def readPdf(self, pdf_data):
+        # Convierte los datos del archivo en un objeto StringIO
+        pdf_stream = StringIO(pdf_data)
 
-        for page_number in range(pdf_document.page_count):
-            page = pdf_document.load_page(page_number)
-            text_list.append(page.get_text(encoding=encoding))
+        # Lee el archivo PDF utilizando pdfplumber
+        try:
+            with pdfplumber.open(pdf_stream) as pdf:
+                text = ""
+                for page in pdf.pages:
+                    text += page.extract_text()
+        except:
+            return None
 
-        pdf_document.close()
+        # Detectar el lenguaje
+        lang = detect(text)
 
-        # Detectar el lenguaje del texto en el PDF
-        lang_list = [detect(text) for text in text_list]
-
-        # Crear el DataFrame con las columnas "text" y "lang"
-        df = pd.DataFrame({
-            'text': text_list,
-            'lang': lang_list
-        })
+        # Crea un DataFrame con el texto y el lenguaje
+        df = pd.DataFrame({'text': [text], 'lang': [lang]})
 
         return df
 

@@ -36,25 +36,36 @@ class BOT(commands.Cog):
         else:
             await ctx.send('No se ha adjuntado ningún archivo al mensaje.')
     
-    @commands.command(name='addPdf')  # Agregar el comando para agregar el PDF
+    @commands.command(name='addPdf')  
     async def addPdf(self, ctx):
         message = ctx.message
         # Verifica si se adjuntó un archivo al mensaje
         if len(message.attachments) > 0:
             file = message.attachments[0]
-            # Guarda el archivo en el sistema
-            # Guardar el archivo adjunto en el directorio temporal
-            
-            file_data = await file.read()
-            # Leer y procesar el archivo PDF
-            tools = Tools()
-            df = readPdf(file_data)
-            if df is not None:
-                await ctx.send('El archivo PDF ha sido procesado correctamente.')
-                print(df)
-                # conectarse a la base de datos y agregar
+            # Verifica si el archivo es un PDF
+            if file.filename.lower().endswith('.pdf'):
+                # Guardar el archivo adjunto en el directorio temporal
+                with tempfile.NamedTemporaryFile(delete=False) as tmp:
+                    tmp.write(await file.read())
+                    pdf_path = tmp.name
+
+                # Lee y valida el archivo PDF
+                tools = Tools()
+                with open(pdf_path, 'rb') as pdf_file:
+                    pdf_data = pdf_file.read()
+                    df = tools.readPdf(pdf_data)
+
+                if df is not None:
+                    await ctx.send('El archivo PDF ha sido procesado correctamente.')
+                    # Aquí puedes trabajar con el DataFrame 'df' que contiene el texto y el lenguaje.
+                else:
+                    await ctx.send('Ha ocurrido un error al procesar el archivo PDF.')
+                
+                # Borra el archivo temporal después de utilizarlo
+                os.remove(pdf_path)
+
             else:
-                await ctx.send('No se pudo procesar el archivo PDF.')
+                await ctx.send('El archivo adjunto no es un PDF válido.')
         else:
             await ctx.send('No se ha adjuntado ningún archivo al mensaje.')
 
