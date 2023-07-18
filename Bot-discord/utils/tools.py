@@ -1,6 +1,6 @@
 import pandas as pd
 from io import StringIO
-import PyPDF2
+import fitz
 from langdetect import detect
 
 
@@ -27,27 +27,28 @@ class Tools:
 
     """Toma un archivo y devuelve un dataframe solamente con dos atributos(Columnas): 
     texto completo del pdf(text) y el idioma(lang)"""
-    def readPdf(self,filename):
-        # Abrir el archivo PDF en modo binario
-        with open(filename, "rb") as file:
-            # Crear un lector de PDF
-            reader = PyPDF2.PdfFileReader(file)
-            
-            # Inicializar listas para almacenar el texto y el idioma
-            text_list = []
-            lang_list = []
-            
-            # Leer cada página del PDF
-            for page_num in range(reader.numPages):
-                page = reader.getPage(page_num)
-                text = page.extractText()
-                
-                # Si el texto no está vacío, agregarlo a la lista y detectar el idioma
-                if text.strip():
-                    text_list.append(text)
-                    lang = detect(text)
-                    lang_list.append(lang)
-        
+    def readPdf(self, filename):
+        # Abrir el archivo PDF en modo binario con PyMuPDF
+        pdf_document = fitz.open(filename)
+
+        # Inicializar listas para almacenar el texto y el idioma
+        text_list = []
+        lang_list = []
+
+        # Leer cada página del PDF
+        for page_num in range(pdf_document.page_count):
+            page = pdf_document.load_page(page_num)
+            text = page.get_text("text", flags=fitz.TEXT_INHIBIT_SPACES)
+
+            # Si el texto no está vacío, agregarlo a la lista y detectar el idioma
+            if text.strip():
+                text_list.append(text)
+                lang = detect(text)
+                lang_list.append(lang)
+
+        # Cerrar el documento PDF
+        pdf_document.close()
+
         # Crear el DataFrame con las listas
         df = pd.DataFrame({"text": text_list, "lang": lang_list})
         return df
