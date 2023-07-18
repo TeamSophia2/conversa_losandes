@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 from utils.tools import Tools
 import tempfile
+import chardet
 TOKEN = os.environ.get('DISCORD_TOKEN')
 
 class BOT(commands.Cog):
@@ -36,7 +37,7 @@ class BOT(commands.Cog):
         else:
             await ctx.send('No se ha adjuntado ningún archivo al mensaje.')
     
-    @commands.command(name='addPdf')
+     @commands.command(name='addPdf')
     async def addPdf(self, ctx):
         message = ctx.message
         # Verifica si se adjuntó un archivo al mensaje
@@ -49,10 +50,16 @@ class BOT(commands.Cog):
                     tmp.write(await file.read())
                     pdf_path = tmp.name
 
+                # Detectar la codificación del archivo PDF
+                with open(pdf_path, 'rb') as pdf_file:
+                    raw_data = pdf_file.read()
+                    result = chardet.detect(raw_data)
+                    encoding = result['encoding']
+
                 # Lee y valida el archivo PDF
                 tools = Tools()
-                with open(pdf_path, 'rb') as pdf_file:
-                    pdf_data = pdf_file.read().decode("utf-8")
+                with open(pdf_path, 'r', encoding=encoding) as pdf_file:
+                    pdf_data = pdf_file.read()
                     df = tools.readPdf(pdf_data)
 
                 if df is not None:
