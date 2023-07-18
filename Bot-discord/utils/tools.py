@@ -1,5 +1,5 @@
 import pandas as pd
-from io import StringIO
+from io import StringIO, BytesIO
 import pdfplumber
 from langdetect import detect
 
@@ -30,7 +30,7 @@ class Tools:
     def readPdf(self, pdf_data):
         # Convierte los datos del archivo en un objeto StringIO
         #pdf = pdf_data.decode('utf-8')
-        pdf_stream = StringIO(pdf_data)
+        pdf_stream = BytesIO(pdf_data)
 
         # Lee el archivo PDF utilizando PyPDF2
         try:
