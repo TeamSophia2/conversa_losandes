@@ -2,6 +2,7 @@ import pandas as pd
 from io import StringIO
 import PyPDF4
 from langdetect import detect
+import fitz
 
 
 class Tools:
