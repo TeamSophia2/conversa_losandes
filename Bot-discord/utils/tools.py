@@ -36,6 +36,7 @@ class Tools:
         try:
             pdf_reader = PyPDF2.PdfFileReader(pdf_stream)
         except:
+            print("Error al leer el archivo PDF.")
             return None
 
         # Procesar el PDF y extraer el texto y el lenguaje
