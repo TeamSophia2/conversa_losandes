@@ -4,7 +4,6 @@ from discord.ext import commands
 from utils.tools import Tools
 from utils.databaseConnector import databaseConnector
 
-import tempfile
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
 
@@ -16,32 +15,37 @@ class BOT(commands.Cog):
     async def on_ready(self):
         print(f'Conectado como {self.bot.user}')
     
+
+    #Metodo encargado de recibir desde el canal de discord el archivo csv, lo valida y lo inserta
+    #a la base de datos
     @commands.command(name='addDocument')
     async def addDocument(self, ctx):
         message = ctx.message
-        # Verifica si se adjuntó un archivo al mensaje
+
+            # Verifica si se adjuntó un archivo al mensaje
         if len(message.attachments) > 0:
             file = message.attachments[0]
-            # Guarda el archivo en el sistema
+
             # Guardar el archivo adjunto en el directorio temporal
-            
             file_data = await file.read()
+
             # Lee y valida el archivo CSV
             tools = Tools()
             df = tools.readCSV(file_data)
+
             if df is not None:
                 await ctx.send('El archivo CSV cumple con las columnas requeridas.')
 
+                # Crear una instancia de DatabaseConnector
                 db_connector = databaseConnector()
 
-                # conectarse a la base de datos y agregar
-
+                # Conectarse a la base de datos y agregar información
                 db_connector.connect()
-
                 await ctx.send('Insertando en base de datos..')
                 db_connector.insertsDocuments(df)
-                await ctx.send('Informacion agregada a la base de datos')
+                await ctx.send('Información agregada a la base de datos.')
 
+                # Cerrar la conexión a la base de datos
                 db_connector.close()
             else:
                 await ctx.send('El archivo CSV no cumple con las columnas requeridas.')

@@ -1,7 +1,7 @@
 import pymysql
 import pandas as pd
 
-
+#Clase que se encarga de todo lo relacionado a la base de datos (conectarse, ingresarDatos...)
 class databaseConnector:
     def __init__(self):
         self.host = 'localhost'
@@ -27,11 +27,14 @@ class databaseConnector:
             self.connection.close()
             print("Conexión a la base de datos cerrada.")
 
+
+    #Metodo encargado de insertar el df a la base de datos. Este dataframe es el documento 
+    #csv ingresado al canal de discord y que ha sido validado anteriormente.
     def insertsDocuments(self, df):
         communeRegionData = pd.read_csv('utils/matchComunneRegion.csv')
 
         cursor = self.connection.cursor()
-             # Recorre el DataFrame y procesa los documentos
+        # Recorre el DataFrame y procesa los documentos
         for w, row in df.iterrows():
             # Extrae los valores del DataFrame
             doi = row['DOI']
@@ -50,7 +53,7 @@ class databaseConnector:
             else:
                 doi = None
 
-            # Inserta el registro en la tabla Documento sin proporcionar el valor de IDDocumento
+            # Inserta datos en la tabla Document
             query = "INSERT INTO Document (doi, url, documentType, publicationYear, title, content, abstract) VALUES (%s, %s, %s, %s, %s, %s, %s)"
             values = (
                 doi,
@@ -68,7 +71,6 @@ class databaseConnector:
             documentId = cursor.lastrowid
 
             # ingresa datos a Document_Category
-
             category_list = category.split(';')
             for category in category_list:
                 category = category.strip()
@@ -78,7 +80,6 @@ class databaseConnector:
                 result = cursor.fetchone()
 
                 if result:
-
                     # Inserta la relación en Documento_Tematica
                     cursor.execute(
                         "INSERT INTO Document_Category (documentId, categoryName) VALUES (%s, %s)", (documentId, category))
@@ -87,9 +88,11 @@ class databaseConnector:
                     # Si la temática no existe, manejar el caso
                     print(w)
 
+
+
+            #Insertar datos en tabla Author
             authors = [author.strip() for author in author.split(';')]
             for author in authors:
-
                 # Verifica si el autor ya existe en la tabla Author
                 query = "SELECT authorId FROM Author WHERE authorName = %s"
                 # Agrega strip() para eliminar espacios en blanco al inicio y final del nombre
@@ -100,7 +103,7 @@ class databaseConnector:
                 if result:
                     # Si el autor ya existe, no es necesario insertarlo nuevamente
                     # print(f"El autor '{author}' ya está registrado en la base de datos.")
-                    author_id = result[0]
+                    authorId = result[0]
                 else:
                     # Si el autor no existe, insertarlo en la tabla Author
                     query = "INSERT INTO Author (authorName) VALUES (%s)"
@@ -109,15 +112,16 @@ class databaseConnector:
 
                     cursor.execute(
                         "SELECT authorId FROM Author WHERE authorName = %s", (author,))
-                    author_id = cursor.fetchone()[0]
+                    authorId = cursor.fetchone()[0]
 
                 # Inserta la relación en Document_Author
                 cursor.execute(
-                    "INSERT INTO Document_Author (documentId, authorId) VALUES (%s, %s)", (documentId, author_id))
+                    "INSERT INTO Document_Author (documentId, authorId) VALUES (%s, %s)", (documentId, authorId))
                 self.connection.commit()
 
-            # Tabla Commune
 
+            
+            # Insertar datos en tabla Commune
             comunas = [str(c).strip() for c in str(row['COMUNAS']).split(
                 ',') if str(c).strip() and str(c).strip().lower() != 'nan']
             # Verificar si las comunas ya existen en la tabla Commune
@@ -132,13 +136,13 @@ class databaseConnector:
 
                 else:
                     # Buscar la región correspondiente en el DataFrame commune_region_df
-                    region_match = communeRegionData[communeRegionData['Comuna'] == comuna]
+                    regionMatch = communeRegionData[communeRegionData['Comuna'] == comuna]
 
                     # match
-                    if not region_match.empty:
-                        region = region_match['Región'].iloc[0]
-                        latitude = region_match['Latitud (Decimal)'].iloc[0]
-                        longitude = region_match['Longitud (decimal)'].iloc[0]
+                    if not regionMatch.empty:
+                        region = regionMatch['Región'].iloc[0]
+                        latitude = regionMatch['Latitud (Decimal)'].iloc[0]
+                        longitude = regionMatch['Longitud (decimal)'].iloc[0]
 
                         query = "INSERT INTO Commune (name, region, latitude, longitude) VALUES (%s, %s, %s, %s)"
                         values = (comuna, region, latitude, longitude)

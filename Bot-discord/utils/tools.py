@@ -6,6 +6,9 @@ from PyPDF2 import PdfReader
 
 
 class Tools:
+
+    #Metodo que lee un archivo csv, y valida que las columnas son las requeridas
+    #si cumple lo anterior devuelve un df, en caso contrario None
     def readCSV(self, file_data):
         # Convierte los datos del archivo en un objeto StringIO
         csv_data = file_data.decode('utf-8')
