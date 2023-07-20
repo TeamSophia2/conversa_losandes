@@ -28,7 +28,7 @@ class databaseConnector:
             print("Conexión a la base de datos cerrada.")
 
     def insertsDocuments(self, df):
-        commune_region_data = pd.read_csv('matchCommuneRegion.csv')
+        communeRegionData = pd.read_csv('utils/matchComunneRegion.csv')
 
         cursor = self.connection.cursor()
              # Recorre el DataFrame y procesa los documentos
@@ -132,7 +132,7 @@ class databaseConnector:
 
                 else:
                     # Buscar la región correspondiente en el DataFrame commune_region_df
-                    region_match = commune_region_data[commune_region_data['Comuna'] == comuna]
+                    region_match = communeRegionData[communeRegionData['Comuna'] == comuna]
 
                     # match
                     if not region_match.empty:

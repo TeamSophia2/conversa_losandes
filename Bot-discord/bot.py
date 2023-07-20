@@ -30,14 +30,17 @@ class BOT(commands.Cog):
             tools = Tools()
             df = tools.readCSV(file_data)
             if df is not None:
-                await ctx.send('El archivo CSV ha sido validado correctamente.')
+                await ctx.send('El archivo CSV cumple con las columnas requeridas.')
 
                 db_connector = databaseConnector()
 
                 # conectarse a la base de datos y agregar
 
                 db_connector.connect()
+
+                await ctx.send('Insertando en base de datos..')
                 db_connector.insertsDocuments(df)
+                await ctx.send('Informacion agregada a la base de datos')
 
                 db_connector.close()
             else:
