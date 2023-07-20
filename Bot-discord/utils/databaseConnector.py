@@ -28,7 +28,7 @@ class databaseConnector:
             print("Conexión a la base de datos cerrada.")
 
     def insertsDocuments(self, df):
-        commune_region_data = pd.read_csv('match comunas regiones.csv')
+        commune_region_data = pd.read_csv('matchCommuneRegion.csv')
 
         cursor = self.connection.cursor()
              # Recorre el DataFrame y procesa los documentos
