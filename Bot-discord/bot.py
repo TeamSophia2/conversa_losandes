@@ -1,8 +1,9 @@
 import os
-import random
 import discord
 from discord.ext import commands
 from utils.tools import Tools
+from utils.databaseConnector import databaseConnector
+
 import tempfile
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
@@ -30,8 +31,15 @@ class BOT(commands.Cog):
             df = tools.readCSV(file_data)
             if df is not None:
                 await ctx.send('El archivo CSV ha sido validado correctamente.')
-                #print(df)
+
+                db_connector = databaseConnector()
+
                 # conectarse a la base de datos y agregar
+
+                db_connector.connect()
+                db_connector.insertsDocuments(df)
+
+                db_connector.close()
             else:
                 await ctx.send('El archivo CSV no cumple con las columnas requeridas.')
         else:
