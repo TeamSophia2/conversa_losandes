@@ -2,7 +2,7 @@ import pymysql
 import pandas as pd
 
 #Clase que se encarga de todo lo relacionado a la base de datos (conectarse, ingresarDatos...)
-class databaseConnector:
+class DatabaseConnector:
     def __init__(self):
         self.host = 'localhost'
         self.user = 'andes'
