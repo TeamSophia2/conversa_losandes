@@ -6,7 +6,7 @@ class databaseConnector:
     def __init__(self):
         self.host = 'localhost'
         self.user = 'andes'
-        self.password = 'andes123'
+        self.password = 'andes'
         self.database = 'andes'
         self.connection = None
 
