@@ -1,21 +1,24 @@
 import os
+
+from utils.databaseConnector import databaseConnector
+from utils.scraper import Scraper
+import asyncio
 import discord
 from discord.ext import commands
 from utils.tools import Tools
-from utils.databaseConnector import DatabaseConnector
-
-import tempfile
+import pandas as pd
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
+
 
 class BOT(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        
+
     @commands.Cog.listener()
     async def on_ready(self):
         print(f'Conectado como {self.bot.user}')
-    
+
     @commands.command(name='addDocument')
     async def addDocument(self, ctx):
         message = ctx.message
@@ -23,32 +26,46 @@ class BOT(commands.Cog):
         if len(message.attachments) > 0:
             file = message.attachments[0]
             # Guarda el archivo en el sistema
-            # Guardar el archivo adjunto en el directorio temporal
-            
-            file_data = await file.read()
+            with open('documento.csv', 'wb') as f:
+                await file.save(f)
+
             # Lee y valida el archivo CSV
             tools = Tools()
-            df = tools.readCsv(file_data)
+            df = tools.readCSV('documento.csv')
             if df is not None:
-                await ctx.send('El archivo CSV ha sido validado correctamente.')
-
-                databaseConnector = DatabaseConnector()
+                await ctx.send('El archivo CSV cumple con las columnas requeridas')
+                # print(df)
+                db_connector = databaseConnector()
 
                 # conectarse a la base de datos y agregar
-                databaseConnector.connect()
-                await ctx.send('Insertando en base de datos..')
 
-                databaseConnector.insertsDocuments(df)
+                db_connector.connect()
+                db_connector.insertsDocuments(df)
 
-                await ctx.send('Información agregada a la base de datos.')
+                db_connector.close()
 
-                databaseConnector.close()
+                scraper = Scraper()
+
+                tasks = []
+                for _, row in df.iterrows():
+                    title = row['TÍTULO']
+                    url = row['Enlace']
+                    if pd.notna(url) and url.strip().lower() != 'nan':
+                        task = asyncio.create_task(
+                            scraper.downloadDocument(title, url))
+                        tasks.append(task)
+                    else:
+                        print(
+                            f"El documento '{title}' no tiene una URL válida. Se omitirá la descarga.")
+
+                # Esperar a que todas las tareas de descarga terminen
+                await asyncio.gather(*tasks)
+
             else:
                 await ctx.send('El archivo CSV no cumple con las columnas requeridas.')
         else:
             await ctx.send('No se ha adjuntado ningún archivo al mensaje.')
-    
-    
+
     @commands.command(name='addPdf')
     async def addPdf(self, ctx):
         message = ctx.message
@@ -71,7 +88,8 @@ class BOT(commands.Cog):
 
                     # Divide el contenido del DataFrame en partes más pequeñas
                     MAX_MESSAGE_LENGTH = 1500
-                    messages = [df_str[i:i + MAX_MESSAGE_LENGTH] for i in range(0, len(df_str), MAX_MESSAGE_LENGTH)]
+                    messages = [df_str[i:i + MAX_MESSAGE_LENGTH]
+                                for i in range(0, len(df_str), MAX_MESSAGE_LENGTH)]
 
                     # Envía cada parte del mensaje en Discord
                     for i, message in enumerate(messages, start=1):
@@ -89,6 +107,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
+
 
 @bot.event
 async def on_ready():

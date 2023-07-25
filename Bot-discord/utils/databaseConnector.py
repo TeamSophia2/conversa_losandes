@@ -1,7 +1,9 @@
 import pymysql
 import pandas as pd
 
-#Clase que se encarga de todo lo relacionado a la base de datos (conectarse, ingresarDatos...)
+# Clase que se encarga de todo lo relacionado a la base de datos (conectarse, ingresarDatos...)
+
+
 class DatabaseConnector:
     def __init__(self):
         self.host = 'localhost'
@@ -27,9 +29,9 @@ class DatabaseConnector:
             self.connection.close()
             print("Conexión a la base de datos cerrada.")
 
+    # Metodo encargado de insertar el df a la base de datos. Este dataframe es el documento
+    # csv ingresado al canal de discord y que ha sido validado anteriormente.
 
-    #Metodo encargado de insertar el df a la base de datos. Este dataframe es el documento 
-    #csv ingresado al canal de discord y que ha sido validado anteriormente.
     def insertsDocuments(self, df):
         communeRegionData = pd.read_csv('utils/matchComunneRegion.csv')
 
@@ -88,9 +90,7 @@ class DatabaseConnector:
                     # Si la temática no existe, manejar el caso
                     print(w)
 
-
-
-            #Insertar datos en tabla Author
+            # Insertar datos en tabla Author
             authors = [author.strip() for author in author.split(';')]
             for author in authors:
                 # Verifica si el autor ya existe en la tabla Author
@@ -119,8 +119,6 @@ class DatabaseConnector:
                     "INSERT INTO Document_Author (documentId, authorId) VALUES (%s, %s)", (documentId, authorId))
                 self.connection.commit()
 
-
-            
             # Insertar datos en tabla Commune
             comunas = [str(c).strip() for c in str(row['COMUNAS']).split(
                 ',') if str(c).strip() and str(c).strip().lower() != 'nan']
@@ -168,3 +166,16 @@ class DatabaseConnector:
                     # Inserta la relación en Document_Commune
                 cursor.execute(
                     "INSERT INTO Document_Commune (documentId, communeId) VALUES (%s, %s)", (documentId, communeId))
+
+    def insertDocumentData(self, title, pdf_text):
+        cursor = self.connection.cursor()
+
+        # Verificar si el título del documento ya existe en la base de datos.
+        cursor.execute(
+            "SELECT COUNT(*) FROM Document WHERE title = %s", (title,))
+        if cursor.fetchone()[0] > 0:
+            # Actualizar el campo content con el contenido del PDF
+            query = "UPDATE Document SET content = %s WHERE title = %s"
+            values = (pdf_text, title)
+            cursor.execute(query, values)
+            self.connection.commit()
