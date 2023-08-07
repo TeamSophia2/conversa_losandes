@@ -1,5 +1,4 @@
 import os
-
 from utils.databaseConnector import databaseConnector
 from utils.scraper import Scraper
 import asyncio
