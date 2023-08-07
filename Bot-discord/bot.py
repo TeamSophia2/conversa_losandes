@@ -38,6 +38,7 @@ class BOT(commands.Cog):
                 # conectarse a la base de datos y agregar
 
                 db_connector.connect()
+                await ctx.send('Insertando en base de datos..')
                 db_connector.insertDocuments(df)
 
                 db_connector.close()
@@ -60,6 +61,8 @@ class BOT(commands.Cog):
 
                 # Esperar a que todas las tareas de descarga terminen (opcional, puede que no sea necesario)
                 await asyncio.gather(*tasks)
+
+                await ctx.send('Información agregada a la base de datos.')
 
             else:
                 await ctx.send('El archivo CSV no cumple con las columnas requeridas.')
