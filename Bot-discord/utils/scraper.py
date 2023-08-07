@@ -23,7 +23,7 @@ class Scraper:
                 # Utilizar asyncio.to_thread para hacer la llamada síncrona a requests.get en un subproceso
                 response = await asyncio.to_thread(requests.get, url)
                 if response.status_code == 200:
-                    pdf_file = f"/home/conversa_losandes/fernando/{title}.pdf"
+                    pdf_file = f"../fernando/{title}.pdf"
                     with open(pdf_file, "wb") as file:
                         file.write(response.content)
 
