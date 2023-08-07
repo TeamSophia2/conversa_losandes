@@ -104,6 +104,10 @@ class BOT(commands.Cog):
         else:
             await ctx.send('No se ha adjuntado ningún archivo al mensaje.')
 
+    @commands.command(name='ping')
+    async def ping(self, ctx):
+        await ctx.send('Pong!')
+
 
 intents = discord.Intents.default()
 intents.message_content = True
