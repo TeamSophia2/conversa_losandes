@@ -1,12 +1,11 @@
 import pandas as pd
 from io import StringIO, BytesIO
-import pdfplumber
 from langdetect import detect
 import PyPDF2
 from utils.databaseConnector import databaseConnector
 
 
-class Tools:
+class Tools: 
 
     # Metodo que lee un archivo csv, y valida que las columnas son las requeridas
     # si cumple lo anterior devuelve un df, en caso contrario None

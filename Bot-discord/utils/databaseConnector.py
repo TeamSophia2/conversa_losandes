@@ -4,7 +4,7 @@ import pandas as pd
 # Clase que se encarga de todo lo relacionado a la base de datos (conectarse, ingresarDatos...)
 
 
-class DatabaseConnector:
+class databaseConnector:
     def __init__(self):
         self.host = 'localhost'
         self.user = 'andes'
@@ -32,7 +32,7 @@ class DatabaseConnector:
     # Metodo encargado de insertar el df a la base de datos. Este dataframe es el documento
     # csv ingresado al canal de discord y que ha sido validado anteriormente.
 
-    def insertsDocuments(self, df):
+    def insertDocuments(self, df):
         communeRegionData = pd.read_csv('utils/matchComunneRegion.csv')
 
         cursor = self.connection.cursor()
