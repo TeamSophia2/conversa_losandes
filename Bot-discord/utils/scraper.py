@@ -1,31 +1,55 @@
 import os
 import requests
 from utils.tools import Tools
+import asyncio
+import os
 
+from utils.tools import Tools
+from utils.databaseConnector import databaseConnector
 
 class Scraper:
+    def __init__(self):
+        self.tools = Tools()
+
+        self.download_and_save_queue = asyncio.Queue()
+
+        # Iniciar el procesamiento de la cola en segundo plano
+        asyncio.create_task(self.process_download_and_save_queue())
 
     async def downloadDocument(self, title, url):
+        print(url)
         if url:
-            # Descargar el PDF desde el enlace proporcionado
-            response = requests.get(url)
-            if response.status_code == 200:
-                # Guardar el PDF en el sistema local con el título como nombre de archivo
-                pdf_file = f"{title}.pdf"
-                with open(pdf_file, "wb") as file:
-                    file.write(response.content)
+            try:
+                # Utilizar asyncio.to_thread para hacer la llamada síncrona a requests.get en un subproceso
+                response = await asyncio.to_thread(requests.get, url)
+                if response.status_code == 200:
+                    pdf_file = f"{title}.pdf"
+                    with open(pdf_file, "wb") as file:
+                        file.write(response.content)
 
-                # Crear una instancia de la clase Tools
-                tools = Tools()
+                    # Agregar la tarea de descarga y guardado en la base de datos a la cola
+                    await self.download_and_save_queue.put((pdf_file, title))
 
-                # Utilizar el método readPdf para obtener el texto del PDF
-                tools.readPdf(pdf_file, title)
-
-                os.remove(pdf_file)
-
-            else:
-                print(
-                    f"La URL '{url}' no es válida. No se puede descargar el PDF.")
-
+                else:
+                    print(f"La URL '{url}' no es válida. No se puede descargar el PDF.")
+            except Exception as e:
+                print(f"Error al descargar el PDF desde '{url}': {e}")
         else:
             print("El campo 'url' está vacío o contiene un valor inválido.")
+
+
+
+    async def process_download_and_save_queue(self):
+        while True:
+            # Esperar a que haya una tarea en la cola
+            task = await self.download_and_save_queue.get()
+            if task is None:
+                # Si la tarea es None, significa que se ha terminado y se debe salir del bucle
+                break
+
+            pdf_file, title = task
+            # Usar asyncio.to_thread para leer el contenido del PDF en un subproceso
+            await asyncio.to_thread(self.tools.readPdf, pdf_file, title)
+
+            # Eliminar el archivo PDF después de leer el contenido
+            os.remove(pdf_file)

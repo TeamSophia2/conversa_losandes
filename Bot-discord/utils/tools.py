@@ -59,22 +59,29 @@ class Tools:
     """
 
     # funcion para leer el pdf descagado y guardarlo en la base de datos
-    def readPdf(self, pdfFile, title):
-        # Lee el archivo PDF
-        # Utilizar PyPDF2 para extraer el texto del PDF
-        pdfText = ""
-        with open(pdfFile, "rb") as file:
-            pdf_reader = PyPDF2.PdfReader(pdfFile)
-            num_pages = len(pdf_reader.pages)
-            for pageNum in range(num_pages):
-                page = pdf_reader.pages[pageNum]
-                pdfText += page.extract_text()
+    def readPdf(self,pdfFile, title):
+            # Lee el archivo PDF
+            # Utilizar PyPDF2 para extraer el texto del PDF
+            try:
+                pdfText = ""
+                with open(pdfFile, "rb") as file:
+                    pdfReader = PyPDF2.PdfReader(file)
+                    numPages = len(pdfReader.pages)
+                    for pageNum in range(numPages):
+                        page = pdfReader.pages[pageNum]
+                        pdfText += page.extract_text()
 
-        dbConnector = databaseConnector()
 
-        # conectarse a la base de datos y agregar
+                
+                if pdfText is not None:
+                    # Inserción del documento en la base de datos
+                    dbConnector = databaseConnector()
+                    dbConnector.connect()
+                    dbConnector.insertDocumentData(title, pdfText)
+                    dbConnector.close()
+                    print(f"Documento '{title}' insertado en la base de datos.")
+                else:
+                    print(f"No se pudo leer el contenido del PDF '{title}'.")
 
-        dbConnector.connect()
-        # Llamar al método insertDocumentData de la clase DatabaseConnector para guardar la información en la base de datos
-        dbConnector.insertDocumentData(title, pdfText)
-        dbConnector.close()
+            except Exception as e:
+                print(f"Error en la lectura del PDF '{pdfFile}': {e}")

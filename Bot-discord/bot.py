@@ -40,17 +40,19 @@ class BOT(commands.Cog):
                 # conectarse a la base de datos y agregar
 
                 db_connector.connect()
-                db_connector.insertsDocuments(df)
+                db_connector.insertDocuments(df)
 
                 db_connector.close()
 
                 scraper = Scraper()
 
+                # inicia las descargas y el guardado en la base de datos en segundo plano
                 tasks = []
                 for _, row in df.iterrows():
                     title = row['TÍTULO']
                     url = row['Enlace']
                     if pd.notna(url) and url.strip().lower() != 'nan':
+                        # Pasa el semáforo a la tarea para limitar las descargas simultáneas
                         task = asyncio.create_task(
                             scraper.downloadDocument(title, url))
                         tasks.append(task)
@@ -58,7 +60,7 @@ class BOT(commands.Cog):
                         print(
                             f"El documento '{title}' no tiene una URL válida. Se omitirá la descarga.")
 
-                # Esperar a que todas las tareas de descarga terminen
+                # Esperar a que todas las tareas de descarga terminen (opcional, puede que no sea necesario)
                 await asyncio.gather(*tasks)
 
             else:

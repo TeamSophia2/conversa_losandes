@@ -209,6 +209,7 @@ class DatabaseConnector:
                 print(f"El título '{title}' existe en la base de datos.")
 
     def insertDocumentData(self, title, pdf_text):
+        #print("hola")
         cursor = self.connection.cursor()
 
         # Verificar si el título del documento ya existe en la base de datos.
@@ -220,3 +221,4 @@ class DatabaseConnector:
             values = (pdf_text, title)
             cursor.execute(query, values)
             self.connection.commit()
+            print(f"Nuevo documento '{title}' insertado en la base de datos.")
