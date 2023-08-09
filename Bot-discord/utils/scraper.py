@@ -1,5 +1,5 @@
 import os
-import httpx
+import requests
 from utils.tools import Tools
 import asyncio
 import os
@@ -20,19 +20,19 @@ class Scraper:
         print(url)
         if url:
             try:
-                async with httpx.AsyncClient() as client:
-                    response = await client.get(url)
-                    if response.status_code == 200:
-                        pdf_file = f"../../fernando/{title}.pdf"
-                        with open(pdf_file, "wb") as file:
-                            file.write(response.content)
+                # Utilizar asyncio.to_thread para hacer la llamada síncrona a requests.get en un subproceso
+                response = await asyncio.to_thread(requests.get, url)
+                if response.status_code == 200:
+                    pdf_file = f"../../fernando/{title}.pdf"
+                    with open(pdf_file, "wb") as file:
+                        file.write(response.content)
 
-                        print(1)
-                        # Agregar la tarea de descarga y guardado en la base de datos a la cola
-                        await self.download_and_save_queue.put((pdf_file, title))
+                    print(1)
+                    # Agregar la tarea de descarga y guardado en la base de datos a la cola
+                    await self.download_and_save_queue.put((pdf_file, title))
 
-                    else:
-                        print(f"La URL '{url}' no es válida. No se puede descargar el PDF.")
+                else:
+                    print(f"La URL '{url}' no es válida. No se puede descargar el PDF.")
             except Exception as e:
                 print(f"Error al descargar el PDF desde '{url}': {e}")
         else:

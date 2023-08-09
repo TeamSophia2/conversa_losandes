@@ -82,7 +82,7 @@ class BOT(commands.Cog):
 
                 # Lee y valida el archivo PDF
                 tools = Tools()
-                df = tools.readPdf(pdf_data)
+                df = tools.readCsv(pdf_data)
 
                 if df is not None:
                     await ctx.send('El archivo PDF ha sido procesado correctamente.')
