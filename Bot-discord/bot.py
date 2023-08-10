@@ -6,6 +6,7 @@ import discord
 from discord.ext import commands
 from utils.tools import Tools
 import pandas as pd
+from elasticsearch import Elasticsearch
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
 
@@ -13,6 +14,7 @@ TOKEN = os.environ.get('DISCORD_TOKEN')
 class BOT(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.es = Elasticsearch(["http://localhost:9200"])
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -108,6 +110,36 @@ class BOT(commands.Cog):
     @commands.command(name='ping')
     async def ping(self, ctx):
         await ctx.send('Pong!')
+
+
+    @commands.command(name='search')
+    async def buscar(self, ctx, *, palabra_clave):
+        # Realiza una consulta a Elasticsearch para buscar documentos que contengan la palabra clave en el título o abstract
+        query = {
+            "query": {
+                "multi_match": {
+                    "query": palabra_clave,
+                    "fields": ["title", "abstract"]
+                }
+            }
+        }
+        
+        # Realiza la búsqueda en Elasticsearch
+        response = self.es.search(index="documentos", body=query)
+        
+        # Procesa los resultados y envía los mensajes en Discord
+        if "hits" in response and "hits" in response["hits"]:
+            hits = response["hits"]["hits"]
+            for i, hit in enumerate(hits, start=1):
+                source = hit["_source"]
+                title = source.get("title", "Sin título")
+                abstract = source.get("abstract", "Sin resumen")
+                await ctx.send(f"Resultado {i}:\nTítulo: {title}\nResumen: {abstract}\n")
+        else:
+            await ctx.send("No se encontraron resultados para la palabra clave proporcionada.")
+
+
+    
 
 
 intents = discord.Intents.default()
