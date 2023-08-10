@@ -225,22 +225,24 @@ class BOT(commands.Cog):
             await ctx.send("Ocurrió un error al buscar la linea temática **{}**.".format(principal_categoria))
 
 
+    @commands.command(name='commands')
+    async def commands(self, ctx):
+        help_message = (
+            "**Comandos disponibles:**\n"
+            "`!addManualDocument`: Agrega un documento manualmente. Uso: `!addManualDocument datos_del_documento`.\n"
+            "`!addDocument`: Agrega documentos desde un archivo CSV adjunto. Uso: `!addDocument`.\n"
+            "`!search palabra_clave`: Busca documentos por palabra clave en el título o abstract. Uso: `!search palabra_clave`.\n"
+            "`!searchTematicLine tematic`: Busca documentos por linea temática. Uso: `!searchTematicLine principal_categoria`."
+        )
+        await ctx.send(help_message)
+
+
+
 intents = discord.Intents.default()
 intents.message_content = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
-
-@bot.command(name='help')
-async def help_command(self, ctx):
-    help_message = (
-        "**Comandos disponibles:**\n"
-        "`!addManualDocument`: Agrega un documento manualmente. Uso: `!addManualDocument datos_del_documento`.\n"
-        "`!addDocument`: Agrega documentos desde un archivo CSV adjunto. Uso: `!addDocument`.\n"
-        "`!search palabra_clave`: Busca documentos por palabra clave en el título o abstract. Uso: `!search palabra_clave`.\n"
-        "`!searchTematicLine tematic`: Busca documentos por linea temática. Uso: `!searchTematicLine principal_categoria`."
-    )
-    await ctx.send(help_message)
 
 
 @bot.event
