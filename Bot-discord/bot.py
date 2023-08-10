@@ -163,7 +163,7 @@ class BOT(commands.Cog):
                 for hit in hits:
                     doc = hit["_source"]
                     result_message += "- **Título**: {}\n".format(doc["title"])
-                    result_message += "  **Resumen**: {}\n".format(doc["abstract"])
+                    result_message += "  **URL**: {}\n".format(doc["url"])
                     result_message += "\n"
                 await ctx.send(result_message)
             else:
