@@ -159,13 +159,13 @@ class BOT(commands.Cog):
             hits = response["hits"]["hits"]
             if len(hits) > 0:
                 # Construye y envía el mensaje con los resultados
-                result_message = "Resultados para la principal categoría **{}**:\n".format(principal_categoria)
+                result_message = "Resultados para la linea temática **{}**:\n".format(principal_categoria)
                 for hit in hits:
                     doc = hit["_source"]
                     result_message += "- **Título**: {}\n".format(doc["title"])
                     result_message += "  **URL**: {}\n".format(doc["url"])
                     result_message += "\n"
-                    
+
                 await ctx.send(result_message)
             else:
                 await ctx.send("No se encontraron resultados para la linea temática**{}**.".format(principal_categoria))
