@@ -165,6 +165,7 @@ class BOT(commands.Cog):
                     result_message += "- **Título**: {}\n".format(doc["title"])
                     result_message += "  **URL**: {}\n".format(doc["url"])
                     result_message += "\n"
+                    
                 await ctx.send(result_message)
             else:
                 await ctx.send("No se encontraron resultados para la linea temática**{}**.".format(principal_categoria))
