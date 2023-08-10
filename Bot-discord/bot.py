@@ -20,6 +20,56 @@ class BOT(commands.Cog):
     async def on_ready(self):
         print(f'Conectado como {self.bot.user}')
 
+    @commands.command(name='addManualDocument')
+    async def addManualDocument(self, ctx, *, data_str: str):
+        # Parsea los datos ingresados manualmente
+        inputData = data_str.split(',')
+        if len(inputData) != 10:  # Ajusta este valor según el número de columnas en tu CSV
+            await ctx.send("El formato no es válido. Asegúrate de proporcionar todos los datos requeridos.")
+            return
+
+        # Obtener los datos ingresados manualmente
+        lt, authors, title, año, revista, doi, categoria, region, comunas, url = map(str.strip, inputData)
+
+        # Realiza el procesamiento de los datos y agrega el documento a la base de datos
+        db_connector = databaseConnector()
+        db_connector.connect()
+
+        # Creamos un DataFrame a partir de los datos ingresados manualmente
+        data = {
+            "LT": [lt],
+            "AUTORES/AS": [authors],
+            "TÍTULO": [title],
+            "AÑO": [año],
+            "REVISTA": [revista],
+            "DOI": [doi],
+            "CATEGORÍA": [categoria],
+            "REGIÓN": [region],
+            "COMUNAS": [comunas],
+            "Enlace": [url if url.lower() != 'no' else None],
+        }
+        df = pd.DataFrame(data)
+        # Realizar el mismo proceso que en el comando !addDocument para guardar el documento en la base de datos
+        await db_connector.insertDocuments(df)
+        db_connector.close()
+
+        scraper = Scraper()
+        tasks = []
+        for _, row in df.iterrows():
+            title = row['TÍTULO']
+            url = row['Enlace']
+            if pd.notna(url) and url.strip().lower() != 'nan':
+                task = asyncio.create_task(scraper.downloadDocument(title, url))
+                tasks.append(task)
+            else:
+                print(f"El documento '{title}' no tiene una URL válida. Se omitirá la descarga.")
+
+        # Esperar a que todas las tareas de descarga terminen
+        await asyncio.gather(*tasks)
+
+        await ctx.send('Documento agregado.')
+
+
     @commands.command(name='addDocument')
     async def addDocument(self, ctx):
         message = ctx.message
@@ -171,6 +221,9 @@ class BOT(commands.Cog):
                 await ctx.send("No se encontraron resultados para la linea temática**{}**.".format(principal_categoria))
         else:
             await ctx.send("Ocurrió un error al buscar la linea temática **{}**.".format(principal_categoria))
+
+
+
 
 
 
