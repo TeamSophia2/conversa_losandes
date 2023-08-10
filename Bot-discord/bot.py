@@ -50,7 +50,7 @@ class BOT(commands.Cog):
         }
         df = pd.DataFrame(data)
         # Realizar el mismo proceso que en el comando !addDocument para guardar el documento en la base de datos
-        await db_connector.insertDocuments(df)
+        db_connector.insertDocuments(df)
         db_connector.close()
 
         scraper = Scraper()
