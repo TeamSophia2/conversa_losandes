@@ -232,7 +232,7 @@ class BOT(commands.Cog):
             "`!addManualDocument`: Agrega un documento manualmente. Uso: `!addManualDocument datos_del_documento`.\n"
             "`!addDocument`: Agrega documentos desde un archivo CSV adjunto. Uso: `!addDocument`.\n"
             "`!search palabra_clave`: Busca documentos por palabra clave en el título o abstract. Uso: `!search palabra_clave`.\n"
-            "`!searchTematicLine tematic`: Busca documentos por linea temática. Uso: `!searchTematicLine principal_categoria`."
+            "`!searchTematicLine tematica`: Busca documentos por linea temática. Uso: `!searchTematicLine tematica`."
         )
         await ctx.send(help_message)
 
