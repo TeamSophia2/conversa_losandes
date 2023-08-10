@@ -163,11 +163,7 @@ class BOT(commands.Cog):
                 for hit in hits:
                     doc = hit["_source"]
                     result_message += "- **Título**: {}\n".format(doc["title"])
-                    result_message += "  **Subcategoría**: {}\n".format(", ".join(doc["categories"]))
                     result_message += "  **Resumen**: {}\n".format(doc["abstract"])
-                    result_message += "  **Autor(es)**: {}\n".format(", ".join(doc["authors"]))
-                    result_message += "  **Año de publicación**: {}\n".format(doc["publicationYear"])
-                    result_message += "  **URL**: {}\n".format(doc["url"])
                     result_message += "\n"
                 await ctx.send(result_message)
             else:
