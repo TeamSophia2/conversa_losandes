@@ -92,11 +92,13 @@ class BOT(commands.Cog):
                 # conectarse a la base de datos y agregar
 
                 db_connector.connect()
-                await ctx.send('Descargando documentos..')
                 db_connector.insertDocuments(df)
 
                 db_connector.close()
 
+                await ctx.send('Información del archivo CSV guardado en la base de datos')
+
+                await ctx.send('Descargando documentos..')
                 scraper = Scraper()
 
                 # inicia las descargas y el guardado en la base de datos en segundo plano
@@ -224,7 +226,6 @@ class BOT(commands.Cog):
         else:
             await ctx.send("Ocurrió un error al buscar la linea temática **{}**.".format(principal_categoria))
 
-
     @commands.command(name='commands')
     async def commands(self, ctx):
         help_message = (
@@ -237,12 +238,10 @@ class BOT(commands.Cog):
         await ctx.send(help_message)
 
 
-
 intents = discord.Intents.default()
 intents.message_content = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
-
 
 
 @bot.event
