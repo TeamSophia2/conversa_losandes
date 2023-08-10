@@ -156,6 +156,20 @@ class BOT(commands.Cog):
         else:
             await ctx.send('No se ha adjuntado ningún archivo al mensaje.')
 
+    @commands.command(name='help')
+    async def help_command(ctx):
+        help_message = (
+            "**Comandos disponibles:**\n"
+            "`!addManualDocument`: Agrega un documento manualmente. Uso: `!addManualDocument datos_del_documento`.\n"
+            "`!addDocument`: Agrega documentos desde un archivo CSV adjunto. Uso: `!addDocument`.\n"
+            "`!search palabra_clave`: Busca documentos por palabra clave en el título o abstract. Uso: `!search palabra_clave`.\n"
+            "`!searchTematicLine principal_categoria`: Busca documentos por principal categoría. Uso: `!searchTematicLine principal_categoria`."
+        )
+        await ctx.send(help_message)
+
+
+
+
     @commands.command(name='ping')
     async def ping(self, ctx):
         await ctx.send('Pong!')
