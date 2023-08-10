@@ -26,8 +26,6 @@ class Scraper:
                     pdf_file = f"../../fernando/{title}.pdf"
                     with open(pdf_file, "wb") as file:
                         file.write(response.content)
-
-                    print(1)
                     # Agregar la tarea de descarga y guardado en la base de datos a la cola
                     await self.download_and_save_queue.put((pdf_file, title))
 

@@ -161,7 +161,7 @@ class databaseConnector:
                         # no match
                         else:
                             # Insertar la comuna en la tabla Commune con los campos region, latitude y longitude como NULL
-                            # print(f"No se encontró la región para la comuna '{comuna}'. Se debe realizar el match manualmente.")
+                            print(f"No se encontró la región para la comuna '{comuna}'. Se debe realizar el match manualmente.")
                             query = "INSERT INTO Commune (name, region, latitude, longitude) VALUES (%s, NULL, NULL, NULL)"
                             values = (comuna,)
                             cursor.execute(query, values)

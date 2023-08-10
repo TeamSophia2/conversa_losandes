@@ -103,7 +103,6 @@ class BOT(commands.Cog):
                     title = row['TÍTULO']
                     url = row['Enlace']
                     if pd.notna(url) and url.strip().lower() != 'nan':
-                        # Pasa el semáforo a la tarea para limitar las descargas simultáneas
                         task = asyncio.create_task(
                             scraper.downloadDocument(title, url))
                         tasks.append(task)
