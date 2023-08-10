@@ -112,6 +112,7 @@ class BOT(commands.Cog):
         await ctx.send('Pong!')
 
 
+    #busca en el titulo y en abstract alguna palabra clave
     @commands.command(name='search')
     async def buscar(self, ctx, *, palabra_clave):
         # Realiza una consulta a Elasticsearch para buscar documentos que contengan la palabra clave en el título o abstract
@@ -139,7 +140,42 @@ class BOT(commands.Cog):
             await ctx.send("No se encontraron resultados para la palabra clave proporcionada.")
 
 
-    
+    #busca en principalCategory 
+    @commands.command(name='searchTematicLine')
+    async def buscar_por_principal_categoria(self, ctx, principal_categoria):
+        # Realiza la búsqueda en Elasticsearch por la principal categoría especificada
+        search_body = {
+            "query": {
+                "match": {
+                    "principalCategory": principal_categoria
+                }
+            }
+        }
+
+        response = self.es.search(index="documentos", body=search_body)
+
+        # Procesa y muestra los resultados
+        if "hits" in response and "hits" in response["hits"]:
+            hits = response["hits"]["hits"]
+            if len(hits) > 0:
+                # Construye y envía el mensaje con los resultados
+                result_message = "Resultados para la principal categoría **{}**:\n".format(principal_categoria)
+                for hit in hits:
+                    doc = hit["_source"]
+                    result_message += "- **Título**: {}\n".format(doc["title"])
+                    result_message += "  **Subcategoría**: {}\n".format(", ".join(doc["categories"]))
+                    result_message += "  **Resumen**: {}\n".format(doc["abstract"])
+                    result_message += "  **Autor(es)**: {}\n".format(", ".join(doc["authors"]))
+                    result_message += "  **Año de publicación**: {}\n".format(doc["publicationYear"])
+                    result_message += "  **URL**: {}\n".format(doc["url"])
+                    result_message += "\n"
+                await ctx.send(result_message)
+            else:
+                await ctx.send("No se encontraron resultados para la linea temática**{}**.".format(principal_categoria))
+        else:
+            await ctx.send("Ocurrió un error al buscar la linea temática **{}**.".format(principal_categoria))
+
+
 
 
 intents = discord.Intents.default()
