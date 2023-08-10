@@ -157,7 +157,7 @@ class BOT(commands.Cog):
             await ctx.send('No se ha adjuntado ningún archivo al mensaje.')
 
     @commands.command(name='help')
-    async def help(ctx):
+    async def help_command(self, ctx):
         help_message = (
             "**Comandos disponibles:**\n"
             "`!addManualDocument`: Agrega un documento manualmente. Uso: `!addManualDocument datos_del_documento`.\n"
