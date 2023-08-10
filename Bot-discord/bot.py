@@ -29,7 +29,8 @@ class BOT(commands.Cog):
             return
 
         # Obtener los datos ingresados manualmente
-        lt, authors, title, año, revista, doi, categoria, region, comunas, url = map(str.strip, inputData)
+        lt, authors, title, año, revista, doi, categoria, region, comunas, url = map(
+            str.strip, inputData)
 
         # Realiza el procesamiento de los datos y agrega el documento a la base de datos
         db_connector = databaseConnector()
@@ -59,16 +60,17 @@ class BOT(commands.Cog):
             title = row['TÍTULO']
             url = row['Enlace']
             if pd.notna(url) and url.strip().lower() != 'nan':
-                task = asyncio.create_task(scraper.downloadDocument(title, url))
+                task = asyncio.create_task(
+                    scraper.downloadDocument(title, url))
                 tasks.append(task)
             else:
-                print(f"El documento '{title}' no tiene una URL válida. Se omitirá la descarga.")
+                print(
+                    f"El documento '{title}' no tiene una URL válida. Se omitirá la descarga.")
 
         # Esperar a que todas las tareas de descarga terminen
         await asyncio.gather(*tasks)
 
         await ctx.send('Documento agregado.')
-
 
     @commands.command(name='addDocument')
     async def addDocument(self, ctx):
@@ -76,7 +78,7 @@ class BOT(commands.Cog):
         # Verifica si se adjuntó un archivo al mensaje
         if len(message.attachments) > 0:
             file = message.attachments[0]
-            
+
             fileData = await file.read()
 
             # Lee y valida el archivo CSV
@@ -156,26 +158,12 @@ class BOT(commands.Cog):
         else:
             await ctx.send('No se ha adjuntado ningún archivo al mensaje.')
 
-    @commands.command(name='help')
-    async def help_command(self, ctx):
-        help_message = (
-            "**Comandos disponibles:**\n"
-            "`!addManualDocument`: Agrega un documento manualmente. Uso: `!addManualDocument datos_del_documento`.\n"
-            "`!addDocument`: Agrega documentos desde un archivo CSV adjunto. Uso: `!addDocument`.\n"
-            "`!search palabra_clave`: Busca documentos por palabra clave en el título o abstract. Uso: `!search palabra_clave`.\n"
-            "`!searchTematicLine principal_categoria`: Busca documentos por principal categoría. Uso: `!searchTematicLine principal_categoria`."
-        )
-        await ctx.send(help_message)
-
-
-
-
     @commands.command(name='ping')
     async def ping(self, ctx):
         await ctx.send('Pong!')
 
+    # busca en el titulo y en abstract alguna palabra clave
 
-    #busca en el titulo y en abstract alguna palabra clave
     @commands.command(name='search')
     async def buscar(self, ctx, *, palabra_clave):
         # Realiza una consulta a Elasticsearch para buscar documentos que contengan la palabra clave en el título o abstract
@@ -187,10 +175,10 @@ class BOT(commands.Cog):
                 }
             }
         }
-        
+
         # Realiza la búsqueda en Elasticsearch
         response = self.es.search(index="documentos", body=query)
-        
+
         # Procesa los resultados y envía los mensajes en Discord
         if "hits" in response and "hits" in response["hits"]:
             hits = response["hits"]["hits"]
@@ -202,8 +190,8 @@ class BOT(commands.Cog):
         else:
             await ctx.send("No se encontraron resultados para la palabra clave proporcionada.")
 
+    # busca en principalCategory
 
-    #busca en principalCategory 
     @commands.command(name='searchTematicLine')
     async def buscar_por_principal_categoria(self, ctx, principal_categoria):
         # Realiza la búsqueda en Elasticsearch por la principal categoría especificada
@@ -222,7 +210,8 @@ class BOT(commands.Cog):
             hits = response["hits"]["hits"]
             if len(hits) > 0:
                 # Construye y envía el mensaje con los resultados
-                result_message = "Resultados para la linea temática **{}**:\n".format(principal_categoria)
+                result_message = "Resultados para la linea temática **{}**:\n".format(
+                    principal_categoria)
                 for hit in hits:
                     doc = hit["_source"]
                     result_message += "- **Título**: {}\n".format(doc["title"])
@@ -236,15 +225,22 @@ class BOT(commands.Cog):
             await ctx.send("Ocurrió un error al buscar la linea temática **{}**.".format(principal_categoria))
 
 
-
-
-
-
-
 intents = discord.Intents.default()
 intents.message_content = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
+
+
+@bot.command(name='help')
+async def help_command(self, ctx):
+    help_message = (
+        "**Comandos disponibles:**\n"
+        "`!addManualDocument`: Agrega un documento manualmente. Uso: `!addManualDocument datos_del_documento`.\n"
+        "`!addDocument`: Agrega documentos desde un archivo CSV adjunto. Uso: `!addDocument`.\n"
+        "`!search palabra_clave`: Busca documentos por palabra clave en el título o abstract. Uso: `!search palabra_clave`.\n"
+        "`!searchTematicLine tematic`: Busca documentos por linea temática. Uso: `!searchTematicLine principal_categoria`."
+    )
+    await ctx.send(help_message)
 
 
 @bot.event
