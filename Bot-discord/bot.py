@@ -236,11 +236,20 @@ class BOT(commands.Cog):
             # y linguistico del texto proporcionado en la pregunta.
             doc = nlp(question)
 
-            # Extrae sustantivos y conceptos clave
-
-            #Se crea una lista usando comprension de lista. Se almacenan los textos de los tokens que cumplan las condiciones "NOUN" y 
-            # tokens que contengan algun tipo de entidad, lo que incluye entidades nombradas reconocidas por Spacy. (no este vacio). 
-            nouns_and_entities = [token.text for token in doc if token.pos_ == "NOUN" or token.ent_type_ != ""]
+             # Extrae sustantivos y conceptos clave con sus artículos y casos de dos sustantivos consecutivos
+            nouns_and_consecutive = []
+            i = 0
+        
+            while i < len(doc):
+                token = doc[i]
+                if token.pos_ == "DET" and i + 2 < len(doc) and doc[i+1].pos_ == "NOUN" and doc[i+2].pos_ == "NOUN":
+                    nouns_and_consecutive.append(f"{token.text} {doc[i+1].text} {doc[i+2].text}")  # Agrega el artículo y dos sustantivos consecutivos
+                    i += 3  # Salta al siguiente token después de los dos sustantivos
+                elif token.pos_ == "DET" and i + 1 < len(doc) and doc[i+1].pos_ == "NOUN":
+                    nouns_and_consecutive.append(f"{token.text} {doc[i+1].text}")  # Agrega el artículo y el sustantivo
+                    i += 2  # Salta al siguiente token después del sustantivo
+                else:
+                    i += 1
             extracted_question = ' '.join(nouns_and_entities)
 
             await ctx.send(f"Sustantivos y conceptos clave: {extracted_question}")
