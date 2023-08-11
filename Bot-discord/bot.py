@@ -7,6 +7,7 @@ from discord.ext import commands
 from utils.tools import Tools
 import pandas as pd
 from elasticsearch import Elasticsearch
+import openai
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
 
@@ -225,6 +226,38 @@ class BOT(commands.Cog):
                 await ctx.send("No se encontraron resultados para la linea temática**{}**.".format(principal_categoria))
         else:
             await ctx.send("Ocurrió un error al buscar la linea temática **{}**.".format(principal_categoria))
+
+    @bot.command(name='question')
+    async def question(self,ctx, *, question):
+        try:
+            
+            words = question.split()
+            filtered_words = [word for word in words if word.lower() not in stop_words]
+            filtered_question = ' '.join(filtered_words)
+            print(filtered_question)
+            """query = {
+                "query": {
+                    "multi_match": {
+                        "query": keywords,
+                        "fields": ["abstract"]
+                    }
+                }
+            }
+            # Consulta la base de datos 
+            response = self.es.search(index="documentos", body=query)
+
+    
+            
+            #responder la pregunta utilizando OpenAI
+            response = openai.Completion.create(
+                engine="davinci",
+                prompt=question,
+                max_tokens=50
+            )
+            await ctx.send(response.choices[0].text.strip())"""
+        except Exception as e:
+            await ctx.send("Ocurrió un error al procesar la pregunta.")
+    
 
     @commands.command(name='commands')
     async def commands(self, ctx):
