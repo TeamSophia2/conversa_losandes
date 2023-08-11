@@ -8,9 +8,10 @@ from utils.tools import Tools
 import pandas as pd
 from elasticsearch import Elasticsearch
 import openai
+import spacy
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
-
+nlp = spacy.load("es_core_news_sm")
 
 class BOT(commands.Cog):
     def __init__(self, bot):
@@ -227,14 +228,23 @@ class BOT(commands.Cog):
         else:
             await ctx.send("Ocurrió un error al buscar la linea temática **{}**.".format(principal_categoria))
 
+    
     @commands.command(name='question')
     async def question(self,ctx, *, question):
         try:
+            # Analiza sintácticamente la pregunta utilizando spaCy en español, se crea un objeto doc que representa el analisis sintactico
+            # y linguistico del texto proporcionado en la pregunta.
+            doc = nlp(question)
+
+            # Extrae sustantivos y conceptos clave
+
+            #Se crea una lista usando comprension de lista. Se almacenan los textos de los tokens que cumplan las condiciones "NOUN" y 
+            # tokens que contengan algun tipo de entidad, lo que incluye entidades nombradas reconocidas por Spacy. (no este vacio). 
+            nouns_and_entities = [token.text for token in doc if token.pos_ == "NOUN" or token.ent_type_ != ""]
+            extracted_question = ' '.join(nouns_and_entities)
+
+            await ctx.send(f"Sustantivos y conceptos clave: {extracted_question}")
             
-            words = question.split()
-            filtered_words = [word for word in words if word.lower() not in stop_words]
-            filtered_question = ' '.join(filtered_words)
-            print(filtered_question)
             """query = {
                 "query": {
                     "multi_match": {
