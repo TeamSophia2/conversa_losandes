@@ -241,7 +241,14 @@ class BOT(commands.Cog):
         
         while i < len(doc):
             token = doc[i]
-            if token.pos_ == "DET" and i + 2 < len(doc) and doc[i+1].pos_ == "NOUN" and doc[i+2].pos_ == "NOUN":
+            if token.pos_ == "NOUN":
+                # Verifica si el sustantivo está precedido por un artículo o si es un sustantivo único
+                if i > 0 and doc[i-1].pos_ == "DET":
+                    nouns_and_consecutive.append(f"{doc[i-1].text} {token.text}")  # Agrega el artículo y el sustantivo
+                else:
+                    nouns_and_consecutive.append(token.text)  # Agrega el sustantivo solo
+                i += 1  # Avanza al siguiente token
+            elif token.pos_ == "DET" and i + 2 < len(doc) and doc[i+1].pos_ == "NOUN" and doc[i+2].pos_ == "NOUN":
                 nouns_and_consecutive.append(f"{token.text} {doc[i+1].text} {doc[i+2].text}")  # Agrega el artículo y dos sustantivos consecutivos
                 i += 3  # Salta al siguiente token después de los dos sustantivos
             elif token.pos_ == "DET" and i + 1 < len(doc) and doc[i+1].pos_ == "NOUN":
