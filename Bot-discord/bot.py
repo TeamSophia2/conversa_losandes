@@ -231,51 +231,48 @@ class BOT(commands.Cog):
     
     @commands.command(name='question')
     async def question(self,ctx, *, question):
-        try:
-            # Analiza sintácticamente la pregunta utilizando spaCy en español, se crea un objeto doc que representa el analisis sintactico
-            # y linguistico del texto proporcionado en la pregunta.
-            doc = nlp(question)
+        # Analiza sintácticamente la pregunta utilizando spaCy en español, se crea un objeto doc que representa el analisis sintactico
+        # y linguistico del texto proporcionado en la pregunta.
+        doc = nlp(question)
 
-             # Extrae sustantivos y conceptos clave con sus artículos y casos de dos sustantivos consecutivos
-            nouns_and_consecutive = []
-            i = 0
+            # Extrae sustantivos y conceptos clave con sus artículos y casos de dos sustantivos consecutivos
+        nouns_and_consecutive = []
+        i = 0
         
-            while i < len(doc):
-                token = doc[i]
-                if token.pos_ == "DET" and i + 2 < len(doc) and doc[i+1].pos_ == "NOUN" and doc[i+2].pos_ == "NOUN":
-                    nouns_and_consecutive.append(f"{token.text} {doc[i+1].text} {doc[i+2].text}")  # Agrega el artículo y dos sustantivos consecutivos
-                    i += 3  # Salta al siguiente token después de los dos sustantivos
-                elif token.pos_ == "DET" and i + 1 < len(doc) and doc[i+1].pos_ == "NOUN":
-                    nouns_and_consecutive.append(f"{token.text} {doc[i+1].text}")  # Agrega el artículo y el sustantivo
-                    i += 2  # Salta al siguiente token después del sustantivo
-                else:
-                    i += 1
-            extracted_question = ' '.join(nouns_and_entities)
+        while i < len(doc):
+            token = doc[i]
+            if token.pos_ == "DET" and i + 2 < len(doc) and doc[i+1].pos_ == "NOUN" and doc[i+2].pos_ == "NOUN":
+                nouns_and_consecutive.append(f"{token.text} {doc[i+1].text} {doc[i+2].text}")  # Agrega el artículo y dos sustantivos consecutivos
+                i += 3  # Salta al siguiente token después de los dos sustantivos
+            elif token.pos_ == "DET" and i + 1 < len(doc) and doc[i+1].pos_ == "NOUN":
+                nouns_and_consecutive.append(f"{token.text} {doc[i+1].text}")  # Agrega el artículo y el sustantivo
+                i += 2  # Salta al siguiente token después del sustantivo
+            else:
+                i += 1
+        extracted_question = ', '.join(nouns_and_consecutive)
 
-            await ctx.send(f"Sustantivos y conceptos clave: {extracted_question}")
+        await ctx.send(f"Sustantivos y conceptos clave: {extracted_question}")
             
-            """query = {
-                "query": {
-                    "multi_match": {
-                        "query": keywords,
-                        "fields": ["abstract"]
-                    }
+        """query = {
+            "query": {
+                "multi_match": {
+                    "query": keywords,
+                    "fields": ["abstract"]
                 }
             }
-            # Consulta la base de datos 
-            response = self.es.search(index="documentos", body=query)
+        }
+        # Consulta la base de datos 
+        response = self.es.search(index="documentos", body=query)
 
     
             
-            #responder la pregunta utilizando OpenAI
-            response = openai.Completion.create(
-                engine="davinci",
-                prompt=question,
-                max_tokens=50
-            )
-            await ctx.send(response.choices[0].text.strip())"""
-        except Exception as e:
-            await ctx.send("Ocurrió un error al procesar la pregunta.")
+        #responder la pregunta utilizando OpenAI
+        response = openai.Completion.create(
+            engine="davinci",
+            prompt=question,
+            max_tokens=50
+        )
+        await ctx.send(response.choices[0].text.strip())"""
     
 
     @commands.command(name='commands')
