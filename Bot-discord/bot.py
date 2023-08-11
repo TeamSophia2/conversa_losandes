@@ -227,7 +227,7 @@ class BOT(commands.Cog):
         else:
             await ctx.send("Ocurrió un error al buscar la linea temática **{}**.".format(principal_categoria))
 
-    @bot.command(name='question')
+    @commands.command(name='question')
     async def question(self,ctx, *, question):
         try:
             
