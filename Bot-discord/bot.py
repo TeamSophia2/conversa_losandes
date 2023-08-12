@@ -235,40 +235,12 @@ class BOT(commands.Cog):
         # y linguistico del texto proporcionado en la pregunta.
         doc = nlp(question)
 
-          # Extrae sustantivos y conceptos clave con sus artículos, adjetivos y casos de dos sustantivos consecutivos
-        nouns_adjectives_and_consecutive = []
-        i = 0
-        
-        while i < len(doc):
-            token = doc[i]
-            if token.pos_ == "NOUN":
-                # Verifica si el sustantivo está precedido por un artículo o si es un sustantivo único
-                if i > 0 and doc[i-1].pos_ == "DET":
-                    if i + 1 < len(doc) and doc[i+1].pos_ == "ADJ":
-                        nouns_adjectives_and_consecutive.append(f"{doc[i-1].text} {token.text} {doc[i+1].text}")  # Agrega el artículo, sustantivo y adjetivo
-                        i += 2  # Salta al siguiente token después del adjetivo
-                    else:
-                        nouns_adjectives_and_consecutive.append(f"{doc[i-1].text} {token.text}")  # Agrega el artículo y el sustantivo
-                        i += 1  # Avanza al siguiente token
-                else:
-                    if i + 1 < len(doc) and doc[i+1].pos_ == "ADJ":
-                        nouns_adjectives_and_consecutive.append(f"{token.text} {doc[i+1].text}")  # Agrega el sustantivo y adjetivo
-                        i += 2  # Salta al siguiente token después del adjetivo
-                    else:
-                        nouns_adjectives_and_consecutive.append(token.text)  # Agrega el sustantivo solo
-                        i += 1  # Avanza al siguiente token
-            elif token.pos_ == "DET" and i + 2 < len(doc) and doc[i+1].pos_ == "NOUN" and doc[i+2].pos_ == "NOUN":
-                nouns_adjectives_and_consecutive.append(f"{token.text} {doc[i+1].text} {doc[i+2].text}")  # Agrega el artículo y dos sustantivos consecutivos
-                i += 3  # Salta al siguiente token después de los dos sustantivos
-            elif token.pos_ == "DET" and i + 1 < len(doc) and doc[i+1].pos_ == "NOUN":
-                nouns_adjectives_and_consecutive.append(f"{token.text} {doc[i+1].text}")  # Agrega el artículo y el sustantivo
-                i += 2  # Salta al siguiente token después del sustantivo
-            else:
-                i += 1
-        
-        extracted_question = ', '.join(nouns_adjectives_and_consecutive)
+        # Extrae sustantivos y adjetivos como conceptos clave
+        nouns_and_adjectives = [token.text for token in doc if token.pos_ == "NOUN" or token.pos_ == "ADJ"]
+        extracted_question = ', '.join(nouns_and_adjectives)
 
-        await ctx.send(f"Sustantivos y conceptos clave: {extracted_question}")
+        #await ctx.send(f"Sustantivos y conceptos clave: {extracted_question}")
+        print(extracted_question)
             
         """query = {
             "query": {
