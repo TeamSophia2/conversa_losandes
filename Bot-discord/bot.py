@@ -235,8 +235,20 @@ class BOT(commands.Cog):
         # y linguistico del texto proporcionado en la pregunta.
         doc = nlp(question)
 
-        # Extrae sustantivos y adjetivos como conceptos clave
-        nouns_and_adjectives = [token.text for token in doc if token.pos_ == "NOUN" or token.pos_ == "ADJ"]
+        # Extrae sustantivos y adjetivos como conceptos clave, incluyendo los que están después de un artículo
+        nouns_and_adjectives = []
+        i = 0
+        
+        while i < len(doc):
+            token = doc[i]
+            if token.pos_ == "DET" and i + 1 < len(doc) and doc[i+1].pos_ == "NOUN":
+                nouns_and_adjectives.append(f"{token.text} {doc[i+1].text}")  # Agrega el artículo y el sustantivo
+                i += 2  # Salta al siguiente token después del sustantivo
+            elif token.pos_ == "NOUN" or token.pos_ == "ADJ":
+                nouns_and_adjectives.append(token.text)  # Agrega el sustantivo o adjetivo solo
+                i += 1  # Avanza al siguiente token
+            else:
+                i += 1
         extracted_question = ', '.join(nouns_and_adjectives)
 
         #await ctx.send(f"Sustantivos y conceptos clave: {extracted_question}")
