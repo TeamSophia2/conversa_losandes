@@ -245,7 +245,7 @@ class BOT(commands.Cog):
                 j = i + 2
                 while j < len(doc):
                     next_token = doc[j]
-                    if next_token.pos_ in ["CONJ", "ADP", "PUNCT"]:
+                    if next_token.pos_ in ["CONJ", "ADP", "PUNCT"] and next_token.text.lower() != "y":
                         break  # Detenerse en conjunciones, preposiciones y signos de puntuación
                     j += 1
                 nouns_adjectives_and_proper_nouns.append(f"{token.text} {doc[i+1:j].text}")  # Agrega el artículo y el sustantivo con lo que sigue
