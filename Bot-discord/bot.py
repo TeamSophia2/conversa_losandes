@@ -242,13 +242,18 @@ class BOT(commands.Cog):
         while i < len(doc):
             token = doc[i]
             if token.pos_ == "DET" and i + 1 < len(doc) and doc[i+1].pos_ == "NOUN":
-                nouns_and_adjectives.append(f"{token.text} {doc[i+1].text}")  # Agrega el artículo y el sustantivo
-                i += 2  # Salta al siguiente token después del sustantivo
+                j = i + 2
+                while j < len(doc) and doc[j].pos_ not in ["CONJ", "ADP", "PUNCT"]:
+                    nouns_and_adjectives.append(f"{token.text} {doc[i+1:j+1].text}")  # Agrega el artículo y el sustantivo con lo que sigue
+                    j += 1
+                i = j  # Salta al índice después de lo que sigue
             elif token.pos_ == "NOUN" or token.pos_ == "ADJ":
                 nouns_and_adjectives.append(token.text)  # Agrega el sustantivo o adjetivo solo
                 i += 1  # Avanza al siguiente token
             else:
                 i += 1
+
+                
         extracted_question = ', '.join(nouns_and_adjectives)
 
         #await ctx.send(f"Sustantivos y conceptos clave: {extracted_question}")
