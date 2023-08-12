@@ -241,14 +241,16 @@ class BOT(commands.Cog):
         
         while i < len(doc):
             token = doc[i]
-            if token.pos_ == "DET" and i + 1 < len(doc) and doc[i+1].pos_ == "NOUN":
+
+            if token.pos_ == "DET" and i + 1 < len(doc):
                 j = i + 2
-                
                 nouns_adjectives_and_proper_nouns.append(f"{token.text} {doc[i+1:j].text}")  # Agrega el artículo y el sustantivo con lo que sigue
                 i = j  # Salta al índice después de lo que sigue
+
             elif token.pos_ == "NOUN" or token.pos_ == "ADJ" or token.ent_type_ == "PROPN":
                 nouns_adjectives_and_proper_nouns.append(token.text)  # Agrega el sustantivo, adjetivo o nombre propio
                 i += 1  # Avanza al siguiente token
+                
             else:
                 i += 1
 
