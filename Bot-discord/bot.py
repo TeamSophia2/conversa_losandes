@@ -236,7 +236,7 @@ class BOT(commands.Cog):
         doc = nlp(question)
 
         # Extrae sustantivos y adjetivos como conceptos clave, incluyendo los que están después de un artículo
-        nouns_and_adjectives = []
+        nouns_adjectives_and_proper_nouns = []
         i = 0
         
         while i < len(doc):
@@ -257,7 +257,7 @@ class BOT(commands.Cog):
                 i += 1
 
                 
-        extracted_question = ', '.join(nouns_and_adjectives)
+        extracted_question = ', '.join(nouns_adjectives_and_proper_nouns)
 
         #await ctx.send(f"Sustantivos y conceptos clave: {extracted_question}")
         print(extracted_question)
