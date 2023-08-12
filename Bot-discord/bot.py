@@ -243,11 +243,7 @@ class BOT(commands.Cog):
             token = doc[i]
             if token.pos_ == "DET" and i + 1 < len(doc) and doc[i+1].pos_ == "NOUN":
                 j = i + 2
-                while j < len(doc):
-                    next_token = doc[j]
-                    if next_token.pos_ in ["CONJ", "ADP", "PUNCT"] and next_token.text.lower() != "y":
-                        break  # Detenerse en conjunciones, preposiciones y signos de puntuación
-                    j += 1
+                
                 nouns_adjectives_and_proper_nouns.append(f"{token.text} {doc[i+1:j].text}")  # Agrega el artículo y el sustantivo con lo que sigue
                 i = j  # Salta al índice después de lo que sigue
             elif token.pos_ == "NOUN" or token.pos_ == "ADJ" or token.ent_type_ == "PROPN":
