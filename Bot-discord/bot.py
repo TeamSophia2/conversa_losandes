@@ -242,9 +242,9 @@ class BOT(commands.Cog):
         while i < len(doc):
             token = doc[i]
 
-            if token.pos_ == "DET" and i + 1 < len(doc):
-                j = i + 2
-                nouns_adjectives_and_proper_nouns.append(f"{token.text} {doc[i+1:j].text}")  # Agrega el artículo y el sustantivo con lo que sigue
+            if token.pos_ == "DET" and i + 2 < len(doc):
+                j = i + 3
+                nouns_adjectives_and_proper_nouns.append(f"{token.text} {doc[i+1:i+3].text}")  # Agrega el artículo y los dos tokens siguientes
                 i = j  # Salta al índice después de lo que sigue
 
             elif token.pos_ == "NOUN" or token.pos_ == "ADJ" or token.ent_type_ == "PROPN":
@@ -257,8 +257,8 @@ class BOT(commands.Cog):
                 
         extracted_question = ', '.join(nouns_adjectives_and_proper_nouns)
 
-        #await ctx.send(f"Sustantivos y conceptos clave: {extracted_question}")
-        print(extracted_question)
+        await ctx.send(f"Sustantivos y conceptos clave: {extracted_question}")
+        #print(extracted_question)
             
         """query = {
             "query": {
