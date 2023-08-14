@@ -235,13 +235,12 @@ class BOT(commands.Cog):
         # y linguistico del texto proporcionado en la pregunta.
         doc = nlp(question)
 
-        # Extrae sustantivos y adjetivos como conceptos clave, incluyendo los que están después de un artículo
+        # Extrae sustantivos,adjetivos y nombre propio como conceptos clave, incluyendo los que están después de un artículo
         nouns_adjectives_and_proper_nouns = []
         i = 0
         
         while i < len(doc):
             token = doc[i]
-
             if token.pos_ == "DET" and i + 2 < len(doc):
                 j = i + 3
                 next_token = doc[i+2]  # Token siguiente al artículo
@@ -251,31 +250,42 @@ class BOT(commands.Cog):
                     nouns_adjectives_and_proper_nouns.append(f"{token.text} {doc[i+1:i+3].text}")  # Agrega el artículo y los dos tokens siguientes
                 i = j  # Salta al índice después de lo que sigue
 
-            elif token.pos_ == "NOUN" or token.pos_ == "ADJ" or token.ent_type_ == "PROPN":
+            elif token.pos_ == "NOUN" or token.pos_ == "ADJ" or token.pos_ == "PROPN":
                 nouns_adjectives_and_proper_nouns.append(token.text)  # Agrega el sustantivo, adjetivo o nombre propio
                 i += 1  # Avanza al siguiente token
-                
             else:
                 i += 1
 
-                
         extracted_question = ', '.join(nouns_adjectives_and_proper_nouns)
-
-        await ctx.send(f"Conceptos claves: {extracted_question}")
+        extracted_question_list = extracted_question.split(', ')
+        await ctx.send(f"Conceptos claves: {extracted_question_list}")
         #print(extracted_question)
             
-        """query = {
+        # Construir la consulta de Elasticsearch
+        query = {
             "query": {
-                "multi_match": {
-                    "query": keywords,
-                    "fields": ["abstract"]
+                "bool": {
+                    "must": [{"match": {"abstract": word}} for word in extracted_question_list],
+                    "minimum_should_match": f"{len(extracted_question_list)}<100%"
                 }
             }
         }
-        # Consulta la base de datos 
+
+        #Consulta la base de datos 
         response = self.es.search(index="documentos", body=query)
 
-        #responder la pregunta utilizando OpenAI
+        # Procesar los resultados y enviar mensajes en Discord
+        if "hits" in response and "hits" in response["hits"]:
+            hits = response["hits"]["hits"]
+            num_results_to_display = min(3, len(hits))  # Mostrar hasta 3 resultados
+            for i, hit in enumerate(hits[:num_results_to_display], start=1):
+                source = hit["_source"]
+                abstract = source.get("abstract", "Sin resumen")
+                await ctx.send(f"Resultado {i}:\nResumen: {abstract}\n")
+        else:
+            await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
+
+        """#responder la pregunta utilizando OpenAI
         response = openai.Completion.create(
             engine="davinci",
             prompt=question,
