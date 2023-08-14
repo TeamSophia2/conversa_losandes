@@ -280,7 +280,7 @@ class BOT(commands.Cog):
             num_results_to_display = min(3, len(hits))  # Mostrar hasta 3 resultados
             for i, hit in enumerate(hits[:num_results_to_display], start=1):
                 source = hit["_source"]
-                abstract = source.get("content", "Sin contenido")
+                content = source.get("content", "Sin contenido")
                 score = hit["_score"]
                 #await ctx.send(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
                 print(f"Resultado {i}:\nContenido: {content}\nScore: {score}\n")
