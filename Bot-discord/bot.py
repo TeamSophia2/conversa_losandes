@@ -245,7 +245,7 @@ class BOT(commands.Cog):
             if token.pos_ == "DET" and i + 2 < len(doc):
                 j = i + 3
                 next_token = doc[i+2]  # Token siguiente al artículo
-                if next_token.pos_ in ["CONJ", "ADP"]:
+                if next_token.pos_ in ["CCONJ", "ADP"]:
                     nouns_adjectives_and_proper_nouns.append(f"{token.text} {doc[i+1].text}")  # Agrega solo el artículo y el token siguiente
                 else:
                     nouns_adjectives_and_proper_nouns.append(f"{token.text} {doc[i+1:i+3].text}")  # Agrega el artículo y los dos tokens siguientes
@@ -261,7 +261,7 @@ class BOT(commands.Cog):
                 
         extracted_question = ', '.join(nouns_adjectives_and_proper_nouns)
 
-        await ctx.send(f"Sustantivos y conceptos clave: {extracted_question}")
+        await ctx.send(f"Conceptos claves: {extracted_question}")
         #print(extracted_question)
             
         """query = {
@@ -275,8 +275,6 @@ class BOT(commands.Cog):
         # Consulta la base de datos 
         response = self.es.search(index="documentos", body=query)
 
-    
-            
         #responder la pregunta utilizando OpenAI
         response = openai.Completion.create(
             engine="davinci",
