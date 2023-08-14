@@ -283,7 +283,7 @@ class BOT(commands.Cog):
                 abstract = source.get("content", "Sin contenido")
                 score = hit["_score"]
                 #await ctx.send(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
-                print(f"Resultado {i}:\nContenido: {abstract}\nScore: {score}\n")
+                print(f"Resultado {i}:\nContenido: {content}\nScore: {score}\n")
         else:
             #await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
             print("No se encontraron resultados para los conceptos clave proporcionados.")
