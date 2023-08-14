@@ -267,12 +267,12 @@ class BOT(commands.Cog):
             "bool": {
                 "should": [{"match": {"content": word}} for word in extracted_question_list],
                 "minimum_should_match": 1  # Al menos un término debe coincidir
+                }
             }
         }
-    }
 
         #Consulta la base de datos 
-        response = self.es.search(index="documentos", body=query, min_score = 0.1)
+        response = self.es.search(index="documentos", body=query)
 
         # Procesar los resultados y enviar mensajes en Discord
         if "hits" in response and "hits" in response["hits"]:
