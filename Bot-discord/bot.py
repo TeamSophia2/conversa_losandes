@@ -262,14 +262,19 @@ class BOT(commands.Cog):
         #print(extracted_question)
             
         # Construir la consulta de Elasticsearch
+        umbral_score = 0.5
         query = {
-            "query": {
-                "bool": {
-                    "must": [{"match": {"abstract": word}} for word in extracted_question_list],
-                    "minimum_should_match": f"{len(extracted_question_list)}<100%"
+        "query": {
+            "bool": {
+                "must": [{"match": {"abstract": word}} for word in extracted_question_list],
+                "filter": {
+                    "range": {
+                        "_score": {"gte": umbral_score}
+                    }
                 }
             }
         }
+    }
 
         #Consulta la base de datos 
         response = self.es.search(index="documentos", body=query)
@@ -281,7 +286,8 @@ class BOT(commands.Cog):
             for i, hit in enumerate(hits[:num_results_to_display], start=1):
                 source = hit["_source"]
                 abstract = source.get("abstract", "Sin resumen")
-                await ctx.send(f"Resultado {i}:\nResumen: {abstract}\n")
+                score = hit["_score"]
+                await ctx.send(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
         else:
             await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
 
