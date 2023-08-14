@@ -242,12 +242,12 @@ class BOT(commands.Cog):
         while i < len(doc):
             token = doc[i]
             if token.pos_ == "DET" and i + 2 < len(doc):
-                j = i + 3
-                next_token = doc[i+2]  # Token siguiente al artículo
+                j = i + 2
+                next_token = doc[i+1]  # Token siguiente al artículo
                 if next_token.pos_ in ["CCONJ", "ADP"]:
                     nouns_adjectives_and_proper_nouns.append(f"{token.text} {doc[i+1].text}")  # Agrega solo el artículo y el token siguiente
                 else:
-                    nouns_adjectives_and_proper_nouns.append(f"{token.text} {doc[i+1:i+3].text}")  # Agrega el artículo y los dos tokens siguientes
+                    nouns_adjectives_and_proper_nouns.append(f"{token.text} {doc[i+1:i+2].text}")  # Agrega el artículo y los dos tokens siguientes
                 i = j  # Salta al índice después de lo que sigue
 
             elif token.pos_ == "NOUN" or token.pos_ == "ADJ" or token.pos_ == "PROPN":
@@ -258,6 +258,7 @@ class BOT(commands.Cog):
 
         extracted_question = ', '.join(nouns_adjectives_and_proper_nouns)
         extracted_question_list = extracted_question.split(', ')
+
         #await ctx.send(f"Conceptos claves: {extracted_question_list}")
         print(extracted_question_list)
             
@@ -265,25 +266,26 @@ class BOT(commands.Cog):
         query = {
         "query": {
             "bool": {
-                "should": [{"match": {"content": word}} for word in extracted_question_list],
+                "should": [{"match": {"abstract": word}} for word in extracted_question_list],
                 "minimum_should_match": 1  # Al menos un término debe coincidir
                 }
             }
         }
 
-        #Consulta la base de datos 
-        response = self.es.search(index="documentos", body=query)
 
-        # Procesar los resultados y enviar mensajes en Discord
+        #Consulta la base de datos 
+        response = self.es.search(index="documentos", query=query)
+
+        #Procesar los resultados y enviar mensajes en Discord
         if "hits" in response and "hits" in response["hits"]:
             hits = response["hits"]["hits"]
             num_results_to_display = min(3, len(hits))  # Mostrar hasta 3 resultados
             for i, hit in enumerate(hits[:num_results_to_display], start=1):
                 source = hit["_source"]
-                content = source.get("content", "Sin contenido")
+                abstract = source.get("abstract", "Sin contenido")
                 score = hit["_score"]
                 #await ctx.send(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
-                print(f"Resultado {i}:\nContenido: {content}\nScore: {score}\n")
+                print(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
         else:
             #await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
             print("No se encontraron resultados para los conceptos clave proporcionados.")
