@@ -274,7 +274,7 @@ class BOT(commands.Cog):
 
 
         #Consulta la base de datos 
-        response = self.es.search(index="documentos", query=query)
+        response = self.es.search(index="documentos", body=query)
 
         #Procesar los resultados y enviar mensajes en Discord
         if "hits" in response and "hits" in response["hits"]:
