@@ -262,22 +262,17 @@ class BOT(commands.Cog):
         print(extracted_question_list)
             
         # Construir la consulta de Elasticsearch
-        umbral_score = 0.1
         query = {
         "query": {
             "bool": {
-                "must": [{"match": {"abstract": word}} for word in extracted_question_list],
-                "filter": {
-                    "range": {
-                        "_score": {"gte": umbral_score}
-                    }
-                }
+                "should": [{"match": {"abstract": word}} for word in extracted_question_list],
+                "minimum_should_match": 1  # Al menos un término debe coincidir
             }
         }
     }
 
         #Consulta la base de datos 
-        response = self.es.search(index="documentos", body=query)
+        response = self.es.search(index="documentos", body=query, min_score = 0.1)
 
         # Procesar los resultados y enviar mensajes en Discord
         if "hits" in response and "hits" in response["hits"]:
