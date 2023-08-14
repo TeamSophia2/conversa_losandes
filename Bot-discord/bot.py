@@ -258,11 +258,11 @@ class BOT(commands.Cog):
 
         extracted_question = ', '.join(nouns_adjectives_and_proper_nouns)
         extracted_question_list = extracted_question.split(', ')
-        await ctx.send(f"Conceptos claves: {extracted_question_list}")
-        #print(extracted_question)
+        #await ctx.send(f"Conceptos claves: {extracted_question_list}")
+        print(extracted_question_list)
             
         # Construir la consulta de Elasticsearch
-        umbral_score = 0.5
+        umbral_score = 0.1
         query = {
         "query": {
             "bool": {
@@ -287,9 +287,11 @@ class BOT(commands.Cog):
                 source = hit["_source"]
                 abstract = source.get("abstract", "Sin resumen")
                 score = hit["_score"]
-                await ctx.send(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
+                #await ctx.send(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
+                print(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
         else:
-            await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
+            #await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
+            print("No se encontraron resultados para los conceptos clave proporcionados.")
 
         """#responder la pregunta utilizando OpenAI
         response = openai.Completion.create(
