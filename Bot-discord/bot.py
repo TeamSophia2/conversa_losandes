@@ -265,7 +265,7 @@ class BOT(commands.Cog):
         query = {
         "query": {
             "bool": {
-                "should": [{"match": {"abstract": word}} for word in extracted_question_list],
+                "should": [{"match": {"content": word}} for word in extracted_question_list],
                 "minimum_should_match": 1  # Al menos un término debe coincidir
             }
         }
@@ -280,10 +280,10 @@ class BOT(commands.Cog):
             num_results_to_display = min(3, len(hits))  # Mostrar hasta 3 resultados
             for i, hit in enumerate(hits[:num_results_to_display], start=1):
                 source = hit["_source"]
-                abstract = source.get("abstract", "Sin resumen")
+                abstract = source.get("content", "Sin contenido")
                 score = hit["_score"]
                 #await ctx.send(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
-                print(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
+                print(f"Resultado {i}:\nContenido: {abstract}\nScore: {score}\n")
         else:
             #await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
             print("No se encontraron resultados para los conceptos clave proporcionados.")
