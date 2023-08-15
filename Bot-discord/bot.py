@@ -279,12 +279,12 @@ class BOT(commands.Cog):
         #Procesar los resultados y enviar mensajes en Discord
         if "hits" in response and "hits" in response["hits"]:
             hits = response["hits"]["hits"]
+            await ctx.send("A continuación los documentos mas relevantes:")
             for i, hit in enumerate(hits, start=1):
                 source = hit["_source"]
                 abstract = source.get("abstract", "Sin contenido")
                 score = hit["_score"]
                 if score > 1.5:  # Filtrar por puntaje mayor a 1.5
-                    await ctx.send("A continuación los documentos mas relevantes:")
                     await ctx.send(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
                     #print(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
         else:
