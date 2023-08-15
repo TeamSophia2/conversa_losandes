@@ -259,8 +259,8 @@ class BOT(commands.Cog):
         extracted_question = ', '.join(nouns_adjectives_and_proper_nouns)
         extracted_question_list = extracted_question.split(', ')
 
-        #await ctx.send(f"Conceptos claves: {extracted_question_list}")
-        print(extracted_question_list)
+        await ctx.send(f"Conceptos claves: {extracted_question_list}")
+        #print(extracted_question_list)
             
         # Construir la consulta de Elasticsearch
         query = {
@@ -279,16 +279,17 @@ class BOT(commands.Cog):
         #Procesar los resultados y enviar mensajes en Discord
         if "hits" in response and "hits" in response["hits"]:
             hits = response["hits"]["hits"]
-            num_results_to_display = min(3, len(hits))  # Mostrar hasta 3 resultados
-            for i, hit in enumerate(hits[:num_results_to_display], start=1):
+            for i, hit in enumerate(hits, start=1):
                 source = hit["_source"]
                 abstract = source.get("abstract", "Sin contenido")
                 score = hit["_score"]
-                #await ctx.send(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
-                print(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
+                if score > 1.5:  # Filtrar por puntaje mayor a 1.5
+                    await ctx.send("A continuación los documentos mas relevantes:")
+                    await ctx.send(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
+                    #print(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
         else:
-            #await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
-            print("No se encontraron resultados para los conceptos clave proporcionados.")
+            await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
+            #print("No se encontraron resultados para los conceptos clave proporcionados.")
 
         """#responder la pregunta utilizando OpenAI
         response = openai.Completion.create(
