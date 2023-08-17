@@ -259,7 +259,7 @@ class BOT(commands.Cog):
         extracted_question = ', '.join(nouns_adjectives_and_proper_nouns)
         extracted_question_list = extracted_question.split(', ')
 
-        await ctx.send(f"Conceptos claves: {extracted_question_list}")
+        #await ctx.send(f"Conceptos claves: {extracted_question_list}")
         #print(extracted_question_list)
             
         # Construir la consulta de Elasticsearch
@@ -288,9 +288,14 @@ class BOT(commands.Cog):
                 score = hit["_score"]
                 if score > 1.5:  # Filtrar por puntaje mayor a 1.5
                     abstracts_with_high_score.append(abstract)
-                    print(abstracts_with_high_score)
-                    await ctx.send(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
-                    #print(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
+                    #await ctx.send(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
+                    print(f"\nScore: {score}\n")
+
+        if abstracts_with_high_score:
+            await ctx.send("Resúmenes con score mayor:")
+            for i, abstract in enumerate(abstracts_with_high_score, start=1):
+                #await ctx.send(f"Resultado {i}:\nResumen: {abstract}\n")
+                print(f"Resultado {i}:\nResumen: {abstract}\n")
         else:
             await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
             #print("No se encontraron resultados para los conceptos clave proporcionados.")
