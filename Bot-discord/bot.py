@@ -11,6 +11,10 @@ import openai
 import spacy
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
+TOKEN_OPENAI = os.environ.get('GPT_TOKEN')
+openai.api_key = TOKEN_OPENAI
+
+
 nlp = spacy.load("es_core_news_sm")
 
 class BOT(commands.Cog):
