@@ -301,7 +301,7 @@ class BOT(commands.Cog):
             prompt += f"{i}. {abstract}\n\n"
 
         response = openai.Completion.create(
-            engine="gpt-4",
+            engine="gpt-3.5-turbo",
             prompt=prompt,
             max_tokens=150  # Ajusta según lo necesario
         )
