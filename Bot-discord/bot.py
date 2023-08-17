@@ -259,7 +259,7 @@ class BOT(commands.Cog):
         extracted_question = ', '.join(nouns_adjectives_and_proper_nouns)
         extracted_question_list = extracted_question.split(', ')
 
-        #await ctx.send(f"Conceptos claves: {extracted_question_list}")
+        await ctx.send(f"Conceptos claves: {extracted_question_list}")
         #print(extracted_question_list)
             
         # Construir la consulta de Elasticsearch
@@ -299,7 +299,7 @@ class BOT(commands.Cog):
         prompt = f"Pregunta: {question}\n\nResúmenes relevantes:\n\n"
         for i, abstract in enumerate(abstracts_with_high_score, start=1):
             prompt += f"{i}. {abstract}\n\n"
-            
+
         response = openai.Completion.create(
             engine="gpt-4",
             prompt=prompt,
