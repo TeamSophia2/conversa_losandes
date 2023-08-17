@@ -281,30 +281,34 @@ class BOT(commands.Cog):
         #Procesar los resultados y enviar mensajes en Discord
         if "hits" in response and "hits" in response["hits"]:
             hits = response["hits"]["hits"]
-            #await ctx.send("A continuación los documentos mas relevantes:")
+            await ctx.send("A continuación los documentos mas relevantes:")
             for i, hit in enumerate(hits, start=1):
                 source = hit["_source"]
                 abstract = source.get("abstract", "Sin contenido")
                 score = hit["_score"]
                 if score > 1.5:  # Filtrar por puntaje mayor a 1.5
                     abstracts_with_high_score.append(abstract)
-                    #await ctx.send(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
+                    await ctx.send(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
 
-            print(abstracts_with_high_score)        
-                
-
-        
+            #print(abstracts_with_high_score)        
         else:
             await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
             #print("No se encontraron resultados para los conceptos clave proporcionados.")
-
-        """#responder la pregunta utilizando OpenAI
+        
+        # Generar respuesta con OpenAI
+        prompt = f"Pregunta: {question}\n\nResúmenes relevantes:\n\n"
+        for i, abstract in enumerate(abstracts_with_high_score, start=1):
+            prompt += f"{i}. {abstract}\n\n"
+            
         response = openai.Completion.create(
             engine="gpt-4",
-            prompt=question,
-            max_tokens=50
+            prompt=prompt,
+            max_tokens=150  # Ajusta según lo necesario
         )
-        await ctx.send(response.choices[0].text.strip())"""
+        answer = response.choices[0].text.strip()
+        await ctx.send(f"Respuesta: {answer}")
+
+        
     
 
     @commands.command(name='commands')
