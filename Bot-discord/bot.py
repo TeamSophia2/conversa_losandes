@@ -281,7 +281,7 @@ class BOT(commands.Cog):
         #Procesar los resultados y enviar mensajes en Discord
         if "hits" in response and "hits" in response["hits"]:
             hits = response["hits"]["hits"]
-            await ctx.send("A continuación los documentos mas relevantes:")
+            #await ctx.send("A continuación los documentos mas relevantes:")
             for i, hit in enumerate(hits, start=1):
                 source = hit["_source"]
                 abstract = source.get("abstract", "Sin contenido")
@@ -289,13 +289,11 @@ class BOT(commands.Cog):
                 if score > 1.5:  # Filtrar por puntaje mayor a 1.5
                     abstracts_with_high_score.append(abstract)
                     #await ctx.send(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
-                    print(f"\nScore: {score}\n")
 
-        if abstracts_with_high_score:
-            await ctx.send("Resúmenes con score mayor:")
-            for i, abstract in enumerate(abstracts_with_high_score, start=1):
-                #await ctx.send(f"Resultado {i}:\nResumen: {abstract}\n")
-                print(f"Resultado {i}:\nResumen: {abstract}\n")
+            print(abstracts_with_high_score)        
+                
+
+        
         else:
             await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
             #print("No se encontraron resultados para los conceptos clave proporcionados.")
