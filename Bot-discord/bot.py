@@ -276,6 +276,8 @@ class BOT(commands.Cog):
         #Consulta la base de datos 
         response = self.es.search(index="documentos", body=query)
 
+        abstracts_with_high_score = []  # Lista para almacenar los abstracts con score alto
+
         #Procesar los resultados y enviar mensajes en Discord
         if "hits" in response and "hits" in response["hits"]:
             hits = response["hits"]["hits"]
@@ -285,6 +287,8 @@ class BOT(commands.Cog):
                 abstract = source.get("abstract", "Sin contenido")
                 score = hit["_score"]
                 if score > 1.5:  # Filtrar por puntaje mayor a 1.5
+                    abstracts_with_high_score.append(abstract)
+                    print(abstracts_with_high_score)
                     await ctx.send(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
                     #print(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
         else:
@@ -293,7 +297,7 @@ class BOT(commands.Cog):
 
         """#responder la pregunta utilizando OpenAI
         response = openai.Completion.create(
-            engine="davinci",
+            engine="gpt-4",
             prompt=question,
             max_tokens=50
         )
