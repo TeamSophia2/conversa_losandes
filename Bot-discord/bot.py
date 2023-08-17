@@ -35,8 +35,8 @@ class BOT(commands.Cog):
             str.strip, inputData)
 
         # Realiza el procesamiento de los datos y agrega el documento a la base de datos
-        db_connector = databaseConnector()
-        db_connector.connect()
+        dbConnector = databaseConnector()
+        dbConnector.connect()
 
         # Creamos un DataFrame a partir de los datos ingresados manualmente
         data = {
@@ -53,8 +53,8 @@ class BOT(commands.Cog):
         }
         df = pd.DataFrame(data)
         # Realizar el mismo proceso que en el comando !addDocument para guardar el documento en la base de datos
-        db_connector.insertDocuments(df)
-        db_connector.close()
+        dbConnector.insertDocuments(df)
+        dbConnector.close()
 
         scraper = Scraper()
         tasks = []
@@ -89,14 +89,14 @@ class BOT(commands.Cog):
             if df is not None:
                 await ctx.send('El archivo CSV cumple con las columnas requeridas')
                 # print(df)
-                db_connector = databaseConnector()
+                dbConnector = databaseConnector()
 
                 # conectarse a la base de datos y agregar
 
-                db_connector.connect()
-                db_connector.insertDocuments(df)
+                dbConnector.connect()
+                dbConnector.insertDocuments(df)
 
-                db_connector.close()
+                dbConnector.close()
 
                 await ctx.send('Información del archivo CSV guardado en la base de datos')
 
@@ -169,12 +169,12 @@ class BOT(commands.Cog):
     # busca en el titulo y en abstract alguna palabra clave
 
     @commands.command(name='search')
-    async def buscar(self, ctx, *, palabra_clave):
+    async def search(self, ctx, *, palabraClave):
         # Realiza una consulta a Elasticsearch para buscar documentos que contengan la palabra clave en el título o abstract
         query = {
             "query": {
                 "multi_match": {
-                    "query": palabra_clave,
+                    "query": palabraClave,
                     "fields": ["title", "abstract"]
                 }
             }
@@ -197,36 +197,36 @@ class BOT(commands.Cog):
     # busca en principalCategory
 
     @commands.command(name='searchTematicLine')
-    async def buscar_por_principal_categoria(self, ctx, principal_categoria):
+    async def searchTematicLine(self, ctx, principalCategoria):
         # Realiza la búsqueda en Elasticsearch por la principal categoría especificada
-        search_body = {
+        searchBody = {
             "query": {
                 "match": {
-                    "principalCategory": principal_categoria
+                    "principalCategory": principalCategoria
                 }
             }
         }
 
-        response = self.es.search(index="documentos", body=search_body)
+        response = self.es.search(index="documentos", body=searchBody)
 
         # Procesa y muestra los resultados
         if "hits" in response and "hits" in response["hits"]:
             hits = response["hits"]["hits"]
             if len(hits) > 0:
                 # Construye y envía el mensaje con los resultados
-                result_message = "Resultados para la linea temática **{}**:\n".format(
-                    principal_categoria)
+                resultMessage = "Resultados para la linea temática **{}**:\n".format(
+                    principalCategoria)
                 for hit in hits:
                     doc = hit["_source"]
-                    result_message += "- **Título**: {}\n".format(doc["title"])
-                    result_message += "  **URL**: {}\n".format(doc["url"])
-                    result_message += "\n"
+                    resultMessage += "- **Título**: {}\n".format(doc["title"])
+                    resultMessage += "  **URL**: {}\n".format(doc["url"])
+                    resultMessage += "\n"
 
-                await ctx.send(result_message)
+                await ctx.send(resultMessage)
             else:
-                await ctx.send("No se encontraron resultados para la linea temática**{}**.".format(principal_categoria))
+                await ctx.send("No se encontraron resultados para la linea temática**{}**.".format(principalCategoria))
         else:
-            await ctx.send("Ocurrió un error al buscar la linea temática **{}**.".format(principal_categoria))
+            await ctx.send("Ocurrió un error al buscar la linea temática **{}**.".format(principalCategoria))
 
     
     @commands.command(name='question')
