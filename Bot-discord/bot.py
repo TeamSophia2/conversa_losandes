@@ -301,7 +301,7 @@ class BOT(commands.Cog):
             #print("No se encontraron resultados para los conceptos clave proporcionados.")
         
         # Generar respuesta con OpenAI
-        response = openai.ChatCompletion.create(
+        response = openai.Completion.create(
             engine="gpt-3.5-turbo",
             prompt=f"{content}\n{question}",
             max_tokens=150  # Ajusta según lo necesario
