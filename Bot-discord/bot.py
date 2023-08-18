@@ -300,14 +300,22 @@ class BOT(commands.Cog):
             await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
             #print("No se encontraron resultados para los conceptos clave proporcionados.")
         
+        # Mensajes para la conversación con el modelo
+        conversation = [
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": question}
+        ]
+
         # Generar respuesta con OpenAI
-        response = openai.Completion.create(
-            engine="gpt-3.5-turbo",
-            prompt=f"{content}\n{question}",
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=conversation,
             max_tokens=150  # Ajusta según lo necesario
         )
-        answer = response.choices[0].text.strip()
+
+        answer = response.choices[0].message["content"]
         await ctx.send(f"Respuesta por OpenAI: {answer}")
+        
 
         
     
