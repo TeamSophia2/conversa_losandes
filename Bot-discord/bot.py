@@ -234,7 +234,7 @@ class BOT(commands.Cog):
 
     
     @commands.command(name='question')
-    async def question(self,ctx, *, question):
+    async def question(self,ctx, *, question, titulo:str):
         # Analiza sintácticamente la pregunta utilizando spaCy en español, se crea un objeto doc que representa el analisis sintactico
         # y linguistico del texto proporcionado en la pregunta.
         doc = nlp(question)
@@ -265,34 +265,34 @@ class BOT(commands.Cog):
 
         await ctx.send(f"Conceptos claves: {extracted_question_list}")
         #print(extracted_question_list)
+
             
         # Construir la consulta de Elasticsearch
         query = {
-        "query": {
-            "bool": {
-                "should": [{"match": {"abstract": word}} for word in extracted_question_list],
-                "minimum_should_match": 1  # Al menos un término debe coincidir
+            "query": {
+                "bool": {
+                    "must": [
+                        {"match": {"title": titulo}}
+                    ]
                 }
             }
         }
 
 
         #Consulta la base de datos 
-        response = self.es.search(index="documentos", body=query)
+        response = self.es.search(index="test_index", body=query)
 
-        abstracts_with_high_score = []  # Lista para almacenar los abstracts con score alto
+        #abstracts_with_high_score = []  # Lista para almacenar los abstracts con score alto
 
         #Procesar los resultados y enviar mensajes en Discord
         if "hits" in response and "hits" in response["hits"]:
             hits = response["hits"]["hits"]
-            await ctx.send("A continuación los documentos mas relevantes:")
+            #await ctx.send("A continuación los documentos mas relevantes:")
             for i, hit in enumerate(hits, start=1):
                 source = hit["_source"]
-                abstract = source.get("abstract", "Sin contenido")
+                content = source.get("content", "Sin contenido")
                 score = hit["_score"]
-                if score > 1.5:  # Filtrar por puntaje mayor a 1.5
-                    abstracts_with_high_score.append(abstract)
-                    await ctx.send(f"Resultado {i}:\nResumen: {abstract}\nScore: {score}\n")
+                await ctx.send(f"Resultado {i}:\nContenido: {abstract}\nScore: {score}\n")
 
             #print(abstracts_with_high_score)        
         else:
@@ -300,17 +300,13 @@ class BOT(commands.Cog):
             #print("No se encontraron resultados para los conceptos clave proporcionados.")
         
         # Generar respuesta con OpenAI
-        prompt = f"Pregunta: {question}\n\nResúmenes relevantes:\n\n"
-        for i, abstract in enumerate(abstracts_with_high_score, start=1):
-            prompt += f"{i}. {abstract}\n\n"
-
-        response = openai.Completion.create(
+        response = openai.ChatCompletion.create(
             engine="gpt-3.5-turbo",
-            prompt=prompt,
+            prompt=f"{content}\n{question}",
             max_tokens=150  # Ajusta según lo necesario
         )
         answer = response.choices[0].text.strip()
-        await ctx.send(f"Respuesta: {answer}")
+        await ctx.send(f"Respuesta por OpenAI: {answer}")
 
         
     
