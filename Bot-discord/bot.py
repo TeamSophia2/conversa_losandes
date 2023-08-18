@@ -9,6 +9,7 @@ import pandas as pd
 from elasticsearch import Elasticsearch
 import openai
 import spacy
+import tiktoken
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
 TOKEN_OPENAI = os.environ.get('GPT_TOKEN')
@@ -302,6 +303,13 @@ class BOT(commands.Cog):
         
         # Mensajes para la conversación con el modelo
         prompt = f"{question} {content}"
+        # Contar los tokens en el prompt
+        token_count = tiktoken.count_tokens(prompt)
+
+        # Imprimir el conteo de tokens
+        print(f"Número de tokens en el prompt: {token_count}")
+
+
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
