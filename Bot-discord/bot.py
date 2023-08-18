@@ -234,7 +234,8 @@ class BOT(commands.Cog):
 
     
     @commands.command(name='question')
-    async def question(self,ctx, *, question, titulo:str):
+    async def question(self,ctx, *, input_text):
+        question, title = input_text.split("?") 
         # Analiza sintácticamente la pregunta utilizando spaCy en español, se crea un objeto doc que representa el analisis sintactico
         # y linguistico del texto proporcionado en la pregunta.
         doc = nlp(question)
@@ -263,7 +264,7 @@ class BOT(commands.Cog):
         extracted_question = ', '.join(nouns_adjectives_and_proper_nouns)
         extracted_question_list = extracted_question.split(', ')
 
-        await ctx.send(f"Conceptos claves: {extracted_question_list}")
+        #await ctx.send(f"Conceptos claves: {extracted_question_list}")
         #print(extracted_question_list)
 
             
