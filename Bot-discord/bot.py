@@ -301,15 +301,17 @@ class BOT(commands.Cog):
             #print("No se encontraron resultados para los conceptos clave proporcionados.")
         
         # Mensajes para la conversación con el modelo
+        prompt = f"{question} {content}"
         response = openai.ChatCompletion.create(
-            engine="gpt-3.5-turbo",
+            model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": f"{titulo}\n{question}"}
-            ],
-            max_tokens=150  # Ajusta según lo necesario
+                {"role": "user", "content": prompt}
+            ]
         )
-        answer = response.choices[0].text.strip()
+
+        answer = response.choices[0].message["content"]
+
         #await ctx.send(f"Respuesta por OpenAI: {answer}")
         print(f"Respuesta por OpenAI: {answer}")
         
