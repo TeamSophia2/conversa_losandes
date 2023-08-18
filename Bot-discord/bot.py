@@ -293,7 +293,7 @@ class BOT(commands.Cog):
                 source = hit["_source"]
                 content = source.get("content", "Sin contenido")
                 score = hit["_score"]
-                await ctx.send(f"Resultado {i}:\nContenido: {content}\nScore: {score}\n")
+                #await ctx.send(f"Resultado {i}:\nContenido: {content}\nScore: {score}\n")
 
             #print(abstracts_with_high_score)        
         else:
