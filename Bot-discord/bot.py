@@ -10,6 +10,7 @@ from elasticsearch import Elasticsearch
 import openai
 import spacy
 import tiktoken
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
 TOKEN_OPENAI = os.environ.get('GPT_TOKEN')
@@ -236,39 +237,7 @@ class BOT(commands.Cog):
     
     @commands.command(name='question')
     async def question(self,ctx, *, input_text):
-        question, titulo = input_text.split("?") 
-        # Analiza sintácticamente la pregunta utilizando spaCy en español, se crea un objeto doc que representa el analisis sintactico
-        # y linguistico del texto proporcionado en la pregunta.
-        doc = nlp(question)
-
-        # Extrae sustantivos,adjetivos y nombre propio como conceptos clave, incluyendo los que están después de un artículo
-        nouns_adjectives_and_proper_nouns = []
-        i = 0
-        
-        while i < len(doc):
-            token = doc[i]
-            if token.pos_ == "DET" and i + 2 < len(doc):
-                j = i + 2
-                next_token = doc[i+1]  # Token siguiente al artículo
-                if next_token.pos_ in ["CCONJ", "ADP"]:
-                    nouns_adjectives_and_proper_nouns.append(f"{token.text} {doc[i+1].text}")  # Agrega solo el artículo y el token siguiente
-                else:
-                    nouns_adjectives_and_proper_nouns.append(f"{token.text} {doc[i+1:i+2].text}")  # Agrega el artículo y los dos tokens siguientes
-                i = j  # Salta al índice después de lo que sigue
-
-            elif token.pos_ == "NOUN" or token.pos_ == "ADJ" or token.pos_ == "PROPN":
-                nouns_adjectives_and_proper_nouns.append(token.text)  # Agrega el sustantivo, adjetivo o nombre propio
-                i += 1  # Avanza al siguiente token
-            else:
-                i += 1
-
-        extracted_question = ', '.join(nouns_adjectives_and_proper_nouns)
-        extracted_question_list = extracted_question.split(', ')
-
-        #await ctx.send(f"Conceptos claves: {extracted_question_list}")
-        #print(extracted_question_list)
-
-            
+        question, titulo = input_text.split("?")     
         # Construir la consulta de Elasticsearch
         query = {
             "query": {
@@ -279,12 +248,8 @@ class BOT(commands.Cog):
                 }
             }
         }
-
-
         #Consulta la base de datos 
         response = self.es.search(index="test_index", body=query)
-
-        #abstracts_with_high_score = []  # Lista para almacenar los abstracts con score alto
 
         #Procesar los resultados y enviar mensajes en Discord
         if "hits" in response and "hits" in response["hits"]:
@@ -295,21 +260,22 @@ class BOT(commands.Cog):
                 content = source.get("content", "Sin contenido")
                 score = hit["_score"]
                 #await ctx.send(f"Resultado {i}:\nContenido: {content}\nScore: {score}\n")
-
             #print(abstracts_with_high_score)        
         else:
             await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
             #print("No se encontraron resultados para los conceptos clave proporcionados.")
-        
+
+        # Vectorizar el contenido del documento usando TF-IDF
+        vectorizer = TfidfVectorizer()
+        tfidf_matrix = vectorizer.fit_transform([content])
+        # Convertir la matriz TF-IDF a un vector promedio
+        document_vector = tfidf_matrix.mean(axis=0)
+        # Transformar el vector a una representación de texto
+        document_vector_text = " ".join(str(value) for value in document_vector.tolist()[0])
+
+
         # Mensajes para la conversación con el modelo
-        prompt = f"{question} {content}"
-        # Contar los tokens en el prompt
-        token_count = tiktoken.count_tokens(prompt)
-
-        # Imprimir el conteo de tokens
-        #print(f"Número de tokens en el prompt: {token_count}")
-
-
+        prompt = f"{question} {document_vector_text}"
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
@@ -317,9 +283,7 @@ class BOT(commands.Cog):
                 {"role": "user", "content": prompt}
             ]
         )
-
         answer = response.choices[0].message["content"]
-
         #await ctx.send(f"Respuesta por OpenAI: {answer}")
         print(f"Respuesta por OpenAI: {answer}")
         
