@@ -10,8 +10,8 @@ from elasticsearch import Elasticsearch
 import openai
 import spacy
 import tiktoken
-#from llama_index import TreeIndex, SimpleDirectoryReader
-import llama_index
+from llama_index import TreeIndex, SimpleDirectoryReader,Document
+
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
 TOKEN_OPENAI = os.environ.get('GPT_TOKEN')
