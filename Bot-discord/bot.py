@@ -272,7 +272,8 @@ class BOT(commands.Cog):
 
         #print(content_list)
         #crear documento manualmente
-        content_doc = [Document(t) for t in content_list]
+        text_list = ["1","2"]
+        content_doc = [Document(t) for t in text_list]
         print(content_doc)
        
 
