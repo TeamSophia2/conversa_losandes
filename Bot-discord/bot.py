@@ -10,8 +10,8 @@ from elasticsearch import Elasticsearch
 import openai
 import spacy
 import tiktoken
+from llama_index import TreeIndex, SimpleDirectoryReader
 
-from sklearn.feature_extraction.text import TfidfVectorizer
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
 TOKEN_OPENAI = os.environ.get('GPT_TOKEN')
@@ -258,8 +258,8 @@ class BOT(commands.Cog):
             #await ctx.send("A continuación los documentos mas relevantes:")
             for i, hit in enumerate(hits, start=1):
                 source = hit["_source"]
-                #content = source.get("content", "Sin contenido")
-                abstract = source.get("abstract", "Sin contenido")
+                content = source.get("content", "Sin contenido")
+                #abstract = source.get("abstract", "Sin contenido")
                 score = hit["_score"]
                 #await ctx.send(f"Resultado {i}:\nContenido: {content}\nScore: {score}\n")
             #print(abstracts_with_high_score)        
@@ -267,8 +267,8 @@ class BOT(commands.Cog):
             await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
             #print("No se encontraron resultados para los conceptos clave proporcionados.")
 
-        # Creacion de documento manualmente
-        print(abstract)
+        
+        print(content)
        
 
         # Mensajes para la conversación con el modelo
