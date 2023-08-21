@@ -259,9 +259,9 @@ class BOT(commands.Cog):
             content_list = []
             #await ctx.send("A continuación los documentos mas relevantes:")
             for i, hit in enumerate(hits, start=1):
+                print("en el for")
                 source = hit["_source"]
                 content= source.get("content", "Sin contenido")
-               #print(content)
                 content_list.append(content)
                 #abstract = source.get("abstract", "Sin contenido")
                 score = hit["_score"]
@@ -271,6 +271,8 @@ class BOT(commands.Cog):
             await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
             #print("No se encontraron resultados para los conceptos clave proporcionados.")
 
+        
+    
         print(f"El largo es:", len(content_list))
         
         #crear documento manualmente
