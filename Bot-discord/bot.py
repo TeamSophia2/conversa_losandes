@@ -252,13 +252,16 @@ class BOT(commands.Cog):
         #Consulta la base de datos 
         response = self.es.search(index="test_index", body=query)
 
+        
         #Procesar los resultados y enviar mensajes en Discord
         if "hits" in response and "hits" in response["hits"]:
             hits = response["hits"]["hits"]
+            content_list = []
             #await ctx.send("A continuación los documentos mas relevantes:")
             for i, hit in enumerate(hits, start=1):
                 source = hit["_source"]
                 content = source.get("content", "Sin contenido")
+                content_list.append(content)
                 #abstract = source.get("abstract", "Sin contenido")
                 score = hit["_score"]
                 #await ctx.send(f"Resultado {i}:\nContenido: {content}\nScore: {score}\n")
@@ -267,10 +270,10 @@ class BOT(commands.Cog):
             await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
             #print("No se encontraron resultados para los conceptos clave proporcionados.")
 
-        
+        print(content_list)
         #crear documento manualmente
-        content_doc = [Document(t) for t in content]
-        print(content_doc)
+        #content_doc = [Document(t) for t in content]
+        #print(content_doc)
        
 
         # Mensajes para la conversación con el modelo
