@@ -269,11 +269,10 @@ class BOT(commands.Cog):
 
         # Creacion de documento manualmente
         print(abstract)
-        # Convertir los vectores a texto
-        #content_vector_text = " ".join(str(value) for value in vectorized_content.tolist())
+       
 
         # Mensajes para la conversación con el modelo
-        prompt = f"{question} {abstract}"
+        """prompt = f"{question} {abstract}"
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
@@ -283,7 +282,7 @@ class BOT(commands.Cog):
         )
         answer = response.choices[0].message["content"]
         #await ctx.send(f"Respuesta por OpenAI: {answer}")
-        print(f"Respuesta por OpenAI: {answer}")
+        print(f"Respuesta por OpenAI: {answer}")"""
         
 
         
