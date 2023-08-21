@@ -10,7 +10,7 @@ from elasticsearch import Elasticsearch
 import openai
 import spacy
 import tiktoken
-from llama_index import VectorStoreIndex, SimpleDirectoryReader
+
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
@@ -267,8 +267,7 @@ class BOT(commands.Cog):
             #print("No se encontraron resultados para los conceptos clave proporcionados.")
 
         # Creacion de documento manualmente
-        content_document = [Document(t) for t in content]
-        print(content_document)
+        
         # Convertir los vectores a texto
         #content_vector_text = " ".join(str(value) for value in vectorized_content.tolist())
 
