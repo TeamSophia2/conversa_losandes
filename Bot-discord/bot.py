@@ -10,7 +10,7 @@ from elasticsearch import Elasticsearch
 import openai
 import spacy
 import tiktoken
-from llama_index import llamaindex
+from llama_index import Document
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
@@ -266,13 +266,14 @@ class BOT(commands.Cog):
             await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
             #print("No se encontraron resultados para los conceptos clave proporcionados.")
 
-        # Usar LlamaIndex para transformar el contenido en vectores
-        vectorized_content = llamaindex.encode(content)
+        # Creacion de documento manualmente
+        content_document = [Document(t) for t in content]
+        print(content_document)
         # Convertir los vectores a texto
-        content_vector_text = " ".join(str(value) for value in vectorized_content.tolist())
+        #content_vector_text = " ".join(str(value) for value in vectorized_content.tolist())
 
         # Mensajes para la conversación con el modelo
-        prompt = f"{question} {content_vector_text}"
+        """prompt = f"{question} {content_vector_text}"
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
@@ -282,7 +283,7 @@ class BOT(commands.Cog):
         )
         answer = response.choices[0].message["content"]
         #await ctx.send(f"Respuesta por OpenAI: {answer}")
-        print(f"Respuesta por OpenAI: {answer}")
+        print(f"Respuesta por OpenAI: {answer}")"""
         
 
         
