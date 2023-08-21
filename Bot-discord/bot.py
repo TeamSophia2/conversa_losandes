@@ -271,9 +271,9 @@ class BOT(commands.Cog):
             #print("No se encontraron resultados para los conceptos clave proporcionados.")
 
         #print(content_list)
+
         #crear documento manualmente
-        text_list = ["1","2"]
-        content_doc = [Document(t) for t in text_list]
+        content_doc = [Document(t) for t in content_list]
         print(content_doc)
        
 
