@@ -271,7 +271,7 @@ class BOT(commands.Cog):
             await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
             #print("No se encontraron resultados para los conceptos clave proporcionados.")
 
-        print(f"El largo es:" len(content_list))
+        print(f"El largo es:", len(content_list))
         
         #crear documento manualmente
         #content_doc = [Document(text=t) for t in content_list]
