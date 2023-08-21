@@ -10,7 +10,7 @@ from elasticsearch import Elasticsearch
 import openai
 import spacy
 import tiktoken
-from llama_index import Document
+from llama_index import VectorStoreIndex, SimpleDirectoryReader
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
