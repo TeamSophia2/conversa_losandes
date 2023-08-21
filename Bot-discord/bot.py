@@ -258,13 +258,14 @@ class BOT(commands.Cog):
             hits = response["hits"]["hits"]
             content_list = []
             #await ctx.send("A continuación los documentos mas relevantes:")
-            
-            source = hit["_source"]
-            content= source.get("content", "Sin contenido")
-            content_list.append(content)
-            #abstract = source.get("abstract", "Sin contenido")
-            score = hit["_score"]
-            #await ctx.send(f"Resultado {i}:\nContenido: {content}\nScore: {score}\n")
+            if hits:
+                hit = hits[0]
+                source = hit["_source"]
+                content= source.get("content", "Sin contenido")
+                content_list.append(content)
+                #abstract = source.get("abstract", "Sin contenido")
+                score = hit["_score"]
+                #await ctx.send(f"Resultado {i}:\nContenido: {content}\nScore: {score}\n")
             #print(abstracts_with_high_score)        
         else:
             await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
