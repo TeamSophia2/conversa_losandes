@@ -268,7 +268,9 @@ class BOT(commands.Cog):
             #print("No se encontraron resultados para los conceptos clave proporcionados.")
 
         
-        print(content)
+        #crear documento manualmente
+        content_doc = [Document(t) for t in content]
+        print(content_doc)
        
 
         # Mensajes para la conversación con el modelo
