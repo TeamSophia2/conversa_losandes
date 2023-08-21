@@ -270,10 +270,10 @@ class BOT(commands.Cog):
             await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
             #print("No se encontraron resultados para los conceptos clave proporcionados.")
 
-        print(content_list)
+        #print(content_list)
         #crear documento manualmente
-        #content_doc = [Document(t) for t in content]
-        #print(content_doc)
+        content_doc = [Document(t) for t in content]
+        print(content_doc)
        
 
         # Mensajes para la conversación con el modelo
