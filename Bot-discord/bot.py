@@ -261,6 +261,7 @@ class BOT(commands.Cog):
             for i, hit in enumerate(hits, start=1):
                 source = hit["_source"]
                 content = source.get("content", "Sin contenido")
+                print(content)
                 content_list.append(content)
                 #abstract = source.get("abstract", "Sin contenido")
                 score = hit["_score"]
@@ -274,6 +275,8 @@ class BOT(commands.Cog):
 
         #crear documento manualmente
         content_doc = [Document(text=t) for t in content_list]
+
+
         print(content_doc)
        
 
