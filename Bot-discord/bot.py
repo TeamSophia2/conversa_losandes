@@ -258,7 +258,8 @@ class BOT(commands.Cog):
             #await ctx.send("A continuación los documentos mas relevantes:")
             for i, hit in enumerate(hits, start=1):
                 source = hit["_source"]
-                content = source.get("content", "Sin contenido")
+                #content = source.get("content", "Sin contenido")
+                abstract = source.get("abstract", "Sin contenido")
                 score = hit["_score"]
                 #await ctx.send(f"Resultado {i}:\nContenido: {content}\nScore: {score}\n")
             #print(abstracts_with_high_score)        
@@ -267,12 +268,12 @@ class BOT(commands.Cog):
             #print("No se encontraron resultados para los conceptos clave proporcionados.")
 
         # Creacion de documento manualmente
-        print(content)
+        print(abstract)
         # Convertir los vectores a texto
         #content_vector_text = " ".join(str(value) for value in vectorized_content.tolist())
 
         # Mensajes para la conversación con el modelo
-        """prompt = f"{question} {content_vector_text}"
+        prompt = f"{question} {abstract}"
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
@@ -282,7 +283,7 @@ class BOT(commands.Cog):
         )
         answer = response.choices[0].message["content"]
         #await ctx.send(f"Respuesta por OpenAI: {answer}")
-        print(f"Respuesta por OpenAI: {answer}")"""
+        print(f"Respuesta por OpenAI: {answer}")
         
 
         
