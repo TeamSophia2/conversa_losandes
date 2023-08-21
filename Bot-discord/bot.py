@@ -10,8 +10,8 @@ from elasticsearch import Elasticsearch
 import openai
 import spacy
 import tiktoken
-from llama_index import TreeIndex, SimpleDirectoryReader
-
+#from llama_index import TreeIndex, SimpleDirectoryReader
+import llama_index
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
 TOKEN_OPENAI = os.environ.get('GPT_TOKEN')
@@ -272,7 +272,7 @@ class BOT(commands.Cog):
        
 
         # Mensajes para la conversación con el modelo
-        """prompt = f"{question} {abstract}"
+        """prompt = f"{question} {content}"
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
