@@ -10,7 +10,7 @@ from elasticsearch import Elasticsearch
 import openai
 import spacy
 import tiktoken
-from llama_index import TreeIndex, SimpleDirectoryReader,Document
+from llama_index import SimpleDirectoryReader,Document, VectorStoreIndex, StorageContext, load_index_from_storage
 
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
@@ -263,7 +263,6 @@ class BOT(commands.Cog):
                 source = hit["_source"]
                 content= source.get("content", "Sin contenido")
                 content_list.append(content)
-                #abstract = source.get("abstract", "Sin contenido")
                 score = hit["_score"]
                 #await ctx.send(f"Resultado {i}:\nContenido: {content}\nScore: {score}\n")
             #print(abstracts_with_high_score)        
@@ -272,28 +271,69 @@ class BOT(commands.Cog):
             #print("No se encontraron resultados para los conceptos clave proporcionados.")
 
         
-        print(content_list)
+        #print(content_list)
         #print(f"El largo es:", len(content_list))
+
+
+        directory = "/home/conversa_losandes/Bot-discord"  # Reemplaza con la ruta al directorio que deseas verificar
+        file_name = "index_store.json"
+
+        file_path = os.path.join(directory, file_name)
+
+
+        if os.path.exists(file_path):
+            print("YA EXISTE INDEX")
+
+            # Rebuild storage context
+            storage_context = StorageContext.from_defaults(persist_dir="/home/conversa_losandes/Bot-discord")
+
+            # Load index from the storage context
+            new_index = load_index_from_storage(storage_context)
+
+            query_engine = index.as_query_engine()
+
+            await ctx.send(question)
+
+            response = query_engine.query(question)
+            await ctx.send(f"Respuesta de ChatGPT: {response}") 
         
-        #crear documento manualmente
+
+        else:
+            print("NO EXISTE INDEX")
+            #Transforma a documento
+            content_doc = [Document(text=t) for t in content_list]
+            #Vectoriza
+            index = VectorStoreIndex.from_documents(content_doc)
+         
+            # Persist index to disk
+            index.storage_context.persist(persist_dir="/home/conversa_losandes/Bot-discord")
+            
+            query_engine = index.as_query_engine()
+
+            await ctx.send(question)
+
+            response = query_engine.query(question)
+            await ctx.send(f"Respuesta de ChatGPT: {response}") 
+
+
+
+
+
+        """#crear documento manualmente
         content_doc = [Document(text=t) for t in content_list]
 
+        #indexar(vectorizar) el documento
+        index = VectorStoreIndex.from_documents(content_doc)
 
-        #print(content_doc)
+        #Para consultar
+        query_engine = index.as_query_engine()
+
+        #Respuesta usando GPT
+        response = query_engine.query(question)
+        print(response)"""
        
 
-        # Mensajes para la conversación con el modelo
-        """prompt = f"{question} {content}"
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": prompt}
-            ]
-        )
-        answer = response.choices[0].message["content"]
-        #await ctx.send(f"Respuesta por OpenAI: {answer}")
-        print(f"Respuesta por OpenAI: {answer}")"""
+       
         
 
         
