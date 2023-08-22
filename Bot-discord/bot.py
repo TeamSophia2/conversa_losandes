@@ -18,7 +18,7 @@ TOKEN_OPENAI = os.environ.get('GPT_TOKEN')
 openai.api_key = TOKEN_OPENAI
 
 
-nlp = spacy.load("es_core_news_sm")
+#nlp = spacy.load("es_core_news_sm")
 
 class BOT(commands.Cog):
     def __init__(self, bot):
@@ -274,7 +274,7 @@ class BOT(commands.Cog):
         #print(content_list)
         #print(f"El largo es:", len(content_list))
 
-
+        content_list = ["esto es un test"]
         directory = "/home/conversa_losandes/Bot-discord"  # Reemplaza con la ruta al directorio que deseas verificar
         file_name = "index_store.json"
 
@@ -290,7 +290,7 @@ class BOT(commands.Cog):
             # Load index from the storage context
             new_index = load_index_from_storage(storage_context)
 
-            query_engine = index.as_query_engine()
+            query_engine = new_index.as_query_engine()
 
             await ctx.send(question)
 
@@ -300,7 +300,7 @@ class BOT(commands.Cog):
 
         else:
             print("NO EXISTE INDEX")
-            #Transforma a documento
+            #Transforma la lista a documento
             content_doc = [Document(text=t) for t in content_list]
             #Vectoriza
             index = VectorStoreIndex.from_documents(content_doc)
