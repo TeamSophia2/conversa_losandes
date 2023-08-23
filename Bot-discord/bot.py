@@ -202,13 +202,29 @@ class BOT(commands.Cog):
         else:
             await ctx.send("No se encontraron resultados para la palabra clave proporcionada.")
         """
-    
     @commands.command(name='search')
-    async def search(ctx, *arguments):
-       
+    def search(self, command):
+        params = command.split(",")
+        keywords = ""
+        category = ""
+
+        for param in params:
+            key, value = param.strip().split(":")
+            if key == "keywords":
+                keywords = value
+            elif key == "category":
+                category = value
+
+        keyword_list = keywords.split(";")
+        print("Realizando búsqueda con las siguientes palabras clave:", keyword_list)
+        print("Categoría de búsqueda:", category)
+        print("Resultados:")
+        for keyword in keyword_list:
+            print(f" - Resultado relacionado con '{keyword}' en la categoría '{category}'")
+
+            
 
 
-        print(arguments)
  
 
 
