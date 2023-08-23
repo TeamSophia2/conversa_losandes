@@ -295,7 +295,8 @@ class BOT(commands.Cog):
             await ctx.send(question)
 
             response = query_engine.query(question)
-            await ctx.send(f"Respuesta de ChatGPT: {response}") 
+            #await ctx.send(f"Respuesta de ChatGPT: {response}") 
+            print(response)
         
 
         else:
@@ -313,7 +314,8 @@ class BOT(commands.Cog):
             await ctx.send(question)
 
             response = query_engine.query(question)
-            await ctx.send(f"Respuesta de ChatGPT: {response}") 
+            #await ctx.send(f"Respuesta de ChatGPT: {response}") 
+            print(response)
 
 
 
