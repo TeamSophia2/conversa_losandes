@@ -312,7 +312,7 @@ class BOT(commands.Cog):
             
     
 
-    @commands.command(name='!query')
+    @commands.command(name='query')
     async def query(self,ctx, *, question):
         question_prompt = QUERY.format(question=question)
         response = dbChain.run(question_prompt)
