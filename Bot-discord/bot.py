@@ -203,7 +203,7 @@ class BOT(commands.Cog):
             await ctx.send("No se encontraron resultados para la palabra clave proporcionada.")
         """
     @commands.command(name='search')
-    def search(self, command):
+    async def search(self, command):
         params = command.split(",")
         keywords = ""
         category = ""
