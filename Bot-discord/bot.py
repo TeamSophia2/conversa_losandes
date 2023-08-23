@@ -211,10 +211,6 @@ class BOT(commands.Cog):
             key, value = param.strip().split(":")
             search_params[key] = value
 
-        print("Parámetros de búsqueda:")
-        for key, value in search_params.items():
-            print(f"{key}: {value}")
-
         # Realizar la búsqueda en Elasticsearch
         search_body = {
             "query": {
@@ -222,10 +218,10 @@ class BOT(commands.Cog):
                     "must": [],
                     "filter": []
                 }
-            }
+            },
+            "sort": [{"_score": {"order": "desc"}}]  # Ordenar por mejor score
         }
 
-        # Agregar condiciones de búsqueda según los parámetros proporcionados
         if search_params.get("region"):
             search_body["query"]["bool"]["must"].append({"match": {"region": search_params["region"]}})
         if search_params.get("categoria"):
@@ -235,7 +231,9 @@ class BOT(commands.Cog):
         if search_params.get("laboratorio"):
             search_body["query"]["bool"]["must"].append({"match": {"labTematico": search_params["laboratorio"]}})
         if search_params.get("keywords"):
-            search_body["query"]["bool"]["must"].append({"match": {"content": search_params["keywords"]}})
+            keywords = search_params["keywords"].split(";")
+            keyword_queries = [{"match": {"content": keyword}} for keyword in keywords]
+            search_body["query"]["bool"]["must"].extend(keyword_queries)
         if search_params.get("fecha_inicio") or search_params.get("fecha_fin"):
             date_range = {}
             if search_params.get("fecha_inicio"):
@@ -246,15 +244,15 @@ class BOT(commands.Cog):
         
         response = self.es.search(index="nuevo_indice", body=search_body)
 
-        # Obtener los títulos de los documentos
-        titles = [hit["_source"]["title"] for hit in response["hits"]["hits"]]
-        
-        # Enviar los títulos como respuesta
-        if titles:
-            response_message = "\n".join(titles)
-            await ctx.send("Títulos de documentos encontrados:\n" + response_message)
+        results = response["hits"]["hits"]
+        formatted_results = "\n".join([f"**{hit['_source']['title']}** (Score: {hit['_score']:.2f})" for hit in results])
+
+        if formatted_results:
+            response_message = f"Mejores documentos encontrados:\n{formatted_results}"
+            await ctx.send(response_message)
         else:
             await ctx.send("No se encontraron documentos.")
+
 
 
  
