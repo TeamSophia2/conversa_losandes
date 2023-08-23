@@ -2,15 +2,16 @@ from langchain import OpenAI, SQLDatabase
 import openai
 from langchain_experimental.sql import SQLDatabaseChain
 import os
-OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
-openai.api_key = OPENAI_API_KEY
+TOKEN_OPENAI = os.environ.get('OPENAI_API_KEY')
+openai.api_key = TOKEN_OPENAI
+
 
 
 # Set up database
 db = SQLDatabase.from_uri(
     f"mysql+pymysql://andes:andes@localhost/andes",
 )
-llm = OpenAI(temperature=0)
+llm = OpenAI(openai_api_key=TOKEN_OPENAI, temperature=0)
 
 # Create db chain
 QUERY = """
