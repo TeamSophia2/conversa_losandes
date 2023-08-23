@@ -175,6 +175,7 @@ class BOT(commands.Cog):
 
     # busca en el titulo y en abstract alguna palabra clave
 
+    """
     @commands.command(name='search')
     async def search(self, ctx, *, palabraClave):
         # Realiza una consulta a Elasticsearch para buscar documentos que contengan la palabra clave en el título o abstract
@@ -200,6 +201,19 @@ class BOT(commands.Cog):
                 await ctx.send(f"Resultado {i}:\nTítulo: {title}\nResumen: {abstract}\n")
         else:
             await ctx.send("No se encontraron resultados para la palabra clave proporcionada.")
+        """
+    
+    @commands.command(name='search')
+    async def search(ctx, *args):
+        keywords = None
+        fecha_range = None
+        laboratorio = None  
+        categoria = None
+        ciudad = None
+        region = None
+
+
+
 
     # busca en principalCategory
 
