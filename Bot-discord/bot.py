@@ -286,10 +286,11 @@ class BOT(commands.Cog):
 
             query_engine = new_index.as_query_engine()
 
-            await ctx.send(question)
+            #await ctx.send(question)
 
             response = query_engine.query(question)
-            await ctx.send(response) 
+            #await ctx.send(response)
+            print(response) 
 
         else:
             print("NO EXISTE INDEX")
@@ -303,10 +304,11 @@ class BOT(commands.Cog):
             
             query_engine = index.as_query_engine()
 
-            await ctx.send(question)
+            #await ctx.send(question)
 
             response = query_engine.query(question)
-            await ctx.send(response) 
+            #await ctx.send(response) 
+            print(response)
             
     
 
