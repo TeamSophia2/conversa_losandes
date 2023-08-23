@@ -211,6 +211,10 @@ class BOT(commands.Cog):
             key, value = param.strip().split(":")
             search_params[key] = value
 
+        print("Parámetros de búsqueda:")
+        for key, value in search_params.items():
+            print(f"{key}: {value}")
+
         # Realizar la búsqueda en Elasticsearch
         search_body = {
             "query": {
@@ -248,9 +252,9 @@ class BOT(commands.Cog):
         # Enviar los títulos como respuesta
         if titles:
             response_message = "\n".join(titles)
-            print("Títulos de documentos encontrados:\n" + response_message)
+            await ctx.send("Títulos de documentos encontrados:\n" + response_message)
         else:
-           print("No se encontraron documentos.")
+            await ctx.send("No se encontraron documentos.")
 
 
  
