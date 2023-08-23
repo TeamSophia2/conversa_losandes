@@ -211,6 +211,10 @@ class BOT(commands.Cog):
             key, value = param.strip().split(":")
             search_params[key] = value
 
+        print("Parámetros de búsqueda:")
+        for key, value in search_params.items():
+            print(f"{key}: {value}")
+            
         # Realizar la búsqueda en Elasticsearch
         search_body = {
             "query": {
