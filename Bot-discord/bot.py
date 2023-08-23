@@ -274,7 +274,7 @@ class BOT(commands.Cog):
         #print(content_list)
         #print(f"El largo es:", len(content_list))
 
-        """content_list = ["esto es un test"]
+        content_list = ["esto es un test"]
         directory = "/home/conversa_losandes/Bot-discord"  # Reemplaza con la ruta al directorio que deseas verificar
         file_name = "index_store.json"
 
@@ -313,13 +313,13 @@ class BOT(commands.Cog):
             await ctx.send(question)
 
             response = query_engine.query(question)
-            await ctx.send(f"Respuesta de ChatGPT: {response}") """
+            await ctx.send(f"Respuesta de ChatGPT: {response}") 
 
 
 
 
 
-        #crear documento manualmente
+        """#crear documento manualmente
         content_doc = [Document(text=t) for t in content_list]
 
         #indexar(vectorizar) el documento
@@ -330,7 +330,7 @@ class BOT(commands.Cog):
 
         #Respuesta usando GPT
         response = query_engine.query(question)
-        await ctx.send(f"Respuesta de ChatGPT: {response}") 
+        print(response)"""
        
 
        
