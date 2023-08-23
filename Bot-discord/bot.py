@@ -245,14 +245,13 @@ class BOT(commands.Cog):
         response = self.es.search(index="nuevo_indice", body=search_body)
 
         results = response["hits"]["hits"]
-        formatted_results = "\n".join([f"**{hit['_source']['title']}** (Score: {hit['_score']:.2f})" for hit in results])
+        formatted_results = "\n".join([f"{i+1}. **{hit['_source']['title']}** (Score: {hit['_score']:.2f})" for i, hit in enumerate(results)])
 
         if formatted_results:
             response_message = f"Mejores documentos encontrados:\n{formatted_results}"
             await ctx.send(response_message)
         else:
             await ctx.send("No se encontraron documentos.")
-
 
 
  
