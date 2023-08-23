@@ -11,7 +11,7 @@ import openai
 import spacy
 import tiktoken
 from llama_index import SimpleDirectoryReader,Document, VectorStoreIndex, StorageContext, load_index_from_storage
-
+from utils.langchainConfiguration import dbChain, QUERY
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
 TOKEN_OPENAI = os.environ.get('GPT_TOKEN')
@@ -311,6 +311,13 @@ class BOT(commands.Cog):
             #print(response)
             
     
+
+    @commands.command(name='!query')
+    async def query(self,ctx, *, question):
+        question_prompt = QUERY.format(question=question)
+        response = dbChain.run(question_prompt)
+        await ctx.send(response)
+
 
     @commands.command(name='commands')
     async def commands(self, ctx):
