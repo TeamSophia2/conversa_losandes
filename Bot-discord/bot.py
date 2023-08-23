@@ -15,7 +15,7 @@ from utils.langchainConfiguration import dbChain, QUERY
 from langchain.chat_models import ChatOpenAI
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
-TOKEN_OPENAI = os.environ.get('GPT_TOKEN')
+TOKEN_OPENAI = os.environ.get('OPENAI_API_KEY')
 openai.api_key = TOKEN_OPENAI
 
 
@@ -361,7 +361,7 @@ class BOT(commands.Cog):
             #Transforma la lista a documento
             content_doc = [Document(text=t) for t in content_list]
 
-            llm_predictor = LLMPredictor(llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo"))
+            llm_predictor = LLMPredictor(llm=ChatOpenAI(model_name="gpt-3.5-turbo"))
             service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
 
             #Vectoriza
