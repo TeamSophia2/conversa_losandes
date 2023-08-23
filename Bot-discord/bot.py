@@ -270,16 +270,10 @@ class BOT(commands.Cog):
             await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
             #print("No se encontraron resultados para los conceptos clave proporcionados.")
 
-        
-        #print(content_list)
-        #print(f"El largo es:", len(content_list))
 
-        content_list = ["esto es un test"]
         directory = "/home/conversa_losandes/Bot-discord"  # Reemplaza con la ruta al directorio que deseas verificar
         file_name = "index_store.json"
-
         file_path = os.path.join(directory, file_name)
-
 
         if os.path.exists(file_path):
             print("YA EXISTE INDEX")
@@ -295,9 +289,7 @@ class BOT(commands.Cog):
             await ctx.send(question)
 
             response = query_engine.query(question)
-            #await ctx.send(f"Respuesta de ChatGPT: {response}") 
-            print(response)
-        
+            await ctx.send(f"Respuesta de ChatGPT: {response}") 
 
         else:
             print("NO EXISTE INDEX")
@@ -314,31 +306,8 @@ class BOT(commands.Cog):
             await ctx.send(question)
 
             response = query_engine.query(question)
-            #await ctx.send(f"Respuesta de ChatGPT: {response}") 
-            print(response)
-
-
-
-
-
-        """#crear documento manualmente
-        content_doc = [Document(text=t) for t in content_list]
-
-        #indexar(vectorizar) el documento
-        index = VectorStoreIndex.from_documents(content_doc)
-
-        #Para consultar
-        query_engine = index.as_query_engine()
-
-        #Respuesta usando GPT
-        response = query_engine.query(question)
-        print(response)"""
-       
-
-       
-        
-
-        
+            await ctx.send(f"Respuesta de ChatGPT: {response}") 
+            
     
 
     @commands.command(name='commands')
@@ -348,7 +317,8 @@ class BOT(commands.Cog):
             "`!addManualDocument`: Agrega un documento manualmente. Uso: `!addManualDocument datos_del_documento`.\n"
             "`!addDocument`: Agrega documentos desde un archivo CSV adjunto. Uso: `!addDocument`.\n"
             "`!search palabra_clave`: Busca documentos por palabra clave en el título o abstract. Uso: `!search palabra_clave`.\n"
-            "`!searchTematicLine tematica`: Busca documentos por linea temática. Uso: `!searchTematicLine tematica`."
+            "`!searchTematicLine tematica`: Busca documentos por linea temática. Uso: `!searchTematicLine tematica`.\n"
+            "`!question pregunta titulo`: Realiza una pregunta al contenido del documento del titulo. Uso: `!question pregunta titulo`."
         )
         await ctx.send(help_message)
 
