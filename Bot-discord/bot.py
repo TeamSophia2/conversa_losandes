@@ -226,8 +226,6 @@ class BOT(commands.Cog):
             elif arg.startswith("region:"):
                 region_arg = arg[len("region:"):]
 
-        # Resto del código para construir la consulta y buscar en Elasticsearch
-
 
         print(keyword_arg)
  
