@@ -244,16 +244,16 @@ class BOT(commands.Cog):
         
         response = self.es.search(index="nuevo_indice", body=search_body)
 
-        results = response["hits"]["hits"]
-        formatted_results = "\n".join([f"{i+1}. **{hit['_source']['title']}** (Score: {hit['_score']:.2f}) [{hit['_source']['link']}]" for i, hit in enumerate(results)])
+        # Filtrar resultados con score mayor a 10
+        high_score_results = [hit for hit in response["hits"]["hits"] if hit["_score"] > 10]
+
+        formatted_results = "\n".join([f"{i+1}. **{hit['_source']['title']}** (Score: {hit['_score']:.2f}) [{hit['_source']['link']}]" for i, hit in enumerate(high_score_results)])
 
         if formatted_results:
             response_message = f"Mejores documentos encontrados:\n{formatted_results}"
             await ctx.send(response_message)
         else:
-            await ctx.send("No se encontraron documentos.")
-
-
+            await ctx.send("No se encontraron documentos importantes")
  
 
 
