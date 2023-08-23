@@ -10,8 +10,9 @@ from elasticsearch import Elasticsearch
 import openai
 import spacy
 import tiktoken
-from llama_index import SimpleDirectoryReader,Document, VectorStoreIndex, StorageContext, load_index_from_storage
+from llama_index import LLMPredictor, ServiceContext, SimpleDirectoryReader,Document, VectorStoreIndex, StorageContext, load_index_from_storage
 from utils.langchainConfiguration import dbChain, QUERY
+from langchain.chat_models import ChatOpenAI
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
 TOKEN_OPENAI = os.environ.get('GPT_TOKEN')
@@ -299,7 +300,7 @@ class BOT(commands.Cog):
     
     @commands.command(name='question')
     async def question(self,ctx, *, input_text):
-        question, titulo = input_text.split("?")     
+        question, titulo = input_text.split(".")     
         # Construir la consulta de Elasticsearch
         query = {
             "query": {
@@ -331,10 +332,15 @@ class BOT(commands.Cog):
             await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
             #print("No se encontraron resultados para los conceptos clave proporcionados.")
 
+        await ctx.send("\n")
+        await ctx.send("\n")
 
         directory = "../../alvaro"  # Reemplaza con la ruta al directorio que deseas verificar
         file_name = "index_store.json"
         file_path = os.path.join(directory, file_name)
+
+        
+
 
         if os.path.exists(file_path):
             print("YA EXISTE INDEX")
@@ -348,7 +354,6 @@ class BOT(commands.Cog):
             query_engine = new_index.as_query_engine()
 
             await ctx.send(question)
-
             response = query_engine.query(question)
             await ctx.send(response)
             #print(response) 
@@ -357,8 +362,12 @@ class BOT(commands.Cog):
             print("NO EXISTE INDEX")
             #Transforma la lista a documento
             content_doc = [Document(text=t) for t in content_list]
+
+            llm_predictor = LLMPredictor(llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo"))
+            service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
+
             #Vectoriza
-            index = VectorStoreIndex.from_documents(content_doc)
+            index = VectorStoreIndex.from_documents(content_doc,service_context=service_context)
          
             # Persist index to disk
             index.storage_context.persist(persist_dir=directory)
@@ -366,7 +375,6 @@ class BOT(commands.Cog):
             query_engine = index.as_query_engine()
 
             await ctx.send(question)
-
             response = query_engine.query(question)
             await ctx.send(response) 
             #print(response)
@@ -388,7 +396,7 @@ class BOT(commands.Cog):
             "`!addDocument`: Agrega documentos desde un archivo CSV adjunto. Uso: `!addDocument`.\n"
             "`!search palabra_clave`: Busca documentos por palabra clave en el título o abstract. Uso: `!search palabra_clave`.\n"
             "`!searchTematicLine tematica`: Busca documentos por linea temática. Uso: `!searchTematicLine tematica`.\n"
-            "`!question pregunta titulo`: Realiza una pregunta al contenido del documento del titulo. Uso: `!question pregunta titulo`."
+            "`!question pregunta titulo`: Realiza una pregunta al contenido del documento del titulo. Uso: `!question pregunta. titulo`."
         )
         await ctx.send(help_message)
 
