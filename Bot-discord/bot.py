@@ -211,22 +211,46 @@ class BOT(commands.Cog):
             key, value = param.strip().split(":")
             search_params[key] = value
 
-        # Procesar los parámetros específicos
-        keywords = search_params.get("keywords", "").split(";")
-        fecha_inicio = search_params.get("fecha_inicio", "")
-        fecha_fin = search_params.get("fecha_fin", "")
-        laboratorio = search_params.get("laboratorio", "")
-        categoria = search_params.get("categoria", "")
-        ciudad = search_params.get("ciudad", "")
-        region = search_params.get("region", "")
+        # Realizar la búsqueda en Elasticsearch
+        search_body = {
+            "query": {
+                "bool": {
+                    "must": [],
+                    "filter": []
+                }
+            }
+        }
 
-        # Realizar la búsqueda y enviar la respuesta
-        response = f"Realizando búsqueda con las siguientes palabras clave: {keywords}\n"
-        response += f"Fecha de inicio: {fecha_inicio}\nFecha de fin: {fecha_fin}\n"
-        response += f"Laboratorio: {laboratorio}\nCategoría: {categoria}\n"
-        response += f"Ciudad: {ciudad}\nRegión: {region}"
+        # Agregar condiciones de búsqueda según los parámetros proporcionados
+        if search_params.get("region"):
+            search_body["query"]["bool"]["must"].append({"match": {"region": search_params["region"]}})
+        if search_params.get("categoria"):
+            search_body["query"]["bool"]["must"].append({"match": {"category": search_params["categoria"]}})
+        if search_params.get("ciudad"):
+            search_body["query"]["bool"]["must"].append({"match": {"commune": search_params["ciudad"]}})
+        if search_params.get("laboratorio"):
+            search_body["query"]["bool"]["must"].append({"match": {"labTematico": search_params["laboratorio"]}})
+        if search_params.get("keywords"):
+            search_body["query"]["bool"]["must"].append({"match": {"content": search_params["keywords"]}})
+        if search_params.get("fecha_inicio") or search_params.get("fecha_fin"):
+            date_range = {}
+            if search_params.get("fecha_inicio"):
+                date_range["gte"] = search_params["fecha_inicio"]
+            if search_params.get("fecha_fin"):
+                date_range["lte"] = search_params["fecha_fin"]
+            search_body["query"]["bool"]["filter"].append({"range": {"publicationYear": date_range}})
+        
+        response = self.es.search(index="nuevo_indice", body=search_body)
 
-        print(response)
+        # Obtener los títulos de los documentos
+        titles = [hit["_source"]["title"] for hit in response["hits"]["hits"]]
+        
+        # Enviar los títulos como respuesta
+        if titles:
+            response_message = "\n".join(titles)
+            print("Títulos de documentos encontrados:\n" + response_message)
+        else:
+           print("No se encontraron documentos.")
 
 
  
