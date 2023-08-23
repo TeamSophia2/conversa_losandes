@@ -212,8 +212,6 @@ class BOT(commands.Cog):
         ciudad_arg = None
         region_arg = None
 
-
-        print(args)
         for arg in args:
             if arg.startswith("keywords:"):
                 keyword_arg = arg[len("keywords:"):]
