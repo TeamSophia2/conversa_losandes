@@ -223,7 +223,8 @@ class BOT(commands.Cog):
                     "filter": []
                 }
             },
-            "sort": [{"_score": {"order": "desc"}}]  # Ordenar por mejor score
+            "sort": [{"_score": {"order": "desc"}}],
+            "size":5
         }
 
         if search_params.get("region"):
@@ -248,16 +249,16 @@ class BOT(commands.Cog):
         
         response = self.es.search(index="nuevo_indice", body=search_body)
 
-        # Filtrar resultados con score mayor a 10
-        high_score_results = [hit for hit in response["hits"]["hits"] if hit["_score"] > 2]
+        # Obtener los resultados y formatearlos
+        results = response["hits"]["hits"]
+        formatted_results = "\n".join([f"{i+1}. **{hit['_source']['title']}** (Score: {hit['_score']:.2f}) [{hit['_source']['link']}]" for i, hit in enumerate(results)])
 
-        formatted_results = "\n".join([f"{i+1}. **{hit['_source']['title']}** (Score: {hit['_score']:.2f}) [{hit['_source']['link']}]" for i, hit in enumerate(high_score_results)])
-
+        # Enviar los resultados como mensaje a Discord
         if formatted_results:
-            response_message = f"Mejores documentos encontrados:\n{formatted_results}"
+            response_message = f"Los 5 documentos más importantes:\n{formatted_results}"
             await ctx.send(response_message)
         else:
-            await ctx.send("No se encontraron documentos importantes")
+            await ctx.send("No se encontraron documentos.")
  
 
 
