@@ -214,7 +214,7 @@ class BOT(commands.Cog):
         print("Parámetros de búsqueda:")
         for key, value in search_params.items():
             print(f"{key}: {value}")
-            
+
         # Realizar la búsqueda en Elasticsearch
         search_body = {
             "query": {
@@ -249,7 +249,7 @@ class BOT(commands.Cog):
         response = self.es.search(index="nuevo_indice", body=search_body)
 
         # Filtrar resultados con score mayor a 10
-        high_score_results = [hit for hit in response["hits"]["hits"] if hit["_score"] > 10]
+        high_score_results = [hit for hit in response["hits"]["hits"] if hit["_score"] > 1]
 
         formatted_results = "\n".join([f"{i+1}. **{hit['_source']['title']}** (Score: {hit['_score']:.2f}) [{hit['_source']['link']}]" for i, hit in enumerate(high_score_results)])
 
