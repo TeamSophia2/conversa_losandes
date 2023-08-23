@@ -204,30 +204,11 @@ class BOT(commands.Cog):
         """
     
     @commands.command(name='search')
-    async def search(ctx, *args):
-        keyword_arg = None
-        fecha_range_arg = None
-        laboratorio_arg = None
-        categoria_arg = None
-        ciudad_arg = None
-        region_arg = None
-
-        for arg in args:
-            if arg.startswith("keywords:"):
-                keyword_arg = arg[len("keywords:"):]
-            elif arg.startswith("fecha_range:"):
-                fecha_range_arg = arg[len("fecha_range:"):]
-            elif arg.startswith("laboratorio:"):
-                laboratorio_arg = arg[len("laboratorio:"):]
-            elif arg.startswith("categoria:"):
-                categoria_arg = arg[len("categoria:"):]
-            elif arg.startswith("ciudad:"):
-                ciudad_arg = arg[len("ciudad:"):]
-            elif arg.startswith("region:"):
-                region_arg = arg[len("region:"):]
+    async def search(ctx, *arguments):
+       
 
 
-        print(keyword_arg)
+        print(arguments)
  
 
 
