@@ -212,6 +212,25 @@ class BOT(commands.Cog):
         ciudad = None
         region = None
 
+        for arg in args:
+            if arg.startswith("keywords:"):
+                keywords = arg.split(":")[1]
+            elif arg.startswith("fecha_range:"):
+                fecha_range = arg.split(":")[1]
+            elif arg.startswith("laboratorio:"):
+                laboratorio = arg.split(":")[1]
+            elif arg.startswith("categoria:"):
+                categoria = arg.split(":")[1]
+            elif arg.startswith("ciudad:"):
+                ciudad = arg.split(":")[1]
+            elif arg.startswith("region:"):
+                region = arg.split(":")[1]
+
+        
+        print(keywords)
+        print(laboratorio)
+        print(ciudad)
+        print(region)
 
 
 
