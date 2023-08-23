@@ -271,7 +271,7 @@ class BOT(commands.Cog):
             #print("No se encontraron resultados para los conceptos clave proporcionados.")
 
 
-        directory = "/home/conversa_losandes/Bot-discord"  # Reemplaza con la ruta al directorio que deseas verificar
+        directory = "../../alvaro"  # Reemplaza con la ruta al directorio que deseas verificar
         file_name = "index_store.json"
         file_path = os.path.join(directory, file_name)
 
@@ -279,7 +279,7 @@ class BOT(commands.Cog):
             print("YA EXISTE INDEX")
 
             # Rebuild storage context
-            storage_context = StorageContext.from_defaults(persist_dir="/home/conversa_losandes/Bot-discord")
+            storage_context = StorageContext.from_defaults(persist_dir=directory)
 
             # Load index from the storage context
             new_index = load_index_from_storage(storage_context)
@@ -289,7 +289,7 @@ class BOT(commands.Cog):
             await ctx.send(question)
 
             response = query_engine.query(question)
-            await ctx.send(f"Respuesta de ChatGPT: {response}") 
+            await ctx.send(response) 
 
         else:
             print("NO EXISTE INDEX")
@@ -299,14 +299,14 @@ class BOT(commands.Cog):
             index = VectorStoreIndex.from_documents(content_doc)
          
             # Persist index to disk
-            index.storage_context.persist(persist_dir="/home/conversa_losandes/Bot-discord")
+            index.storage_context.persist(persist_dir=directory)
             
             query_engine = index.as_query_engine()
 
             await ctx.send(question)
 
             response = query_engine.query(question)
-            await ctx.send(f"Respuesta de ChatGPT: {response}") 
+            await ctx.send(response) 
             
     
 
