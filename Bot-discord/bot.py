@@ -205,24 +205,28 @@ class BOT(commands.Cog):
     @commands.command(name='search')
     async def search(self, ctx, *, command):
         params = command.split(",")
-        keywords = ""
-        category = ""
+        search_params = {}
 
         for param in params:
             key, value = param.strip().split(":")
-            if key == "keywords":
-                keywords = value
-            elif key == "category":
-                category = value
+            search_params[key] = value
 
-        keyword_list = keywords.split(";")
-        print("Realizando búsqueda con las siguientes palabras clave:", keyword_list)
-        print("Categoría de búsqueda:", category)
-        print("Resultados:")
-        for keyword in keyword_list:
-            print(f" - Resultado relacionado con '{keyword}' en la categoría '{category}'")
+        # Procesar los parámetros específicos
+        keywords = search_params.get("keywords", "").split(";")
+        fecha_inicio = search_params.get("fecha_inicio", "")
+        fecha_fin = search_params.get("fecha_fin", "")
+        laboratorio = search_params.get("laboratorio", "")
+        categoria = search_params.get("categoria", "")
+        ciudad = search_params.get("ciudad", "")
+        region = search_params.get("region", "")
 
-            
+        # Realizar la búsqueda y enviar la respuesta
+        response = f"Realizando búsqueda con las siguientes palabras clave: {keywords}\n"
+        response += f"Fecha de inicio: {fecha_inicio}\nFecha de fin: {fecha_fin}\n"
+        response += f"Laboratorio: {laboratorio}\nCategoría: {categoria}\n"
+        response += f"Ciudad: {ciudad}\nRegión: {region}"
+
+        print(response)
 
 
  
