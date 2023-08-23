@@ -332,8 +332,6 @@ class BOT(commands.Cog):
             await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
             #print("No se encontraron resultados para los conceptos clave proporcionados.")
 
-        await ctx.send("\n")
-        await ctx.send("\n")
 
         directory = "../../alvaro"  # Reemplaza con la ruta al directorio que deseas verificar
         file_name = "index_store.json"
