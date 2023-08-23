@@ -1,6 +1,9 @@
 from langchain import OpenAI, SQLDatabase
+import openai
 from langchain_experimental.sql import SQLDatabaseChain
-
+import os
+TOKEN_OPENAI = os.environ.get('GPT_TOKEN')
+openai.api_key = TOKEN_OPENAI
 
 # Set up database
 db = SQLDatabase.from_uri(
