@@ -212,26 +212,27 @@ class BOT(commands.Cog):
         ciudad_arg = None
         region_arg = None
 
-        for arg in args.split():
+
+        print(args)
+        for arg in args:
             if arg.startswith("keywords:"):
                 keyword_arg = arg[len("keywords:"):]
             elif arg.startswith("fecha_range:"):
-                fecha_range = arg.split(":")[1]
+                fecha_range_arg = arg[len("fecha_range:"):]
             elif arg.startswith("laboratorio:"):
-                laboratorio = arg.split(":")[1]
+                laboratorio_arg = arg[len("laboratorio:"):]
             elif arg.startswith("categoria:"):
-                categoria = arg.split(":")[1]
+                categoria_arg = arg[len("categoria:"):]
             elif arg.startswith("ciudad:"):
-                ciudad = arg.split(":")[1]
+                ciudad_arg = arg[len("ciudad:"):]
             elif arg.startswith("region:"):
-                region = arg.split(":")[1]
+                region_arg = arg[len("region:"):]
 
-        
-        print(keywords)
-        print(laboratorio)
-        print(ciudad)
-        print(region)
+        # Resto del código para construir la consulta y buscar en Elasticsearch
 
+
+        print(keyword_arg)
+ 
 
 
     # busca en principalCategory
