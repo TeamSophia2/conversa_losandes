@@ -208,28 +208,17 @@ class BOT(commands.Cog):
     ###relacionados a los argumentos
     @commands.command(name='search')
     async def search(self, ctx, *, command):
-        parts = command.split()
-
-        # Inicializa el diccionario para almacenar los parámetros de búsqueda
+        params = command.split(",")
         searchParams = {}
 
-        # Itera a través de las partes del comando para identificar los parámetros
-        i = 0
-        while i < len(parts):
-            if ":" in parts[i]:
-                key, value = parts[i].split(":")
-                # Si el valor tiene comillas dobles, combina las partes en una sola cadena
-                if len(parts) > i+1 and parts[i+1].startswith('"') and parts[-1].endswith('"'):
-                    value = " ".join(parts[i:i+2]).split('"')[1]
-                    i += 2  # Avanza dos posiciones para saltar las partes procesadas
-                else:
-                    i += 1  # Avanza una posición
-                searchParams[key] = value
-            else:
-                i += 1  # Avanza una posición
+        for param in params:
+            key, value = param.strip().split(":")
+            searchParams[key] = value
+
         print("Parámetros de búsqueda:")
         for key, value in searchParams.items():
             print(f"{key}: {value}")
+
         # Realizar la búsqueda en Elasticsearch
         searchBody = {
             "query": {
