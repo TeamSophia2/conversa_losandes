@@ -349,7 +349,7 @@ class BOT(commands.Cog):
         file_name = "index_store.json"
         file_path = os.path.join(directory, file_name)
 
-        
+        print(content_list)
 
 
         if os.path.exists(file_path):
