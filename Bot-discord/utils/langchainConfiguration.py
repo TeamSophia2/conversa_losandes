@@ -21,7 +21,8 @@ Given an input question, first create a syntactically correct sql query to execu
  Consider that the Document_Commune table exists, which is the one that relates the documents to their respective communes.
  Consider that the Document_Category table exists, which is the one that relates the documents to their respective category.
  Consider that the Document_Organization table exists, which is the one that relates the documents to their respective organization.
- Consider that Laboratorio or laboratorio tematico is the value principalCategoryId in the table Category and categoria is the value categoryName
+ Considerar that categoria is the value categoryName in the table Category.
+ Consider that Laboratorio or laboratorio tematico is the value principalCategoryId in the table Category 
  Always answer in spanish. Don't put limits on the sql query unless the question sets a limit. Use the following format:
 
 Question: Question here
