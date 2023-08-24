@@ -203,21 +203,23 @@ class BOT(commands.Cog):
         else:
             await ctx.send("No se encontraron resultados para la palabra clave proporcionada.")
         """
+    ###Metodo que toma argumentos y hace consulta a elasticsearch para obtener documentos
+    ###relacionados a los argumentos
     @commands.command(name='search')
     async def search(self, ctx, *, command):
         params = command.split(",")
-        search_params = {}
+        searchParams = {}
 
         for param in params:
             key, value = param.strip().split(":")
-            search_params[key] = value
+            searchParams[key] = value
 
         print("Parámetros de búsqueda:")
-        for key, value in search_params.items():
+        for key, value in searchParams.items():
             print(f"{key}: {value}")
 
         # Realizar la búsqueda en Elasticsearch
-        search_body = {
+        searchBody = {
             "query": {
                 "bool": {
                     "must": [],
@@ -227,19 +229,20 @@ class BOT(commands.Cog):
             "sort": [{"_score": {"order": "desc"}}],
             "size":5
         }
-
-        if search_params.get("region"):
-            search_body["query"]["bool"]["must"].append({"match": {"region": search_params["region"]}})
-        if search_params.get("categoria"):
-            search_body["query"]["bool"]["must"].append({"match": {"category": search_params["categoria"]}})
-        if search_params.get("ciudad"):
-            search_body["query"]["bool"]["must"].append({"match": {"commune": search_params["ciudad"]}})
-        if search_params.get("laboratorio"):
-            search_body["query"]["bool"]["must"].append({"match": {"labTematico": search_params["laboratorio"]}})
-        if search_params.get("keywords"):
-            keywords = search_params["keywords"].split(";")
-            keyword_queries = [{"match": {"content": keyword}} for keyword in keywords]
-            search_body["query"]["bool"]["must"].extend(keyword_queries)
+        ###si se pasa como argumento, no es obligacion
+        if searchParams.get("region"):
+            searchBody["query"]["bool"]["must"].append({"match": {"region": searchParams["region"]}})
+        if searchParams.get("categoria"):
+            searchBody["query"]["bool"]["must"].append({"match": {"category": searchParams["categoria"]}})
+        if searchParams.get("comuna"):
+            searchBody["query"]["bool"]["must"].append({"match": {"commune": searchParams["comuna"]}})
+        if searchParams.get("laboratorio"):
+            searchBody["query"]["bool"]["must"].append({"match": {"labTematico": searchParams["laboratorio"]}})
+        if searchParams.get("keywords"):
+            keywords = searchParams["keywords"].split(";")
+            keywordQueries = [{"match": {"content": keyword}} for keyword in keywords]
+            searchBody["query"]["bool"]["must"].extend(keywordQueries)
+        """
         if search_params.get("fecha_inicio") or search_params.get("fecha_fin"):
             date_range = {}
             if search_params.get("fecha_inicio"):
@@ -247,17 +250,17 @@ class BOT(commands.Cog):
             if search_params.get("fecha_fin"):
                 date_range["lte"] = search_params["fecha_fin"]
             search_body["query"]["bool"]["filter"].append({"range": {"publicationYear": date_range}})
-        
-        response = self.es.search(index="nuevo_indice", body=search_body)
+        """
+        response = self.es.search(index="nuevo_indice", body=searchBody)
 
         # Obtener los resultados y formatearlos
         results = response["hits"]["hits"]
-        formatted_results = "\n".join([f"{i+1}. **{hit['_source']['title']}** (Score: {hit['_score']:.2f}) [{hit['_source']['link']}]" for i, hit in enumerate(results)])
+        formattedResults = "\n".join([f"{i+1}. **{hit['_source']['title']}** (Score: {hit['_score']:.2f}) [{hit['_source']['link']}]" for i, hit in enumerate(results)])
 
         # Enviar los resultados como mensaje a Discord
-        if formatted_results:
-            response_message = f"Los 5 documentos más importantes:\n{formatted_results}"
-            await ctx.send(response_message)
+        if formattedResults:
+            responseMessage = f"Los 5 documentos más importantes:\n{formattedResults}"
+            await ctx.send(responseMessage)
         else:
             await ctx.send("No se encontraron documentos.")
  
