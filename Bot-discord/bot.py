@@ -244,15 +244,15 @@ class BOT(commands.Cog):
             keywords = searchParams["keywords"].split(";")
             keywordQueries = [{"match": {"content": keyword}} for keyword in keywords]
             searchBody["query"]["bool"]["must"].extend(keywordQueries)
-        """
-        if search_params.get("fecha_inicio") or search_params.get("fecha_fin"):
-            date_range = {}
-            if search_params.get("fecha_inicio"):
-                date_range["gte"] = search_params["fecha_inicio"]
-            if search_params.get("fecha_fin"):
-                date_range["lte"] = search_params["fecha_fin"]
-            search_body["query"]["bool"]["filter"].append({"range": {"publicationYear": date_range}})
-        """
+        if searchParams.get("año"):
+            yearRange = searchParams["año"].split("-")
+            if len(yearRange) == 2:
+                dateRange = {
+                    "gte": yearRange[0],
+                    "lte": yearRange[1]
+                }
+                searchBody["query"]["bool"]["filter"].append({"range": {"publicationYear": dateRange}})
+
         response = self.es.search(index="nuevo_indice", body=searchBody)
 
         # Obtener los resultados y formatearlos
