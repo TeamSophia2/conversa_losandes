@@ -13,6 +13,7 @@ import tiktoken
 from llama_index import LLMPredictor, ServiceContext, SimpleDirectoryReader,Document, VectorStoreIndex, StorageContext, load_index_from_storage
 from utils.langchainConfiguration import dbChain, QUERY
 from langchain.chat_models import ChatOpenAI
+import re
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
 TOKEN_OPENAI = os.environ.get('OPENAI_API_KEY')
@@ -207,17 +208,25 @@ class BOT(commands.Cog):
     ###relacionados a los argumentos
     @commands.command(name='search')
     async def search(self, ctx, *, command):
-        params = command.split()
+        parts = command.split()
+
+        # Inicializa el diccionario para almacenar los parámetros de búsqueda
         searchParams = {}
 
-        for param in params:
-            if ":" in param:
-                key, value = param.split(":", 1)
+        # Itera a través de las partes del comando para identificar los parámetros
+        i = 0
+        while i < len(parts):
+            if ":" in parts[i]:
+                key, value = parts[i].split(":")
+                # Si el valor tiene comillas dobles, combina las partes en una sola cadena
+                if len(parts) > i+1 and parts[i+1].startswith('"') and parts[-1].endswith('"'):
+                    value = " ".join(parts[i:i+2]).split('"')[1]
+                    i += 2  # Avanza dos posiciones para saltar las partes procesadas
+                else:
+                    i += 1  # Avanza una posición
                 searchParams[key] = value
-
-        print("Parámetros de búsqueda:")
-        for key, value in searchParams.items():
-            print(f"{key}: {value}")
+            else:
+                i += 1  # Avanza una posición
 
         # Realizar la búsqueda en Elasticsearch
         searchBody = {
