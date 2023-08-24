@@ -208,12 +208,12 @@ class BOT(commands.Cog):
     @commands.command(name='search')
     async def search(self, ctx, *, command):
         params = command.split()
-        search_params = {}
+        searchParams = {}
 
         for param in params:
             if ":" in param:
                 key, value = param.split(":", 1)
-                search_params[key] = value
+                searchParams[key] = value
 
         print("Parámetros de búsqueda:")
         for key, value in searchParams.items():
