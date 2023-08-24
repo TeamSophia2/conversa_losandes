@@ -23,6 +23,8 @@ Given an input question, first create a syntactically correct sql query to execu
  Consider that the Document_Organization table exists, which is the one that relates the documents to their respective organization.
  Considerar that categoria is the value categoryName in the table Category.
  Consider that Laboratorio or laboratorio tematico is the value principalCategoryId in the table Category 
+ Make sure you understand that when I mention "categoria," I'm referring to the categoryName value in the Category table
+ Also, understand that "Laboratorio" or "laboratorio tematico" refers to the principalCategoryId value in the Category table.
  Always answer in spanish. Don't put limits on the sql query unless the question sets a limit. Use the following format:
 
 Question: Question here
