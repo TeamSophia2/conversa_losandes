@@ -316,7 +316,7 @@ class BOT(commands.Cog):
             "query": {
                 "bool": {
                     "must": [
-                        {"match": {"title": titulo}}
+                        {"match": {"title": self.titulo}}
                     ]
                 }
             }
