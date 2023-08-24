@@ -252,7 +252,7 @@ class BOT(commands.Cog):
                     "lte": yearRange[1]
                 }
                 searchBody["query"]["bool"]["filter"].append({"range": {"publicationYear": dateRange}})
-
+        print(searchBody)
         response = self.es.search(index="nuevo_indice", body=searchBody)
 
         # Obtener los resultados y formatearlos
