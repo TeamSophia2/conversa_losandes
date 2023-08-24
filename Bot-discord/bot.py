@@ -227,7 +227,9 @@ class BOT(commands.Cog):
                 searchParams[key] = value
             else:
                 i += 1  # Avanza una posición
-
+        print("Parámetros de búsqueda:")
+        for key, value in searchParams.items():
+            print(f"{key}: {value}")
         # Realizar la búsqueda en Elasticsearch
         searchBody = {
             "query": {
