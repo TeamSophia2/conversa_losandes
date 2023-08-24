@@ -252,12 +252,16 @@ class BOT(commands.Cog):
                     "lte": yearRange[1]
                 }
                 searchBody["query"]["bool"]["filter"].append({"range": {"publicationYear": dateRange}})
-        print(searchBody)
+
+            else:
+                # Si solo se proporciona un año
+                searchBody["query"]["bool"]["filter"].append({"term": {"publicationYear": int(yearRange[0])}})
+        #print(searchBody)
         response = self.es.search(index="nuevo_indice", body=searchBody)
 
         # Obtener los resultados y formatearlos
         results = response["hits"]["hits"]
-        formattedResults = "\n".join([f"{i+1}. **{hit['_source']['title']}** (Score: {hit['_score']:.2f}) [{hit['_source']['link']}]" for i, hit in enumerate(results)])
+        formattedResults = "\n".join([f"{i+1}. **{hit['_source']['title']}** [{hit['_source']['link']}]" for i, hit in enumerate(results)])
 
         # Enviar los resultados como mensaje a Discord
         if formattedResults:
