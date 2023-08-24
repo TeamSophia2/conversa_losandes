@@ -26,6 +26,7 @@ class BOT(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.es = Elasticsearch(["http://localhost:9200"])
+        self.titulo = None
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -304,7 +305,12 @@ class BOT(commands.Cog):
     
     @commands.command(name='question')
     async def question(self,ctx, *, input_text):
-        question, titulo = input_text.split(".")     
+        if self.titulo is None:
+            # Si no hay un título registrado, se le pide al usuario que proporcione el título
+            _, self.titulo = input_text.split(".", 1)
+        else:
+            # Si ya hay un título registrado, el usuario proporciona la pregunta
+            question, _ = input_text.split(".", 1)     
         # Construir la consulta de Elasticsearch
         query = {
             "query": {
