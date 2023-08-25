@@ -310,7 +310,7 @@ class BOT(commands.Cog):
     @commands.command(name='question')
     async def question(self,ctx, *, input_text):
         directory = "../../alvaro"
-        if titulo is not None:
+        if self.titulo is not None:
             print("CON TITULO")
             # Archivos y directorios que deseas eliminar
             files_to_delete = ['docstore.json', 'graph_store.json', 'index_store.json', 'vector_store.json']
