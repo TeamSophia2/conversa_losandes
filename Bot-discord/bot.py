@@ -290,6 +290,8 @@ class BOT(commands.Cog):
             for reaction in reactions:
                 await message.add_reaction(reaction)
 
+            #print(hola)
+
             if total_pages > 1:
                 def check(reaction, user):
                     return user == ctx.author and reaction.message == message
