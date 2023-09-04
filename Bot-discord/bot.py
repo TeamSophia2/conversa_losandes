@@ -347,9 +347,26 @@ class BOT(commands.Cog):
     
     @commands.command(name='question')
     async def question(self,ctx, *, input_text):
-        question, titulo = input_text.split(".") 
-        if self.titulo is None:
+        directory = "../../alvaro"
+        split_text = input_text.split(".")
+    
+        if len(split_text) > 1:
+            print("CON TITULO")
+            # Archivos y directorios que deseas eliminar
+            files_to_delete = ['docstore.json', 'graph_store.json', 'index_store.json', 'vector_store.json']
+
+            # Construir y ejecutar el comando para eliminar los archivos
+            for filename in files_to_delete:
+                file_path = os.path.join(directory, filename)
+                os.system(f'sudo rm -R {file_path}')
+
+            question = split_text[0]
+            titulo = split_text[1].strip()  # Elimina espacios en blanco alrededor del título
+        else:
+            question = input_text
             self.titulo = titulo.strip()
+            print("SIN TITULO")
+
 
         # Construir la consulta de Elasticsearch
         query = {
@@ -387,7 +404,7 @@ class BOT(commands.Cog):
         file_name = "index_store.json"
         file_path = os.path.join(directory, file_name)
 
-        
+        #print(content_list)
 
 
         if os.path.exists(file_path):
