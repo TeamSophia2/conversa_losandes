@@ -231,9 +231,10 @@ class BOT(commands.Cog):
                 }
             },
             "sort": [{"_score": {"order": "desc"}}],
-            "size": "50"
+            "size": 50
         }
-        ###si se pasa como argumento, no es obligacion
+
+        # Si se pasa como argumento, no es obligatorio
         if searchParams.get("region"):
             searchBody["query"]["bool"]["must"].append({"match": {"region": searchParams["region"]}})
         if searchParams.get("categoria"):
@@ -245,7 +246,8 @@ class BOT(commands.Cog):
         if searchParams.get("keywords"):
             keywords = searchParams["keywords"].split(";")
             keywordQueries = [{"match": {"content": keyword}} for keyword in keywords]
-            searchBody["query"]["bool"]["filter"].extend(keywordQueries)
+            # Usamos "must" en lugar de "filter" para combinar las palabras clave con las otras condiciones
+            searchBody["query"]["bool"]["must"].extend(keywordQueries)
         if searchParams.get("año"):
             yearRange = searchParams["año"].split("-")
             if len(yearRange) == 2:
@@ -254,11 +256,11 @@ class BOT(commands.Cog):
                     "lte": yearRange[1]
                 }
                 searchBody["query"]["bool"]["filter"].append({"range": {"publicationYear": dateRange}})
-
             else:
                 # Si solo se proporciona un año
                 searchBody["query"]["bool"]["filter"].append({"term": {"publicationYear": int(yearRange[0])}})
-        #print(searchBody)
+
+        # Realizar la búsqueda en Elasticsearch
         response = self.es.search(index="nuevo_indice", body=searchBody)
 
         # Obtener los resultados y formatearlos
