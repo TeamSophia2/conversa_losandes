@@ -231,7 +231,7 @@ class BOT(commands.Cog):
                 }
             },
             "sort": [{"_score": {"order": "desc"}}],
-            "size": "all"
+            "size": "50"
         }
         ###si se pasa como argumento, no es obligacion
         if searchParams.get("region"):
