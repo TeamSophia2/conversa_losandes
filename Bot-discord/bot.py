@@ -246,8 +246,11 @@ class BOT(commands.Cog):
         if searchParams.get("keywords"):
             keywords = searchParams["keywords"].split(";")
             keywordQueries = [{"match": {"content": keyword}} for keyword in keywords]
-            # Usamos "must" en lugar de "filter" para combinar las palabras clave con las otras condiciones
             searchBody["query"]["bool"]["must"].extend(keywordQueries)
+
+        # Agregar un filtro separado para asegurarse de que los documentos tengan contenido
+        searchBody["query"]["bool"]["filter"].append({"exists": {"field": "content"}})
+
         if searchParams.get("año"):
             yearRange = searchParams["año"].split("-")
             if len(yearRange) == 2:
@@ -304,7 +307,7 @@ class BOT(commands.Cog):
                     return user == ctx.author and reaction.message == message
 
                 try:
-                    reaction, _ = await self.bot.wait_for('reaction_add', timeout=60.0, check=check)
+                    reaction, _ = await self.bot.wait_for('reaction_add', timeout=300.0, check=check)
 
                     if reaction.emoji == '⬅️' and page > 1:
                         page -= 1
