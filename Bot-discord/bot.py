@@ -228,8 +228,7 @@ class BOT(commands.Cog):
                     "filter": []
                 }
             },
-            "sort": [{"_score": {"order": "desc"}}],
-            "size":5
+            "sort": [{"_score": {"order": "desc"}}]
         }
         ###si se pasa como argumento, no es obligacion
         if searchParams.get("region"):
@@ -261,14 +260,53 @@ class BOT(commands.Cog):
 
         # Obtener los resultados y formatearlos
         results = response["hits"]["hits"]
-        formattedResults = "\n".join([f"{i+1}. **{hit['_source']['title']}** [{hit['_source']['link']}]" for i, hit in enumerate(results)])
+        
 
-        # Enviar los resultados como mensaje a Discord
-        if formattedResults:
-            responseMessage = f"Los 5 documentos más importantes:\n{formattedResults}"
-            await ctx.send(responseMessage)
-        else:
-            await ctx.send("No se encontraron documentos.")
+        # Divide los resultados en páginas
+        resultsPerPage = 5
+        total_pages = (len(results) + resultsPerPage - 1) // resultsPerPage
+
+        page = 1  # Página inicial
+
+        while page <= total_pages:
+            start_index = (page - 1) * resultsPerPage
+            end_index = min(start_index + resultsPerPage, len(results))
+            current_page_results = results[start_index:end_index]
+
+            formatted_page_results = "\n".join([f"{i+1}. **{hit['_source']['title']}** [{hit['_source']['link']}]" for i, hit in enumerate(current_page_results)])
+
+            embed = Embed(title=f"Página {page} de {total_pages}", description=formatted_page_results)
+
+            message = await ctx.send(embed=embed)
+
+            # Agrega las reacciones al mensaje
+            reactions = []
+            if total_pages > 1:
+                if page > 1:
+                    reactions.append('⬅️')
+                if page < total_pages:
+                    reactions.append('➡️')
+
+            for reaction in reactions:
+                await message.add_reaction(reaction)
+
+            if total_pages > 1:
+                def check(reaction, user):
+                    return user == ctx.author and reaction.message == message
+
+                try:
+                    reaction, _ = await self.bot.wait_for('reaction_add', timeout=60.0, check=check)
+
+                    if reaction.emoji == '⬅️' and page > 1:
+                        page -= 1
+                    elif reaction.emoji == '➡️' and page < total_pages:
+                        page += 1
+
+                    await message.delete()
+                except asyncio.TimeoutError:
+                    break
+            else:
+                break
  
 
 
