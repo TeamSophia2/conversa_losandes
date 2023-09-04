@@ -263,6 +263,7 @@ class BOT(commands.Cog):
         # Obtener los resultados y formatearlos
         results = response["hits"]["hits"]
         
+        print(f"Se encontraron {len(results)} resultados en Elasticsearch.")
 
         # Divide los resultados en páginas
         resultsPerPage = 5
