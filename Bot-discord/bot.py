@@ -245,7 +245,7 @@ class BOT(commands.Cog):
         if searchParams.get("keywords"):
             keywords = searchParams["keywords"].split(";")
             keywordQueries = [{"match": {"content": keyword}} for keyword in keywords]
-            searchBody["query"]["bool"]["must"].extend(keywordQueries)
+            searchBody["query"]["bool"]["filter"].extend(keywordQueries)
         if searchParams.get("año"):
             yearRange = searchParams["año"].split("-")
             if len(yearRange) == 2:
