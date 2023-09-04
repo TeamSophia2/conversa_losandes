@@ -227,7 +227,8 @@ class BOT(commands.Cog):
             "query": {
                 "bool": {
                     "must": [],
-                    "filter": []
+                    "filter": [],
+                    "should": []
                 }
             },
             "sort": [{"_score": {"order": "desc"}}],
@@ -245,11 +246,11 @@ class BOT(commands.Cog):
             searchBody["query"]["bool"]["must"].append({"match": {"labTematico": searchParams["laboratorio"]}})
         if searchParams.get("keywords"):
             keywords = searchParams["keywords"].split(";")
-            keywordQueries = [{"match": {"content": keyword}} for keyword in keywords]
-            searchBody["query"]["bool"]["must"].extend(keywordQueries)
-
-        # Agregar un filtro separado para asegurarse de que los documentos tengan contenido
-        searchBody["query"]["bool"]["filter"].append({"exists": {"field": "content"}})
+            for keyword in keywords:
+                # Agregar una condición "should" para cada palabra clave en "content"
+                searchBody["query"]["bool"]["should"].append({"match": {"content": keyword}})
+            # Usar un mínimo de coincidencias para las condiciones "should"
+            searchBody["query"]["bool"]["minimum_should_match"] = 1
 
         if searchParams.get("año"):
             yearRange = searchParams["año"].split("-")
