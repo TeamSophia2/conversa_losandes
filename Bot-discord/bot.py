@@ -225,68 +225,54 @@ class BOT(commands.Cog):
         # Realizar la búsqueda en Elasticsearch
         searchBody = {
             "query": {
-                "bool": {
-                    "must": [],
-                    "filter": []
+                "function_score": {
+                    "query": {
+                        "bool": {
+                            "must": [],
+                            "filter": []
+                        }
+                    },
+                    "script_score": {
+                        "script": {
+                            "source": """
+                                if (doc.containsKey('content')) {
+                                    def keywords = ['keyword1', 'keyword2', 'keyword3']; // Lista de palabras clave
+                                    def content = doc['content'].value.toString();
+                                    int count = 0;
+                                    for (String keyword : keywords) {
+                                        if (content.contains(keyword)) {
+                                            count++;
+                                        }
+                                    }
+                                    return count; // Devuelve el número de palabras clave encontradas en 'content'
+                                }
+                                return 0; // Si no hay campo 'content', devuelve 0
+                            """
+                        }
+                    },
+                    "boost_mode": "replace"
                 }
             },
             "sort": [{"_score": {"order": "desc"}}],
             "size": 50
         }
 
-        # Subconsulta bool para las palabras clave
-        keywordBoolQuery = {
-            "bool": {
-                "should": []
-            }
-        }
-
-        if searchParams.get("keywords"):
-            keywords = searchParams["keywords"].split(";")
-            keywordQueries = [{"match": {"content": keyword}} for keyword in keywords]
-            keywordBoolQuery["bool"]["should"].extend(keywordQueries)
-            keywordBoolQuery["bool"]["minimum_should_match"] = 1  # Al menos una palabra clave debe coincidir
-
-        # Subconsulta bool para las demás condiciones
-        otherBoolQuery = {
-            "bool": {
-                "must": []
-            }
-        }
-
+        # Agregar otras condiciones como la región, categoría, comuna, laboratorio, etc., a la consulta bool
         if searchParams.get("region"):
-            otherBoolQuery["bool"]["must"].append({"match": {"region": searchParams["region"]}})
+            searchBody["query"]["function_score"]["query"]["bool"]["must"].append({"match": {"region": searchParams["region"]}})
         if searchParams.get("categoria"):
-            otherBoolQuery["bool"]["must"].append({"match": {"category": searchParams["categoria"]}})
+            searchBody["query"]["function_score"]["query"]["bool"]["must"].append({"match": {"category": searchParams["categoria"]}})
         if searchParams.get("comuna"):
-            otherBoolQuery["bool"]["must"].append({"match": {"commune": searchParams["comuna"]}})
+            searchBody["query"]["function_score"]["query"]["bool"]["must"].append({"match": {"commune": searchParams["comuna"]}})
         if searchParams.get("laboratorio"):
-            otherBoolQuery["bool"]["must"].append({"match": {"labTematico": searchParams["laboratorio"]}})
-
-        # Agregar la subconsulta de palabras clave y la subconsulta de otras condiciones a la consulta principal
-        searchBody["query"]["bool"]["must"].append(keywordBoolQuery)
-        searchBody["query"]["bool"]["must"].append(otherBoolQuery)
-
-        # Agregar un filtro para asegurarse de que los documentos tengan el campo "content"
-        searchBody["query"]["bool"]["filter"].append({"exists": {"field": "content"}})
-
-        if searchParams.get("año"):
-            yearRange = searchParams["año"].split("-")
-            if len(yearRange) == 2:
-                dateRange = {
-                    "gte": yearRange[0],
-                    "lte": yearRange[1]
-                }
-                searchBody["query"]["bool"]["filter"].append({"range": {"publicationYear": dateRange}})
-            else:
-                # Si solo se proporciona un año
-                searchBody["query"]["bool"]["filter"].append({"term": {"publicationYear": int(yearRange[0])}})
+            searchBody["query"]["function_score"]["query"]["bool"]["must"].append({"match": {"labTematico": searchParams["laboratorio"]}})
 
         # Realizar la búsqueda en Elasticsearch
         response = self.es.search(index="nuevo_indice", body=searchBody)
 
         # Obtener los resultados y formatearlos
         results = response["hits"]["hits"]
+
         
         print(f"Se encontraron {len(results)} resultados en Elasticsearch.")
 
