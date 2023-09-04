@@ -277,7 +277,8 @@ class BOT(commands.Cog):
             end_index = min(start_index + resultsPerPage, len(results))
             current_page_results = results[start_index:end_index]
 
-            formatted_page_results = "\n".join([f"{i+1}. **{hit['_source']['title']}** [{hit['_source']['link']}]" for i, hit in enumerate(current_page_results)])
+            formatted_page_results = "\n".join([f"{i+1}. **{hit['_source']['title']}** - {hit['_source']['link']}\n" for i, hit in enumerate(current_page_results)])
+            
 
             embed = Embed(title=f"Página {page} de {total_pages}", description=formatted_page_results)
 
