@@ -14,6 +14,8 @@ from llama_index import LLMPredictor, ServiceContext, SimpleDirectoryReader,Docu
 from utils.langchainConfiguration import dbChain, QUERY
 from langchain.chat_models import ChatOpenAI
 import re
+from discord import Embed
+
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
 TOKEN_OPENAI = os.environ.get('OPENAI_API_KEY')
