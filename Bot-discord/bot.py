@@ -234,21 +234,38 @@ class BOT(commands.Cog):
             "size": 50
         }
 
-        # Si se pasa como argumento, no es obligatorio
-        if searchParams.get("region"):
-            searchBody["query"]["bool"]["must"].append({"match": {"region": searchParams["region"]}})
-        if searchParams.get("categoria"):
-            searchBody["query"]["bool"]["must"].append({"match": {"category": searchParams["categoria"]}})
-        if searchParams.get("comuna"):
-            searchBody["query"]["bool"]["must"].append({"match": {"commune": searchParams["comuna"]}})
-        if searchParams.get("laboratorio"):
-            searchBody["query"]["bool"]["must"].append({"match": {"labTematico": searchParams["laboratorio"]}})
+        # Subconsulta bool para las palabras clave
+        keywordBoolQuery = {
+            "bool": {
+                "should": []
+            }
+        }
+
         if searchParams.get("keywords"):
             keywords = searchParams["keywords"].split(";")
             keywordQueries = [{"match": {"content": keyword}} for keyword in keywords]
-            # Usar "should" para las palabras clave en "content"
-            searchBody["query"]["bool"]["should"].extend(keywordQueries)
-            searchBody["query"]["bool"]["minimum_should_match"] = 1  # Al menos una palabra clave debe coincidir
+            keywordBoolQuery["bool"]["should"].extend(keywordQueries)
+            keywordBoolQuery["bool"]["minimum_should_match"] = 1  # Al menos una palabra clave debe coincidir
+
+        # Subconsulta bool para las demás condiciones
+        otherBoolQuery = {
+            "bool": {
+                "must": []
+            }
+        }
+
+        if searchParams.get("region"):
+            otherBoolQuery["bool"]["must"].append({"match": {"region": searchParams["region"]}})
+        if searchParams.get("categoria"):
+            otherBoolQuery["bool"]["must"].append({"match": {"category": searchParams["categoria"]}})
+        if searchParams.get("comuna"):
+            otherBoolQuery["bool"]["must"].append({"match": {"commune": searchParams["comuna"]}})
+        if searchParams.get("laboratorio"):
+            otherBoolQuery["bool"]["must"].append({"match": {"labTematico": searchParams["laboratorio"]}})
+
+        # Agregar la subconsulta de palabras clave y la subconsulta de otras condiciones a la consulta principal
+        searchBody["query"]["bool"]["must"].append(keywordBoolQuery)
+        searchBody["query"]["bool"]["must"].append(otherBoolQuery)
 
         # Agregar un filtro para asegurarse de que los documentos tengan el campo "content"
         searchBody["query"]["bool"]["filter"].append({"exists": {"field": "content"}})
