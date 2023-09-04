@@ -252,6 +252,8 @@ class BOT(commands.Cog):
             # Usar un mínimo de coincidencias para las condiciones "should"
             searchBody["query"]["bool"]["minimum_should_match"] = 1
 
+        searchBody["query"]["bool"]["filter"].append({"exists": {"field": "content"}})
+        
         if searchParams.get("año"):
             yearRange = searchParams["año"].split("-")
             if len(yearRange) == 2:
