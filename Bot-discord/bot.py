@@ -268,28 +268,28 @@ class BOT(commands.Cog):
 
         # Divide los resultados en páginas
         resultsPerPage = 5
-        total_pages = (len(results) + resultsPerPage - 1) // resultsPerPage
+        totalPages = (len(results) + resultsPerPage - 1) // resultsPerPage
 
         page = 1  # Página inicial
 
-        while page <= total_pages:
+        while page <= totalPages:
             start_index = (page - 1) * resultsPerPage
             end_index = min(start_index + resultsPerPage, len(results))
-            current_page_results = results[start_index:end_index]
+            currentPageResults = results[start_index:end_index]
 
-            formatted_page_results = "\n".join([f"{i+1}. **{hit['_source']['title']}** - {hit['_source']['link']}\n" for i, hit in enumerate(current_page_results)])
+            formattedPageResults = "\n".join([f"{i+1}. **{hit['_source']['title']}** - {hit['_source']['link']}\n" for i, hit in enumerate(currentPageResults)])
             
 
-            embed = Embed(title=f"Página {page} de {total_pages}", description=formatted_page_results)
+            embed = Embed(title=f"Página {page} de {totalPages}", description=formattedPageResults)
 
             message = await ctx.send(embed=embed)
 
             # Agrega las reacciones al mensaje
             reactions = []
-            if total_pages > 1:
+            if totalPages > 1:
                 if page > 1:
                     reactions.append('⬅️')
-                if page < total_pages:
+                if page < totalPages:
                     reactions.append('➡️')
 
             for reaction in reactions:
@@ -297,7 +297,7 @@ class BOT(commands.Cog):
 
             #print(hola)
 
-            if total_pages > 1:
+            if totalPages > 1:
                 def check(reaction, user):
                     return user == ctx.author and reaction.message == message
 
@@ -306,7 +306,7 @@ class BOT(commands.Cog):
 
                     if reaction.emoji == '⬅️' and page > 1:
                         page -= 1
-                    elif reaction.emoji == '➡️' and page < total_pages:
+                    elif reaction.emoji == '➡️' and page < totalPages:
                         page += 1
 
                     await message.delete()
