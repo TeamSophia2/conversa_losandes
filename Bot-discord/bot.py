@@ -227,8 +227,7 @@ class BOT(commands.Cog):
             "query": {
                 "bool": {
                     "must": [],
-                    "filter": [],
-                    "should": []
+                    "filter": []
                 }
             },
             "sort": [{"_score": {"order": "desc"}}],
@@ -247,10 +246,12 @@ class BOT(commands.Cog):
         if searchParams.get("keywords"):
             keywords = searchParams["keywords"].split(";")
             keywordQueries = [{"match": {"content": keyword}} for keyword in keywords]
-            # Usar "should" para las palabras clave en "content" y "must" para las otras condiciones
-            searchBody["query"]["bool"]["should"] = keywordQueries
-            searchBody["query"]["bool"]["must"].extend(keywordQueries)
+            # Usar "should" para las palabras clave en "content"
+            searchBody["query"]["bool"]["should"].extend(keywordQueries)
             searchBody["query"]["bool"]["minimum_should_match"] = 1  # Al menos una palabra clave debe coincidir
+
+        # Agregar un filtro para asegurarse de que los documentos tengan el campo "content"
+        searchBody["query"]["bool"]["filter"].append({"exists": {"field": "content"}})
 
         if searchParams.get("año"):
             yearRange = searchParams["año"].split("-")
@@ -266,7 +267,6 @@ class BOT(commands.Cog):
 
         # Realizar la búsqueda en Elasticsearch
         response = self.es.search(index="nuevo_indice", body=searchBody)
-
 
         # Obtener los resultados y formatearlos
         results = response["hits"]["hits"]
