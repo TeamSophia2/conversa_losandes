@@ -298,7 +298,7 @@ class BOT(commands.Cog):
             titulo = split_text[1].strip()  # Elimina espacios en blanco alrededor del título
         else:
             question = input_text
-            self.titulo = titulo.strip()
+            titulo = None
             print("SIN TITULO")
 
 
