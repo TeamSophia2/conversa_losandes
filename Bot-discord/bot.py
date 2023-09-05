@@ -277,13 +277,13 @@ class BOT(commands.Cog):
     @commands.command(name='question')
     async def question(self,ctx, *, input_text):
         directory = "../../alvaro"
-        split_text = input_text.split(".")
         print("IMPRIMIENDO SPLIT_TEXT")
         print(split_text)
         print("LARGO SPLIT_TEXT")
         print(len(split_text))
     
-        if len(split_text) > 1:
+        if "." in input_text:
+            split_text = input_text.split(".")
             print("CON TITULO")
             # Archivos y directorios que deseas eliminar
             files_to_delete = ['docstore.json', 'graph_store.json', 'index_store.json', 'vector_store.json']
@@ -353,7 +353,7 @@ class BOT(commands.Cog):
 
             query_engine = new_index.as_query_engine()
 
-            await ctx.send(question)
+            #await ctx.send(question)
             response = query_engine.query(question)
             #await ctx.send(response)
             print(response) 
@@ -374,7 +374,7 @@ class BOT(commands.Cog):
             
             query_engine = index.as_query_engine()
 
-            await ctx.send(question)
+            #await ctx.send(question)
             response = query_engine.query(question)
             #await ctx.send(response) 
             print(response)
