@@ -272,6 +272,7 @@ class BOT(commands.Cog):
                 otherBoolQuery["bool"]["must"].append({"term": {"publicationYear": int(yearRange[0])}})
 
         # Verificar si se encontraron palabras clave y otras condiciones
+        print(len(keywordBoolQuery["bool"]["must"]))
         if len(keywordBoolQuery["bool"]["must"]) > 0 and len(otherBoolQuery["bool"]["must"]) > 0:
             # Agregar la subconsulta de palabras clave y la subconsulta de otras condiciones a la consulta principal
             searchBody["query"]["bool"]["must"].append(keywordBoolQuery)
@@ -284,7 +285,7 @@ class BOT(commands.Cog):
             results = response["hits"]["hits"]
         else:
             # No se proporcionaron palabras clave u otras condiciones, puedes manejarlo de acuerdo a tus necesidades
-
+            print(1)
 
         print(f"Se encontraron {len(results)} resultados en Elasticsearch.")
 
