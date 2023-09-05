@@ -276,7 +276,7 @@ class BOT(commands.Cog):
 
     @commands.command(name='question')
     async def question(self,ctx, *, input_text):
-        titulo = self.titulo
+        
         directory = "../../alvaro"   
         if "." in input_text:
             split_text = input_text.split(".")
@@ -300,6 +300,9 @@ class BOT(commands.Cog):
         else:
             question = input_text
             print("SIN TITULO")
+
+        self.titulo = titulo
+        print(titulo)
 
 
         # Construir la consulta de Elasticsearch
