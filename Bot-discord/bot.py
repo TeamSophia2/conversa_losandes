@@ -244,6 +244,8 @@ class BOT(commands.Cog):
             keywordQueries = [{"match_phrase": {"content": keyword}} for keyword in keywords]
             keywordBoolQuery["bool"]["must"].extend(keywordQueries)
 
+
+        print(len(keywordBoolQuery["bool"]["must"]))
         # Verificar si se encontraron palabras clave
         if keywordBoolQuery["bool"]["must"]:
             # Subconsulta bool para las demás condiciones
