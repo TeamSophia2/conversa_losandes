@@ -239,56 +239,52 @@ class BOT(commands.Cog):
             }
         }
 
+        # Construir la subconsulta bool para las palabras clave
         if searchParams.get("keywords"):
             keywords = searchParams["keywords"].split(";")
             keywordQueries = [{"match_phrase": {"content": keyword}} for keyword in keywords]
             keywordBoolQuery["bool"]["must"].extend(keywordQueries)
 
-
-        print(len(keywordBoolQuery["bool"]["must"]))
-        # Verificar si se encontraron palabras clave
-        if len(keywordBoolQuery["bool"]["must"]) > 0:
-            # Subconsulta bool para las demás condiciones
-            otherBoolQuery = {
-                "bool": {
-                    "must": []
-                }
+        # Construir la subconsulta bool para las otras condiciones
+        otherBoolQuery = {
+            "bool": {
+                "must": []
             }
+        }
 
-            if searchParams.get("region"):
-                # Utilizar match_phrase en lugar de match para region
-                otherBoolQuery["bool"]["must"].append({"match_phrase": {"region": searchParams["region"]}})
-            if searchParams.get("categoria"):
-                # Utilizar match_phrase en lugar de match para categoria
-                otherBoolQuery["bool"]["must"].append({"match_phrase": {"category": searchParams["categoria"]}})
-            if searchParams.get("comuna"):
-                # Utilizar match_phrase en lugar de match para comuna
-                otherBoolQuery["bool"]["must"].append({"match_phrase": {"commune": searchParams["comuna"]}})
-            if searchParams.get("laboratorio"):
-                # Utilizar match_phrase en lugar de match para laboratorio
-                otherBoolQuery["bool"]["must"].append({"match_phrase": {"labTematico": searchParams["laboratorio"]}})
+        if searchParams.get("region"):
+            otherBoolQuery["bool"]["must"].append({"match_phrase": {"region": searchParams["region"]}})
+        if searchParams.get("categoria"):
+            otherBoolQuery["bool"]["must"].append({"match_phrase": {"category": searchParams["categoria"]}})
+        if searchParams.get("comuna"):
+            otherBoolQuery["bool"]["must"].append({"match_phrase": {"commune": searchParams["comuna"]}})
+        if searchParams.get("laboratorio"):
+            otherBoolQuery["bool"]["must"].append({"match_phrase": {"labTematico": searchParams["laboratorio"]}})
+        if searchParams.get("año"):
+            yearRange = searchParams["año"].split("-")
+            if len(yearRange) == 2:
+                dateRange = {
+                    "gte": yearRange[0],
+                    "lte": yearRange[1]
+                }
+                otherBoolQuery["bool"]["must"].append({"range": {"publicationYear": dateRange}})
+            else:
+                otherBoolQuery["bool"]["must"].append({"term": {"publicationYear": int(yearRange[0])}})
 
+        # Verificar si se encontraron palabras clave y otras condiciones
+        if len(keywordBoolQuery["bool"]["must"]) > 0 and len(otherBoolQuery["bool"]["must"]) > 0:
             # Agregar la subconsulta de palabras clave y la subconsulta de otras condiciones a la consulta principal
             searchBody["query"]["bool"]["must"].append(keywordBoolQuery)
             searchBody["query"]["bool"]["must"].append(otherBoolQuery)
 
-            if searchParams.get("año"):
-                yearRange = searchParams["año"].split("-")
-                if len(yearRange) == 2:
-                    dateRange = {
-                        "gte": yearRange[0],
-                        "lte": yearRange[1]
-                    }
-                    searchBody["query"]["bool"]["filter"].append({"range": {"publicationYear": dateRange}})
-                else:
-                    searchBody["query"]["bool"]["filter"].append({"term": {"publicationYear": int(yearRange[0])}})
+            # Realizar la búsqueda en Elasticsearch
+            response = self.es.search(index="nuevo_indice", body=searchBody)
 
-        # Realizar la búsqueda en Elasticsearch
-        response = self.es.search(index="nuevo_indice", body=searchBody)
+            # Obtener los resultados y formatearlos
+            results = response["hits"]["hits"]
+        else:
+            # No se proporcionaron palabras clave u otras condiciones, puedes manejarlo de acuerdo a tus necesidades
 
-
-        # Obtener los resultados y formatearlos
-        results = response["hits"]["hits"]
 
         print(f"Se encontraron {len(results)} resultados en Elasticsearch.")
 
