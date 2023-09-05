@@ -273,7 +273,7 @@ class BOT(commands.Cog):
 
         # Verificar si se encontraron palabras clave y otras condiciones
         print(len(keywordBoolQuery["bool"]["must"]))
-        if len(keywordBoolQuery["bool"]["must"]) > 0 and len(otherBoolQuery["bool"]["must"]) > 0:
+        if len(keywordBoolQuery["bool"]["must"]) > 0)# and len(otherBoolQuery["bool"]["must"]) > 0:
             # Agregar la subconsulta de palabras clave y la subconsulta de otras condiciones a la consulta principal
             searchBody["query"]["bool"]["must"].append(keywordBoolQuery)
             searchBody["query"]["bool"]["must"].append(otherBoolQuery)
