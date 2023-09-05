@@ -22,19 +22,6 @@ openai.api_key = TOKEN_OPENAI
 
 
 #nlp = spacy.load("es_core_news_sm")
-def filtro_personalizado(documento, keywords):
-    # Obtener el contenido del documento
-    contenido = documento.get("content", "").lower()  # Supongamos que el contenido es texto y lo convertimos a minúsculas
-
-    # Verificar si todas las palabras clave están presentes en el contenido
-    for keyword in keywords:
-        if keyword.lower() not in contenido:
-            return False
-
-    # Si todas las palabras clave están presentes, el documento pasa el filtro
-    return True
-
-
 
 class BOT(commands.Cog):
     def __init__(self, bot):
@@ -234,140 +221,67 @@ class BOT(commands.Cog):
         for key, value in searchParams.items():
             print(f"{key}: {value}")
 
-        # Configurar la consulta a Elasticsearch
-        searchBody = {
+        # Verificar si se proporcionó la clave "keywords"
+        if "keywords" not in searchParams:
+            await ctx.send("Debes proporcionar al menos una palabra clave utilizando 'keywords:keyword1,keyword2,keyword3'")
+            return
+
+        # Obtener las palabras clave de los parámetros
+        keywords = searchParams["keywords"].split(",")
+
+        # Construir una consulta de Elasticsearch
+        query = {
             "query": {
                 "bool": {
-                    "must": [],
-                    "filter": []
+                    "should": [{"match_phrase": {"content": keyword.strip()}} for keyword in keywords]
                 }
             },
-            "sort": [{"_score": {"order": "desc"}}],
-            "size": 50
+            "sort": [{"_score": {"order": "desc"}}]  # Ordenar por relevancia en orden descendente
         }
 
-        # Subconsulta bool para las palabras clave
-        keywordBoolQuery = {
-            "bool": {
-                "must": []
-            }
-        }
+        # Realizar la búsqueda en Elasticsearch
+        response = self.es.search(index="tu_indice", body=query)
 
-        # Construir la subconsulta bool para las palabras clave
-        if searchParams.get("keywords"):
-            keywords = searchParams["keywords"].split(";")
-            keywordQueries = [{"match_phrase": {"content": keyword}} for keyword in keywords]
-            keywordBoolQuery["bool"]["must"].extend(keywordQueries)
+        # Obtener los resultados
+        results = response["hits"]["hits"]
 
-        # Construir la subconsulta bool para las otras condiciones
-        otherBoolQuery = {
-            "bool": {
-                "must": []
-            }
-        }
+        # Imprimir la cantidad de documentos encontrados
+        await ctx.send(f"Se encontraron {len(results)} documentos que cumplen con las palabras clave.")
 
-        if searchParams.get("region"):
-            otherBoolQuery["bool"]["must"].append({"match_phrase": {"region": searchParams["region"]}})
-        if searchParams.get("categoria"):
-            otherBoolQuery["bool"]["must"].append({"match_phrase": {"category": searchParams["categoria"]}})
-        if searchParams.get("comuna"):
-            otherBoolQuery["bool"]["must"].append({"match_phrase": {"commune": searchParams["comuna"]}})
-        if searchParams.get("laboratorio"):
-            otherBoolQuery["bool"]["must"].append({"match_phrase": {"labTematico": searchParams["laboratorio"]}})
-        if searchParams.get("año"):
-            yearRange = searchParams["año"].split("-")
-            if len(yearRange) == 2:
-                dateRange = {
-                    "gte": yearRange[0],
-                    "lte": yearRange[1]
-                }
-                otherBoolQuery["bool"]["must"].append({"range": {"publicationYear": dateRange}})
-            else:
-                otherBoolQuery["bool"]["must"].append({"term": {"publicationYear": int(yearRange[0])}})
+        # Paginación
+        resultsPerPage = 5
+        totalPages = (len(results) + resultsPerPage - 1) // resultsPerPage
 
-        # Verificar si se encontraron palabras clave y otras condiciones
-        if len(keywordBoolQuery["bool"]["must"]) > 0: 
-            # Agregar la subconsulta de palabras clave y la subconsulta de otras condiciones a la consulta principal
-            searchBody["query"]["bool"]["must"].append(keywordBoolQuery)
-            searchBody["query"]["bool"]["must"].append(otherBoolQuery)
+        page = 1  # Página inicial
 
-            # Realizar la búsqueda en Elasticsearch
-            response = self.es.search(index="nuevo_indice", body=searchBody)
+        while page <= totalPages:
+            start_index = (page - 1) * resultsPerPage
+            end_index = min(start_index + resultsPerPage, len(results))
+            currentPageResults = results[start_index:end_index]
 
-            # Obtener los resultados y formatearlos
-            results = response["hits"]["hits"]
+            formattedPageResults = "\n".join([f"{i+1}. **{hit['_source']['title']}** - {hit['_source']['link']}\n" for i, hit in enumerate(currentPageResults)])
 
-            # Filtrar resultados basados en criterios específicos
-            filtered_results = []
+            # Agregar aquí la lógica para mostrar la página actual en Discord
+            await ctx.send(f"Página {page} de {totalPages}:\n{formattedPageResults}")
 
-            for hit in results:
-                if hit.get("_source"):
-                    # Aplicar tus filtros específicos aquí
-                    if filtro_personalizado(hit["_source"],keywords):
-                        filtered_results.append(hit)
+            if totalPages > 1:
+                def check(reaction, user):
+                    return user == ctx.author and reaction.message == message
 
-            print(f"Se encontraron {len(filtered_results)} resultados en Elasticsearch.")
-            
-            results=filtered_results
-            # Ahora puedes hacer algo con tus resultados filtrados, como mostrarlos en Discord, por ejemplo.
+                try:
+                    reaction, _ = await self.bot.wait_for('reaction_add', timeout=300.0, check=check)
 
-            print(f"Se encontraron {len(results)} resultados en Elasticsearch.")
+                    if reaction.emoji == '⬅️' and page > 1:
+                        page -= 1
+                    elif reaction.emoji == '➡️' and page < totalPages:
+                        page += 1
 
-            # Divide los resultados en páginas
-            resultsPerPage = 5
-            totalPages = (len(results) + resultsPerPage - 1) // resultsPerPage
-
-            page = 1  # Página inicial
-
-            while page <= totalPages:
-                start_index = (page - 1) * resultsPerPage
-                end_index = min(start_index + resultsPerPage, len(results))
-                currentPageResults = results[start_index:end_index]
-
-                formattedPageResults = "\n".join([f"{i+1}. **{hit['_source']['title']}** - {hit['_source']['link']}\n" for i, hit in enumerate(currentPageResults)])
-
-
-                embed = Embed(title=f"Página {page} de {totalPages}", description=formattedPageResults)
-
-                message = await ctx.send(embed=embed)
-
-                # Agrega las reacciones al mensaje
-                reactions = []
-                if totalPages > 1:
-                    if page > 1:
-                        reactions.append('⬅️')
-                    if page < totalPages:
-                        reactions.append('➡️')
-
-                for reaction in reactions:
-                    await message.add_reaction(reaction)
-
-                #print(hola)
-
-                if totalPages > 1:
-                    def check(reaction, user):
-                        return user == ctx.author and reaction.message == message
-
-                    try:
-                        reaction, _ = await self.bot.wait_for('reaction_add', timeout=300.0, check=check)
-
-                        if reaction.emoji == '⬅️' and page > 1:
-                            page -= 1
-                        elif reaction.emoji == '➡️' and page < totalPages:
-                            page += 1
-
-                        await message.delete()
-                    except asyncio.TimeoutError:
-                        break
-                else:
+                except asyncio.TimeoutError:
                     break
- 
-        else:
-            # No se proporcionaron palabras clave u otras condiciones, puedes manejarlo de acuerdo a tus necesidades
-            print(33)
-            
+            else:
+                break
 
-       
+ 
 
 
     # busca en principalCategory
