@@ -14,6 +14,7 @@ from llama_index import LLMPredictor, ServiceContext, SimpleDirectoryReader,Docu
 from utils.langchainConfiguration import dbChain, QUERY
 from langchain.chat_models import ChatOpenAI
 import re
+from discord import Embed
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
 TOKEN_OPENAI = os.environ.get('OPENAI_API_KEY')
@@ -220,7 +221,6 @@ class BOT(commands.Cog):
         for key, value in searchParams.items():
             print(f"{key}: {value}")
 
-        # Realizar la búsqueda en Elasticsearch
         searchBody = {
             "query": {
                 "bool": {
@@ -229,46 +229,114 @@ class BOT(commands.Cog):
                 }
             },
             "sort": [{"_score": {"order": "desc"}}],
-            "size":5
+            "size": 50
         }
-        ###si se pasa como argumento, no es obligacion
-        if searchParams.get("region"):
-            searchBody["query"]["bool"]["must"].append({"match": {"region": searchParams["region"]}})
-        if searchParams.get("categoria"):
-            searchBody["query"]["bool"]["must"].append({"match": {"category": searchParams["categoria"]}})
-        if searchParams.get("comuna"):
-            searchBody["query"]["bool"]["must"].append({"match": {"commune": searchParams["comuna"]}})
-        if searchParams.get("laboratorio"):
-            searchBody["query"]["bool"]["must"].append({"match": {"labTematico": searchParams["laboratorio"]}})
+
+        # Subconsulta bool para las palabras clave
+        keywordBoolQuery = {
+            "bool": {
+                "must": []
+            }
+        }
+
         if searchParams.get("keywords"):
             keywords = searchParams["keywords"].split(";")
-            keywordQueries = [{"match": {"content": keyword}} for keyword in keywords]
-            searchBody["query"]["bool"]["must"].extend(keywordQueries)
-        if searchParams.get("año"):
-            yearRange = searchParams["año"].split("-")
-            if len(yearRange) == 2:
-                dateRange = {
-                    "gte": yearRange[0],
-                    "lte": yearRange[1]
-                }
-                searchBody["query"]["bool"]["filter"].append({"range": {"publicationYear": dateRange}})
+            keywordQueries = [{"match_phrase": {"content": keyword}} for keyword in keywords]
+            keywordBoolQuery["bool"]["must"].extend(keywordQueries)
 
-            else:
-                # Si solo se proporciona un año
-                searchBody["query"]["bool"]["filter"].append({"term": {"publicationYear": int(yearRange[0])}})
-        #print(searchBody)
+        # Verificar si se encontraron palabras clave
+        if keywordBoolQuery["bool"]["must"]:
+            # Subconsulta bool para las demás condiciones
+            otherBoolQuery = {
+                "bool": {
+                    "must": []
+                }
+            }
+
+            if searchParams.get("region"):
+                # Utilizar match_phrase en lugar de match para region
+                otherBoolQuery["bool"]["must"].append({"match_phrase": {"region": searchParams["region"]}})
+            if searchParams.get("categoria"):
+                # Utilizar match_phrase en lugar de match para categoria
+                otherBoolQuery["bool"]["must"].append({"match_phrase": {"category": searchParams["categoria"]}})
+            if searchParams.get("comuna"):
+                # Utilizar match_phrase en lugar de match para comuna
+                otherBoolQuery["bool"]["must"].append({"match_phrase": {"commune": searchParams["comuna"]}})
+            if searchParams.get("laboratorio"):
+                # Utilizar match_phrase en lugar de match para laboratorio
+                otherBoolQuery["bool"]["must"].append({"match_phrase": {"labTematico": searchParams["laboratorio"]}})
+
+            # Agregar la subconsulta de palabras clave y la subconsulta de otras condiciones a la consulta principal
+            searchBody["query"]["bool"]["must"].append(keywordBoolQuery)
+            searchBody["query"]["bool"]["must"].append(otherBoolQuery)
+
+            if searchParams.get("año"):
+                yearRange = searchParams["año"].split("-")
+                if len(yearRange) == 2:
+                    dateRange = {
+                        "gte": yearRange[0],
+                        "lte": yearRange[1]
+                    }
+                    searchBody["query"]["bool"]["filter"].append({"range": {"publicationYear": dateRange}})
+                else:
+                    searchBody["query"]["bool"]["filter"].append({"term": {"publicationYear": int(yearRange[0])}})
+
+        # Realizar la búsqueda en Elasticsearch
         response = self.es.search(index="nuevo_indice", body=searchBody)
 
         # Obtener los resultados y formatearlos
         results = response["hits"]["hits"]
-        formattedResults = "\n".join([f"{i+1}. **{hit['_source']['title']}** [{hit['_source']['link']}]" for i, hit in enumerate(results)])
 
-        # Enviar los resultados como mensaje a Discord
-        if formattedResults:
-            responseMessage = f"Los 5 documentos más importantes:\n{formattedResults}"
-            await ctx.send(responseMessage)
-        else:
-            await ctx.send("No se encontraron documentos.")
+        print(f"Se encontraron {len(results)} resultados en Elasticsearch.")
+
+        # Divide los resultados en páginas
+        resultsPerPage = 5
+        totalPages = (len(results) + resultsPerPage - 1) // resultsPerPage
+
+        page = 1  # Página inicial
+
+        while page <= totalPages:
+            start_index = (page - 1) * resultsPerPage
+            end_index = min(start_index + resultsPerPage, len(results))
+            currentPageResults = results[start_index:end_index]
+
+            formattedPageResults = "\n".join([f"{i+1}. **{hit['_source']['title']}** - {hit['_source']['link']}\n" for i, hit in enumerate(currentPageResults)])
+
+
+            embed = Embed(title=f"Página {page} de {totalPages}", description=formattedPageResults)
+
+            message = await ctx.send(embed=embed)
+
+            # Agrega las reacciones al mensaje
+            reactions = []
+            if totalPages > 1:
+                if page > 1:
+                    reactions.append('⬅️')
+                if page < totalPages:
+                    reactions.append('➡️')
+
+            for reaction in reactions:
+                await message.add_reaction(reaction)
+
+            #print(hola)
+
+            if totalPages > 1:
+                def check(reaction, user):
+                    return user == ctx.author and reaction.message == message
+
+                try:
+                    reaction, _ = await self.bot.wait_for('reaction_add', timeout=300.0, check=check)
+
+                    if reaction.emoji == '⬅️' and page > 1:
+                        page -= 1
+                    elif reaction.emoji == '➡️' and page < totalPages:
+                        page += 1
+
+                    await message.delete()
+                except asyncio.TimeoutError:
+                    break
+            else:
+                break
  
 
 
