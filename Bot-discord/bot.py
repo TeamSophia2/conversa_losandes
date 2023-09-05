@@ -292,16 +292,15 @@ class BOT(commands.Cog):
                 file_path = os.path.join(directory, filename)
                 if os.path.exists(file_path):
                     os.system(f'sudo rm -R {file_path}')
-                
-
             question = split_text[0]
             self.titulo = split_text[1].strip()  # Elimina espacios en blanco alrededor del título
-            print(self.titulo)
+            
         else:
             question = input_text
             print("SIN TITULO")
 
-        self.titulo = titulo
+        #self.titulo = titulo
+        print(self.titulo)
 
 
         # Construir la consulta de Elasticsearch
