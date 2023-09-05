@@ -22,6 +22,19 @@ openai.api_key = TOKEN_OPENAI
 
 
 #nlp = spacy.load("es_core_news_sm")
+def filtro_personalizado(documento, keywords):
+    # Obtener el contenido del documento
+    contenido = documento.get("content", "").lower()  # Supongamos que el contenido es texto y lo convertimos a minúsculas
+
+    # Verificar si todas las palabras clave están presentes en el contenido
+    for keyword in keywords:
+        if keyword.lower() not in contenido:
+            return False
+
+    # Si todas las palabras clave están presentes, el documento pasa el filtro
+    return True
+
+
 
 class BOT(commands.Cog):
     def __init__(self, bot):
@@ -221,6 +234,7 @@ class BOT(commands.Cog):
         for key, value in searchParams.items():
             print(f"{key}: {value}")
 
+        # Configurar la consulta a Elasticsearch
         searchBody = {
             "query": {
                 "bool": {
@@ -270,10 +284,9 @@ class BOT(commands.Cog):
                 otherBoolQuery["bool"]["must"].append({"range": {"publicationYear": dateRange}})
             else:
                 otherBoolQuery["bool"]["must"].append({"term": {"publicationYear": int(yearRange[0])}})
-        print(len(otherBoolQuery["bool"]["must"]))
+
         # Verificar si se encontraron palabras clave y otras condiciones
-        print(len(keywordBoolQuery["bool"]["must"]))
-        if len(keywordBoolQuery["bool"]["must"]) > 0: # and len(otherBoolQuery["bool"]["must"]) > 0:
+        if len(keywordBoolQuery["bool"]["must"]) > 0: 
             # Agregar la subconsulta de palabras clave y la subconsulta de otras condiciones a la consulta principal
             searchBody["query"]["bool"]["must"].append(keywordBoolQuery)
             searchBody["query"]["bool"]["must"].append(otherBoolQuery)
@@ -283,6 +296,21 @@ class BOT(commands.Cog):
 
             # Obtener los resultados y formatearlos
             results = response["hits"]["hits"]
+
+            # Filtrar resultados basados en criterios específicos
+            filtered_results = []
+
+            for hit in results:
+                if hit.get("_source"):
+                    # Aplicar tus filtros específicos aquí
+                    if filtro_personalizado(hit["_source"],keywords):
+                        filtered_results.append(hit)
+
+            print(f"Se encontraron {len(filtered_results)} resultados en Elasticsearch.")
+            
+            results=filtered_results
+            # Ahora puedes hacer algo con tus resultados filtrados, como mostrarlos en Discord, por ejemplo.
+
             print(f"Se encontraron {len(results)} resultados en Elasticsearch.")
 
             # Divide los resultados en páginas
@@ -336,7 +364,8 @@ class BOT(commands.Cog):
  
         else:
             # No se proporcionaron palabras clave u otras condiciones, puedes manejarlo de acuerdo a tus necesidades
-            print(1)
+            print(33)
+            
 
        
 
