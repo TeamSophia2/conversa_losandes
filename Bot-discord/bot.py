@@ -331,8 +331,8 @@ class BOT(commands.Cog):
                 #await ctx.send(f"Resultado {i}:\nContenido: {content}\nScore: {score}\n")
             #print(abstracts_with_high_score)        
         else:
-            await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
-            #print("No se encontraron resultados para los conceptos clave proporcionados.")
+            #await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
+            print("No se encontraron resultados para los conceptos clave proporcionados.")
 
 
         directory = "../../alvaro"  # Reemplaza con la ruta al directorio que deseas verificar
@@ -355,8 +355,8 @@ class BOT(commands.Cog):
 
             await ctx.send(question)
             response = query_engine.query(question)
-            await ctx.send(response)
-            #print(response) 
+            #await ctx.send(response)
+            print(response) 
 
         else:
             print("NO EXISTE INDEX")
@@ -376,8 +376,8 @@ class BOT(commands.Cog):
 
             await ctx.send(question)
             response = query_engine.query(question)
-            await ctx.send(response) 
-            #print(response)
+            #await ctx.send(response) 
+            print(response)
             
     
 
