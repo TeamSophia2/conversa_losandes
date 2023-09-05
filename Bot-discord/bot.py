@@ -239,6 +239,18 @@ class BOT(commands.Cog):
             "sort": [{"_score": {"order": "desc"}}]  # Ordenar por relevancia en orden descendente
         }
 
+        if "año" in searchParams:
+            yearRange = searchParams["año"].split("-")
+            if len(yearRange) == 2:
+                dateRange = {
+                    "gte": yearRange[0],
+                    "lte": yearRange[1]
+                }
+                query["query"]["bool"]["filter"].append({"range": {"publicationYear": dateRange}})
+            else:
+                query["query"]["bool"]["filter"].append({"term": {"publicationYear": int(yearRange[0])}})
+
+
         # Realizar la búsqueda en Elasticsearch
         response = self.es.search(index="nuevo_indice", body=query)
 
