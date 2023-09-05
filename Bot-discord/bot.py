@@ -275,8 +275,7 @@ class BOT(commands.Cog):
     # busca en principalCategory
 
     @commands.command(name='question')
-    async def question(self,ctx, *, input_text):
-        
+    async def question(self,ctx, *, input_text): 
         directory = "../../alvaro"   
         if "." in input_text:
             split_text = input_text.split(".")
@@ -299,9 +298,10 @@ class BOT(commands.Cog):
             self.titulo = split_text[1].strip()  # Elimina espacios en blanco alrededor del título
         else:
             question = input_text
+            self.titulo = titulo
             print("SIN TITULO")
 
-        self.titulo = titulo
+        
         print(titulo)
 
 
