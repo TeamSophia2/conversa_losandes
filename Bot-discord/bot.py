@@ -251,7 +251,8 @@ class BOT(commands.Cog):
             else:
                 query["query"]["bool"]["filter"].append({"term": {"publicationYear": int(yearRange[0])}})
 
-
+        # Agregar un filtro para asegurarse de que el campo "content" exista y no esté vacío
+        query["query"]["bool"]["filter"].append({"exists": {"field": "content"}})
         # Realizar la búsqueda en Elasticsearch
         response = self.es.search(index="nuevo_indice", body=query)
 
