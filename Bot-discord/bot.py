@@ -247,7 +247,7 @@ class BOT(commands.Cog):
 
         print(len(keywordBoolQuery["bool"]["must"]))
         # Verificar si se encontraron palabras clave
-        if keywordBoolQuery["bool"]["must"]:
+        if len(keywordBoolQuery["bool"]["must"]) > 0:
             # Subconsulta bool para las demás condiciones
             otherBoolQuery = {
                 "bool": {
