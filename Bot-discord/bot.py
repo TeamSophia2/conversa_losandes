@@ -227,7 +227,7 @@ class BOT(commands.Cog):
             return
 
         # Obtener las palabras clave de los parámetros
-        keywords = searchParams["keywords"].split(",")
+        keywords = searchParams["keywords"].split(";")
         print(keywords)
         # Construir una consulta de Elasticsearch
         query = {
