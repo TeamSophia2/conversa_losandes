@@ -276,6 +276,7 @@ class BOT(commands.Cog):
 
     @commands.command(name='question')
     async def question(self,ctx, *, input_text):
+        titulo = self.titulo
         directory = "../../alvaro"   
         if "." in input_text:
             split_text = input_text.split(".")
@@ -298,9 +299,7 @@ class BOT(commands.Cog):
             titulo = split_text[1].strip()  # Elimina espacios en blanco alrededor del título
         else:
             question = input_text
-            if self.titulo is not None:
-                self.titulo = titulo.strip()
-                print("SIN TITULO")
+            print("SIN TITULO")
 
 
         # Construir la consulta de Elasticsearch
