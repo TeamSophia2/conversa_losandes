@@ -240,7 +240,7 @@ class BOT(commands.Cog):
         }
 
         # Realizar la búsqueda en Elasticsearch
-        response = self.es.search(index="tu_indice", body=query)
+        response = self.es.search(index="nuevo_indice", body=query)
 
         # Obtener los resultados
         results = response["hits"]["hits"]
