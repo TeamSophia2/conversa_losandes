@@ -270,7 +270,7 @@ class BOT(commands.Cog):
                 otherBoolQuery["bool"]["must"].append({"range": {"publicationYear": dateRange}})
             else:
                 otherBoolQuery["bool"]["must"].append({"term": {"publicationYear": int(yearRange[0])}})
-
+        print(len(otherBoolQuery["bool"]["must"]))
         # Verificar si se encontraron palabras clave y otras condiciones
         print(len(keywordBoolQuery["bool"]["must"]))
         if len(keywordBoolQuery["bool"]["must"]) > 0: # and len(otherBoolQuery["bool"]["must"]) > 0:
