@@ -237,15 +237,15 @@ class BOT(commands.Cog):
         # Subconsulta bool para las palabras clave
         keywordBoolQuery = {
             "bool": {
-                "must": []  # Cambiar de "should" a "must"
+                "must": []
             }
         }
 
         if searchParams.get("keywords"):
             keywords = searchParams["keywords"].split(";")
             for keyword in keywords:
-                # Agregar una condición "must" para cada palabra clave en "content"
-                keywordBoolQuery["bool"]["must"].append({"match": {"content": keyword}})
+                # Agregar una condición "must" para cada palabra clave en "content" utilizando match_phrase
+                keywordBoolQuery["bool"]["must"].append({"match_phrase": {"content": keyword}})
 
         # Subconsulta bool para las demás condiciones
         otherBoolQuery = {
@@ -255,13 +255,17 @@ class BOT(commands.Cog):
         }
 
         if searchParams.get("region"):
-            otherBoolQuery["bool"]["must"].append({"match": {"region": searchParams["region"]}})
+            # Utilizar match_phrase en lugar de match para region
+            otherBoolQuery["bool"]["must"].append({"match_phrase": {"region": searchParams["region"]}})
         if searchParams.get("categoria"):
-            otherBoolQuery["bool"]["must"].append({"match": {"category": searchParams["categoria"]}})
+            # Utilizar match_phrase en lugar de match para categoria
+            otherBoolQuery["bool"]["must"].append({"match_phrase": {"category": searchParams["categoria"]}})
         if searchParams.get("comuna"):
-            otherBoolQuery["bool"]["must"].append({"match": {"commune": searchParams["comuna"]}})
+            # Utilizar match_phrase en lugar de match para comuna
+            otherBoolQuery["bool"]["must"].append({"match_phrase": {"commune": searchParams["comuna"]}})
         if searchParams.get("laboratorio"):
-            otherBoolQuery["bool"]["must"].append({"match": {"labTematico": searchParams["laboratorio"]}})
+            # Utilizar match_phrase en lugar de match para laboratorio
+            otherBoolQuery["bool"]["must"].append({"match_phrase": {"labTematico": searchParams["laboratorio"]}})
 
         # Agregar la subconsulta de palabras clave y la subconsulta de otras condiciones a la consulta principal
         searchBody["query"]["bool"]["must"].append(keywordBoolQuery)
