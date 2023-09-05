@@ -245,10 +245,9 @@ class BOT(commands.Cog):
         # Obtener los resultados
         results = response["hits"]["hits"]
 
-        # Imprimir la cantidad de documentos encontrados
-        await ctx.send(f"Se encontraron {len(results)} documentos que cumplen con las palabras clave.")
+        print(f"Se encontraron {len(results)} resultados en Elasticsearch.")
 
-        # Paginación
+        # Divide los resultados en páginas
         resultsPerPage = 5
         totalPages = (len(results) + resultsPerPage - 1) // resultsPerPage
 
@@ -261,8 +260,23 @@ class BOT(commands.Cog):
 
             formattedPageResults = "\n".join([f"{i+1}. **{hit['_source']['title']}** - {hit['_source']['link']}\n" for i, hit in enumerate(currentPageResults)])
 
-            # Agregar aquí la lógica para mostrar la página actual en Discord
-            await ctx.send(f"Página {page} de {totalPages}:\n{formattedPageResults}")
+
+            embed = Embed(title=f"Página {page} de {totalPages}", description=formattedPageResults)
+
+            message = await ctx.send(embed=embed)
+
+            # Agrega las reacciones al mensaje
+            reactions = []
+            if totalPages > 1:
+                if page > 1:
+                    reactions.append('⬅️')
+                if page < totalPages:
+                    reactions.append('➡️')
+
+            for reaction in reactions:
+                await message.add_reaction(reaction)
+
+            #print(hola)
 
             if totalPages > 1:
                 def check(reaction, user):
@@ -276,6 +290,7 @@ class BOT(commands.Cog):
                     elif reaction.emoji == '➡️' and page < totalPages:
                         page += 1
 
+                    await message.delete()
                 except asyncio.TimeoutError:
                     break
             else:
