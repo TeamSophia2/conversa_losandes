@@ -233,7 +233,8 @@ class BOT(commands.Cog):
         query = {
             "query": {
                 "bool": {
-                    "should": [{"match_phrase": {"content": keyword.strip()}} for keyword in keywords]
+                    "should": [{"match_phrase": {"content": keyword.strip()}} for keyword in keywords],
+                    "filter": []  # Inicializar el filtro
                 }
             },
             "sort": [{"_score": {"order": "desc"}}]  # Ordenar por relevancia en orden descendente
