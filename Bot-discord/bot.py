@@ -296,12 +296,12 @@ class BOT(commands.Cog):
 
             question = split_text[0]
             self.titulo = split_text[1].strip()  # Elimina espacios en blanco alrededor del título
+            print(self.titulo)
         else:
             question = input_text
             print("SIN TITULO")
 
         self.titulo = titulo
-        print(self.titulo)
 
 
         # Construir la consulta de Elasticsearch
