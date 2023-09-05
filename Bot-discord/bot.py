@@ -227,8 +227,7 @@ class BOT(commands.Cog):
             "query": {
                 "bool": {
                     "must": [],
-                    "filter": [],
-                    "should": []
+                    "filter": []
                 }
             },
             "sort": [{"_score": {"order": "desc"}}],
@@ -238,15 +237,15 @@ class BOT(commands.Cog):
         # Subconsulta bool para las palabras clave
         keywordBoolQuery = {
             "bool": {
-                "should": []
+                "must": []  # Cambiar de "should" a "must"
             }
         }
 
         if searchParams.get("keywords"):
             keywords = searchParams["keywords"].split(";")
             for keyword in keywords:
-                # Agregar una condición "should" para cada palabra clave en "content"
-                keywordBoolQuery["bool"]["should"].append({"match": {"content": keyword}})
+                # Agregar una condición "must" para cada palabra clave en "content"
+                keywordBoolQuery["bool"]["must"].append({"match": {"content": keyword}})
 
         # Subconsulta bool para las demás condiciones
         otherBoolQuery = {
@@ -280,7 +279,6 @@ class BOT(commands.Cog):
                 }
                 searchBody["query"]["bool"]["filter"].append({"range": {"publicationYear": dateRange}})
             else:
-                # Si solo se proporciona un año
                 searchBody["query"]["bool"]["filter"].append({"term": {"publicationYear": int(yearRange[0])}})
 
         # Realizar la búsqueda en Elasticsearch
@@ -288,6 +286,7 @@ class BOT(commands.Cog):
 
         # Obtener los resultados y formatearlos
         results = response["hits"]["hits"]
+
                 
         print(f"Se encontraron {len(results)} resultados en Elasticsearch.")
 
