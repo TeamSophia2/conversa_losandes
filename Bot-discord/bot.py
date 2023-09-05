@@ -284,6 +284,7 @@ class BOT(commands.Cog):
         # Realizar la búsqueda en Elasticsearch
         response = self.es.search(index="nuevo_indice", body=searchBody)
 
+
         # Obtener los resultados y formatearlos
         results = response["hits"]["hits"]
 
