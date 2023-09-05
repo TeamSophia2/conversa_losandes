@@ -278,15 +278,10 @@ class BOT(commands.Cog):
     async def question(self,ctx, *, input_text): 
         directory = "../../alvaro"   
         if "." in input_text:
-            split_text = input_text.split(".")
-            print("IMPRIMIENDO SPLIT_TEXT")
-            print(split_text)
-            print("LARGO SPLIT_TEXT")
-            print(len(split_text))
             print("CON TITULO")
+            split_text = input_text.split(".")
             # Archivos y directorios que deseas eliminar
             files_to_delete = ['docstore.json', 'graph_store.json', 'index_store.json', 'vector_store.json']
-
             # Construir y ejecutar el comando para eliminar los archivos
             for filename in files_to_delete:
                 file_path = os.path.join(directory, filename)
@@ -299,7 +294,6 @@ class BOT(commands.Cog):
             question = input_text
             print("SIN TITULO")
 
-        #self.titulo = titulo
         print(self.titulo)
 
 
@@ -353,10 +347,10 @@ class BOT(commands.Cog):
 
             query_engine = new_index.as_query_engine()
 
-            #await ctx.send(question)
+            await ctx.send(question)
             response = query_engine.query(question)
-            #await ctx.send(response)
-            print(response) 
+            await ctx.send(response)
+            #print(response) 
 
         else:
             print("NO EXISTE INDEX")
@@ -374,10 +368,10 @@ class BOT(commands.Cog):
             
             query_engine = index.as_query_engine()
 
-            #await ctx.send(question)
+            await ctx.send(question)
             response = query_engine.query(question)
-            #await ctx.send(response) 
-            print(response)
+            await ctx.send(response) 
+            #print(response)
             
     
 
