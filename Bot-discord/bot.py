@@ -233,7 +233,7 @@ class BOT(commands.Cog):
         query = {
             "query": {
                 "bool": {
-                    "should": [{"match_phrase": {"content": keyword.strip()}} for keyword in keywords],
+                    "must": [{"match_phrase": {"content": keyword.strip()}} for keyword in keywords],
                     "filter": []  # Inicializar el filtro
                 }
             },
