@@ -14,8 +14,6 @@ from llama_index import LLMPredictor, ServiceContext, SimpleDirectoryReader,Docu
 from utils.langchainConfiguration import dbChain, QUERY
 from langchain.chat_models import ChatOpenAI
 import re
-from discord import Embed
-
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
 TOKEN_OPENAI = os.environ.get('OPENAI_API_KEY')
@@ -231,49 +229,21 @@ class BOT(commands.Cog):
                 }
             },
             "sort": [{"_score": {"order": "desc"}}],
-            "size": 50
+            "size":5
         }
-
-        # Subconsulta bool para las palabras clave
-        keywordBoolQuery = {
-            "bool": {
-                "must": []
-            }
-        }
-
+        ###si se pasa como argumento, no es obligacion
+        if searchParams.get("region"):
+            searchBody["query"]["bool"]["must"].append({"match": {"region": searchParams["region"]}})
+        if searchParams.get("categoria"):
+            searchBody["query"]["bool"]["must"].append({"match": {"category": searchParams["categoria"]}})
+        if searchParams.get("comuna"):
+            searchBody["query"]["bool"]["must"].append({"match": {"commune": searchParams["comuna"]}})
+        if searchParams.get("laboratorio"):
+            searchBody["query"]["bool"]["must"].append({"match": {"labTematico": searchParams["laboratorio"]}})
         if searchParams.get("keywords"):
             keywords = searchParams["keywords"].split(";")
-            for keyword in keywords:
-                # Agregar una condición "must" para cada palabra clave en "content" utilizando match_phrase
-                keywordBoolQuery["bool"]["must"].append({"match_phrase": {"content": keyword}})
-
-        # Subconsulta bool para las demás condiciones
-        otherBoolQuery = {
-            "bool": {
-                "must": []
-            }
-        }
-
-        if searchParams.get("region"):
-            # Utilizar match_phrase en lugar de match para region
-            otherBoolQuery["bool"]["must"].append({"match_phrase": {"region": searchParams["region"]}})
-        if searchParams.get("categoria"):
-            # Utilizar match_phrase en lugar de match para categoria
-            otherBoolQuery["bool"]["must"].append({"match_phrase": {"category": searchParams["categoria"]}})
-        if searchParams.get("comuna"):
-            # Utilizar match_phrase en lugar de match para comuna
-            otherBoolQuery["bool"]["must"].append({"match_phrase": {"commune": searchParams["comuna"]}})
-        if searchParams.get("laboratorio"):
-            # Utilizar match_phrase en lugar de match para laboratorio
-            otherBoolQuery["bool"]["must"].append({"match_phrase": {"labTematico": searchParams["laboratorio"]}})
-
-        # Agregar la subconsulta de palabras clave y la subconsulta de otras condiciones a la consulta principal
-        searchBody["query"]["bool"]["must"].append(keywordBoolQuery)
-        searchBody["query"]["bool"]["must"].append(otherBoolQuery)
-
-        # Agregar un filtro para asegurarse de que los documentos tengan el campo "content"
-        searchBody["query"]["bool"]["filter"].append({"exists": {"field": "content"}})
-
+            keywordQueries = [{"match": {"content": keyword}} for keyword in keywords]
+            searchBody["query"]["bool"]["must"].extend(keywordQueries)
         if searchParams.get("año"):
             yearRange = searchParams["año"].split("-")
             if len(yearRange) == 2:
@@ -282,108 +252,36 @@ class BOT(commands.Cog):
                     "lte": yearRange[1]
                 }
                 searchBody["query"]["bool"]["filter"].append({"range": {"publicationYear": dateRange}})
-            else:
-                searchBody["query"]["bool"]["filter"].append({"term": {"publicationYear": int(yearRange[0])}})
 
-        # Realizar la búsqueda en Elasticsearch
+            else:
+                # Si solo se proporciona un año
+                searchBody["query"]["bool"]["filter"].append({"term": {"publicationYear": int(yearRange[0])}})
+        #print(searchBody)
         response = self.es.search(index="nuevo_indice", body=searchBody)
 
         # Obtener los resultados y formatearlos
         results = response["hits"]["hits"]
+        formattedResults = "\n".join([f"{i+1}. **{hit['_source']['title']}** [{hit['_source']['link']}]" for i, hit in enumerate(results)])
 
-                
-        print(f"Se encontraron {len(results)} resultados en Elasticsearch.")
-
-        # Divide los resultados en páginas
-        resultsPerPage = 5
-        totalPages = (len(results) + resultsPerPage - 1) // resultsPerPage
-
-        page = 1  # Página inicial
-
-        while page <= totalPages:
-            start_index = (page - 1) * resultsPerPage
-            end_index = min(start_index + resultsPerPage, len(results))
-            currentPageResults = results[start_index:end_index]
-
-            formattedPageResults = "\n".join([f"{i+1}. **{hit['_source']['title']}** - {hit['_source']['link']}\n" for i, hit in enumerate(currentPageResults)])
-            
-
-            embed = Embed(title=f"Página {page} de {totalPages}", description=formattedPageResults)
-
-            message = await ctx.send(embed=embed)
-
-            # Agrega las reacciones al mensaje
-            reactions = []
-            if totalPages > 1:
-                if page > 1:
-                    reactions.append('⬅️')
-                if page < totalPages:
-                    reactions.append('➡️')
-
-            for reaction in reactions:
-                await message.add_reaction(reaction)
-
-            #print(hola)
-
-            if totalPages > 1:
-                def check(reaction, user):
-                    return user == ctx.author and reaction.message == message
-
-                try:
-                    reaction, _ = await self.bot.wait_for('reaction_add', timeout=300.0, check=check)
-
-                    if reaction.emoji == '⬅️' and page > 1:
-                        page -= 1
-                    elif reaction.emoji == '➡️' and page < totalPages:
-                        page += 1
-
-                    await message.delete()
-                except asyncio.TimeoutError:
-                    break
-            else:
-                break
+        # Enviar los resultados como mensaje a Discord
+        if formattedResults:
+            responseMessage = f"Los 5 documentos más importantes:\n{formattedResults}"
+            await ctx.send(responseMessage)
+        else:
+            await ctx.send("No se encontraron documentos.")
  
 
 
     # busca en principalCategory
 
-    @commands.command(name='searchTematicLine')
-    async def searchTematicLine(self, ctx, principalCategoria):
-        # Realiza la búsqueda en Elasticsearch por la principal categoría especificada
-        searchBody = {
-            "query": {
-                "match": {
-                    "principalCategory": principalCategoria
-                }
-            }
-        }
-
-        response = self.es.search(index="documentos", body=searchBody)
-
-        # Procesa y muestra los resultados
-        if "hits" in response and "hits" in response["hits"]:
-            hits = response["hits"]["hits"]
-            if len(hits) > 0:
-                # Construye y envía el mensaje con los resultados
-                resultMessage = "Resultados para la linea temática **{}**:\n".format(
-                    principalCategoria)
-                for hit in hits:
-                    doc = hit["_source"]
-                    resultMessage += "- **Título**: {}\n".format(doc["title"])
-                    resultMessage += "  **URL**: {}\n".format(doc["url"])
-                    resultMessage += "\n"
-
-                await ctx.send(resultMessage)
-            else:
-                await ctx.send("No se encontraron resultados para la linea temática**{}**.".format(principalCategoria))
-        else:
-            await ctx.send("Ocurrió un error al buscar la linea temática **{}**.".format(principalCategoria))
-
-    
     @commands.command(name='question')
     async def question(self,ctx, *, input_text):
         directory = "../../alvaro"
         split_text = input_text.split(".")
+        print("IMPRIMIENDO SPLIT_TEXT")
+        print(split_text)
+        print("LARGO SPLIT_TEXT")
+        print(len(split_text))
     
         if len(split_text) > 1:
             print("CON TITULO")
@@ -393,7 +291,9 @@ class BOT(commands.Cog):
             # Construir y ejecutar el comando para eliminar los archivos
             for filename in files_to_delete:
                 file_path = os.path.join(directory, filename)
-                os.system(f'sudo rm -R {file_path}')
+                if os.path.exists(file_path):
+                    os.system(f'sudo rm -R {file_path}')
+                
 
             question = split_text[0]
             titulo = split_text[1].strip()  # Elimina espacios en blanco alrededor del título
