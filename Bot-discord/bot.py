@@ -283,61 +283,62 @@ class BOT(commands.Cog):
 
             # Obtener los resultados y formatearlos
             results = response["hits"]["hits"]
+            print(f"Se encontraron {len(results)} resultados en Elasticsearch.")
+
+            # Divide los resultados en páginas
+            resultsPerPage = 5
+            totalPages = (len(results) + resultsPerPage - 1) // resultsPerPage
+
+            page = 1  # Página inicial
+
+            while page <= totalPages:
+                start_index = (page - 1) * resultsPerPage
+                end_index = min(start_index + resultsPerPage, len(results))
+                currentPageResults = results[start_index:end_index]
+
+                formattedPageResults = "\n".join([f"{i+1}. **{hit['_source']['title']}** - {hit['_source']['link']}\n" for i, hit in enumerate(currentPageResults)])
+
+
+                embed = Embed(title=f"Página {page} de {totalPages}", description=formattedPageResults)
+
+                message = await ctx.send(embed=embed)
+
+                # Agrega las reacciones al mensaje
+                reactions = []
+                if totalPages > 1:
+                    if page > 1:
+                        reactions.append('⬅️')
+                    if page < totalPages:
+                        reactions.append('➡️')
+
+                for reaction in reactions:
+                    await message.add_reaction(reaction)
+
+                #print(hola)
+
+                if totalPages > 1:
+                    def check(reaction, user):
+                        return user == ctx.author and reaction.message == message
+
+                    try:
+                        reaction, _ = await self.bot.wait_for('reaction_add', timeout=300.0, check=check)
+
+                        if reaction.emoji == '⬅️' and page > 1:
+                            page -= 1
+                        elif reaction.emoji == '➡️' and page < totalPages:
+                            page += 1
+
+                        await message.delete()
+                    except asyncio.TimeoutError:
+                        break
+                else:
+                    break
+ 
         else:
             # No se proporcionaron palabras clave u otras condiciones, puedes manejarlo de acuerdo a tus necesidades
             print(1)
 
-        print(f"Se encontraron {len(results)} resultados en Elasticsearch.")
-
-        # Divide los resultados en páginas
-        resultsPerPage = 5
-        totalPages = (len(results) + resultsPerPage - 1) // resultsPerPage
-
-        page = 1  # Página inicial
-
-        while page <= totalPages:
-            start_index = (page - 1) * resultsPerPage
-            end_index = min(start_index + resultsPerPage, len(results))
-            currentPageResults = results[start_index:end_index]
-
-            formattedPageResults = "\n".join([f"{i+1}. **{hit['_source']['title']}** - {hit['_source']['link']}\n" for i, hit in enumerate(currentPageResults)])
-
-
-            embed = Embed(title=f"Página {page} de {totalPages}", description=formattedPageResults)
-
-            message = await ctx.send(embed=embed)
-
-            # Agrega las reacciones al mensaje
-            reactions = []
-            if totalPages > 1:
-                if page > 1:
-                    reactions.append('⬅️')
-                if page < totalPages:
-                    reactions.append('➡️')
-
-            for reaction in reactions:
-                await message.add_reaction(reaction)
-
-            #print(hola)
-
-            if totalPages > 1:
-                def check(reaction, user):
-                    return user == ctx.author and reaction.message == message
-
-                try:
-                    reaction, _ = await self.bot.wait_for('reaction_add', timeout=300.0, check=check)
-
-                    if reaction.emoji == '⬅️' and page > 1:
-                        page -= 1
-                    elif reaction.emoji == '➡️' and page < totalPages:
-                        page += 1
-
-                    await message.delete()
-                except asyncio.TimeoutError:
-                    break
-            else:
-                break
- 
+       
 
 
     # busca en principalCategory
