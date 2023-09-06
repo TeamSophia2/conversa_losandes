@@ -251,6 +251,11 @@ class BOT(commands.Cog):
             else:
                 query["query"]["bool"]["filter"].append({"term": {"publicationYear": int(yearRange[0])}})
 
+        if "categoria" in searchParams:
+            categoria = searchParams["categoria"]
+            # Agregar el filtro de categoría a la consulta de Elasticsearch
+            query["query"]["bool"]["filter"].append({"term": {"category": categoria}})
+
         # Agregar un filtro para asegurarse de que el campo "content" exista y no esté vacío
         query["query"]["bool"]["filter"].append({"exists": {"field": "content"}})
         # Realizar la búsqueda en Elasticsearch
