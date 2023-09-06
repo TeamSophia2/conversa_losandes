@@ -229,7 +229,8 @@ class BOT(commands.Cog):
 
         # Construir una consulta de Elasticsearch
         query = {
-            "query": {
+            "size": 25,
+             "query": {
                 "bool": {
                     "filter": []  # Inicializar el filtro
                 }
