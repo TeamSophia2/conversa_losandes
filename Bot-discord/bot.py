@@ -369,7 +369,7 @@ class BOT(commands.Cog):
             }
         }
         #Consulta la base de datos 
-        response = self.es.search(index="test_index", body=query)
+        response = self.es.search(index="nuevo_indice", body=query)
 
         
         #Procesar los resultados y enviar mensajes en Discord
