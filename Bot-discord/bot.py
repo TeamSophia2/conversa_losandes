@@ -221,24 +221,25 @@ class BOT(commands.Cog):
         for key, value in searchParams.items():
             print(f"{key}: {value}")
 
-        # Verificar si se proporcionó la clave "keywords"
-        if "keywords" not in searchParams:
-            await ctx.send("Debes proporcionar al menos una palabra clave utilizando 'keywords:keyword1,keyword2,keyword3'")
-            return
+        # Obtener las palabras clave de los parámetros si existen
+        if "keywords" in searchParams:
+            keywords = searchParams["keywords"].split(";")
+        else:
+            keywords = []  # Si no se proporcionan keywords, inicializar como una lista vacía
 
-        # Obtener las palabras clave de los parámetros
-        keywords = searchParams["keywords"].split(";")
-        print(keywords)
         # Construir una consulta de Elasticsearch
         query = {
             "query": {
                 "bool": {
-                    "must": [{"match_phrase": {"content": keyword.strip()}} for keyword in keywords],
                     "filter": []  # Inicializar el filtro
                 }
             },
             "sort": [{"_score": {"order": "desc"}}]  # Ordenar por relevancia en orden descendente
         }
+
+        if keywords:  # Verificar si hay keywords
+            # Agregar cláusula "must" solo si hay keywords
+            query["query"]["bool"]["must"] = [{"match_phrase": {"content": keyword.strip()}} for keyword in keywords]
 
         if "año" in searchParams:
             yearRange = searchParams["año"].split("-")
