@@ -38,7 +38,7 @@ class Scraper:
 
 
 
-    async def process_download_and_save_queue(self):
+    async def processDownloadAndSaveQueue(self):
         while True:
             # Esperar a que haya una tarea en la cola
             task = await self.downloadAndSaveQueue.get()
