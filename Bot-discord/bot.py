@@ -263,6 +263,11 @@ class BOT(commands.Cog):
             # Agregar el filtro de categoría a la consulta de Elasticsearch
             query["query"]["bool"]["filter"].append({"match_phrase": {"region": region}})
 
+        if "laboratorio" in searchParams:
+            laboratorio = searchParams["laboratorio"]
+            # Agregar el filtro de categoría a la consulta de Elasticsearch
+            query["query"]["bool"]["filter"].append({"match_phrase": {"labTematico": laboratorio}})
+
         # Agregar un filtro para asegurarse de que el campo "content" exista y no esté vacío
         query["query"]["bool"]["filter"].append({"exists": {"field": "content"}})
         # Realizar la búsqueda en Elasticsearch
