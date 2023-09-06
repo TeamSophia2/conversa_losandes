@@ -255,7 +255,7 @@ class BOT(commands.Cog):
         if "categoria" in searchParams:
             categoria = searchParams["categoria"]
             # Agregar el filtro de categoría a la consulta de Elasticsearch
-            query["query"]["bool"]["filter"].append({"term": {"category": categoria}})
+            query["query"]["bool"]["filter"].append({"match_phrase": {"category": categoria}})
 
         # Agregar un filtro para asegurarse de que el campo "content" exista y no esté vacío
         query["query"]["bool"]["filter"].append({"exists": {"field": "content"}})
