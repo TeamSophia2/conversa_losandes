@@ -242,8 +242,8 @@ class BOT(commands.Cog):
             # Agregar cláusula "must" solo si hay keywords
             query["query"]["bool"]["must"] = [{"match_phrase": {"content": keyword.strip()}} for keyword in keywords]
 
-        if "año" in searchParams:
-            yearRange = searchParams["año"].split("-")
+        if "year" in searchParams:
+            yearRange = searchParams["year"].split("-")
             if len(yearRange) == 2:
                 dateRange = {
                     "gte": yearRange[0],
@@ -253,25 +253,25 @@ class BOT(commands.Cog):
             else:
                 query["query"]["bool"]["filter"].append({"term": {"publicationYear": int(yearRange[0])}})
 
-        if "categoria" in searchParams:
-            categoria = searchParams["categoria"]
+        if "category" in searchParams:
+            category = searchParams["category"]
             # Agregar el filtro de categoría a la consulta de Elasticsearch
-            query["query"]["bool"]["filter"].append({"match_phrase": {"category": categoria}})
+            query["query"]["bool"]["filter"].append({"match_phrase": {"category": category}})
 
         if "region" in searchParams:
             region = searchParams["region"]
             # Agregar el filtro de categoría a la consulta de Elasticsearch
             query["query"]["bool"]["filter"].append({"match_phrase": {"region": region}})
 
-        if "laboratorio" in searchParams:
-            laboratorio = searchParams["laboratorio"]
+        if "topic" in searchParams:
+            topic = searchParams["topic"]
             # Agregar el filtro de categoría a la consulta de Elasticsearch
-            query["query"]["bool"]["filter"].append({"match_phrase": {"labTematico": laboratorio}})
+            query["query"]["bool"]["filter"].append({"match_phrase": {"labTematico": topic}})
 
-        if "comuna" in searchParams:
-            comuna = searchParams["comuna"]
+        if "city" in searchParams:
+            city = searchParams["city"]
             # Agregar el filtro de categoría a la consulta de Elasticsearch
-            query["query"]["bool"]["filter"].append({"match_phrase": {"commune": comuna}})
+            query["query"]["bool"]["filter"].append({"match_phrase": {"commune": city}})
 
         # Agregar un filtro para asegurarse de que el campo "content" exista y no esté vacío
         query["query"]["bool"]["filter"].append({"exists": {"field": "content"}})
