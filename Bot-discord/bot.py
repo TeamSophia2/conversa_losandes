@@ -296,7 +296,6 @@ class BOT(commands.Cog):
 
             formattedPageResults = "\n".join([f"{i+1}. **{hit['_source']['title']}** - {hit['_source']['link']}\n" for i, hit in enumerate(currentPageResults)])
 
-
             embed = Embed(title=f"Página {page} de {totalPages}", description=formattedPageResults)
 
             message = await ctx.send(embed=embed)
@@ -305,9 +304,11 @@ class BOT(commands.Cog):
             reactions = []
             if totalPages > 1:
                 if page > 1:
-                    reactions.append('⬅️')
+                    reactions.append('⏪')  # Botón para ir a la primera página
+                    reactions.append('⬅️')  # Botón para retroceder una página
                 if page < totalPages:
-                    reactions.append('➡️')
+                    reactions.append('➡️')  # Botón para avanzar una página
+                    reactions.append('⏩')  # Botón para ir a la última página
 
             for reaction in reactions:
                 await message.add_reaction(reaction)
@@ -323,6 +324,10 @@ class BOT(commands.Cog):
                         page -= 1
                     elif reaction.emoji == '➡️' and page < totalPages:
                         page += 1
+                    elif reaction.emoji == '⏪':
+                        page = 1  # Ir a la primera página
+                    elif reaction.emoji == '⏩':
+                        page = totalPages  # Ir a la última página
 
                     await message.delete()
                 except asyncio.TimeoutError:
