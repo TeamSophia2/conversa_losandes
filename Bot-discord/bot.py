@@ -448,19 +448,7 @@ class BOT(commands.Cog):
         response = dbChain.run(question_prompt)
         await ctx.send(response)
 
-    @commands.command(name='encender')
-    async def encender(self,ctx):
-        bot_path = "/home/conversa_losandes/Bot-discord/bot.py"
-        try:
-            # Establece las variables de entorno antes de ejecutar bot.py
-            env = os.environ.copy()
-            env.update(env_vars)
-            
-            subprocess.Popen(["python", bot_path], env=env)  # Ejecuta el archivo bot.py con las variables de entorno
-            await ctx.send('Bot encendido')
-        except Exception as e:
-            await ctx.send(f'Error al encender el bot: {str(e)}')
-
+    
     @commands.command(name='commands')
     async def commands(self, ctx):
         help_message = (
