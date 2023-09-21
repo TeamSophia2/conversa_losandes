@@ -442,8 +442,8 @@ class BOT(commands.Cog):
     async def transcription(self,ctx):        
         file = ctx.message.attachments[0]
         await file.save('../../alvaro/audio.mp3')
-        #await file.save(file.filename)
-        transcript = openai.Audio.transcribe("whisper-1", open(file.filename, "rb"))
+        audio_file = open("../../alvaro/audio.mp3", "rb")
+        transcript = openai.Audio.transcribe("whisper-1", audio_file)
         #await ctx.send(transcript)
         print(transcript)
             
