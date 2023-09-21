@@ -443,7 +443,7 @@ class BOT(commands.Cog):
         file = ctx.message.attachments[0]
         await file.save('../../alvaro/audio.mp3')
         #await file.save(file.filename)
-        transcript = openai.Audio.transcribe("whisper-1", file.filename)
+        transcript = openai.Audio.transcribe("whisper-1", open(file.filename, "rb"))
         #await ctx.send(transcript)
         print(transcript)
             
