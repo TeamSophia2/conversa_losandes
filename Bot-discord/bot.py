@@ -444,8 +444,8 @@ class BOT(commands.Cog):
         await file.save('../../alvaro/audio.mp3')
         audio_file = open("../../alvaro/audio.mp3", "rb")
         transcript = openai.Audio.transcribe("whisper-1", audio_file)
-        #await ctx.send(transcript)
-        print(transcript)
+        await ctx.send(transcript)
+        #print(transcript)
             
     
 
