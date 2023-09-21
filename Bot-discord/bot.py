@@ -14,8 +14,6 @@ from utils.langchainConfiguration import dbChain, QUERY
 from langchain.chat_models import ChatOpenAI
 import re
 from discord import Embed
-import subprocess
-import signal
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
 TOKEN_OPENAI = os.environ.get('OPENAI_API_KEY')
@@ -439,6 +437,12 @@ class BOT(commands.Cog):
             response = query_engine.query(question)
             await ctx.send(response) 
             #print(response)
+
+    @commands.command(name='transcription')
+    async def query(self,ctx):        
+        file = ctx.message.attachments[0]
+        transcript = openai.Audio.transcribe("whisper-1", file)
+        await ctx.send(transcript)
             
     
 
@@ -449,6 +453,7 @@ class BOT(commands.Cog):
         await ctx.send(response)
 
     
+
     @commands.command(name='commands')
     async def commands(self, ctx):
         help_message = (
