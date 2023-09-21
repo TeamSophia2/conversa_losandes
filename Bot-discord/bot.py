@@ -439,10 +439,11 @@ class BOT(commands.Cog):
             #print(response)
 
     @commands.command(name='transcription')
-    async def query(self,ctx):        
+    async def transcription(self,ctx):        
         file = ctx.message.attachments[0]
         transcript = openai.Audio.transcribe("whisper-1", file)
-        await ctx.send(transcript)
+        #await ctx.send(transcript)
+        print(transcript)
             
     
 
