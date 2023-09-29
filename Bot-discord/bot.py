@@ -22,6 +22,7 @@ PINECONE_API_KEY = os.environ.get('PINECONE_API_KEY')
 PINECONE_ENVIRONMENT = os.environ.get('PINECONE_ENVIRONMENT')
 
 print(PINECONE_API_KEY)
+print(PINECONE_ENVIRONMENT)
 
 env_vars = {TOKEN,TOKEN_OPENAI}
 openai.api_key = TOKEN_OPENAI
@@ -453,8 +454,7 @@ class BOT(commands.Cog):
         #print(transcript)
             
     
-    @commands.command(name='test')
-    async def test(self,ctx, *, question):
+    
         
 
 
