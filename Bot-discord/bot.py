@@ -474,8 +474,9 @@ class BOT(commands.Cog):
 
 
     @commands.command(name='test')
-    async def test(self,ctx, *, question):
-        print("hola")
+    async def test(self,ctx, *, inputText):
+        question = inputText
+        print(question)
 
     @commands.command(name='commands')
     async def commands(self, ctx):
