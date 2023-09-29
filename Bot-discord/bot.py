@@ -18,6 +18,11 @@ from discord import Embed
 TOKEN = os.environ.get('DISCORD_TOKEN')
 TOKEN_OPENAI = os.environ.get('OPENAI_API_KEY')
 
+PINECONE_API_KEY = os.environ.get('PINECONE_API_KEY')
+PINECONE_ENVIRONMENT = os.environ.get('PINECONE_ENVIRONMENT')
+
+print(PINECONE_API_KEY)
+
 env_vars = {TOKEN,TOKEN_OPENAI}
 openai.api_key = TOKEN_OPENAI
 #nlp = spacy.load("es_core_news_sm")
@@ -448,6 +453,10 @@ class BOT(commands.Cog):
         #print(transcript)
             
     
+    @commands.command(name='test')
+    async def test(self,ctx, *, question):
+        
+
 
     @commands.command(name='query')
     async def query(self,ctx, *, question):
