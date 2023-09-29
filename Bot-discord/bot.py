@@ -35,6 +35,10 @@ class BOT(commands.Cog):
         self.es = Elasticsearch(["http://localhost:9200"])
         self.titulo = None
 
+        self.index = pinecone.Index("llama-index-intro")
+        self.vector_store = PineconeVectorStore(pinecone_index=index)
+        self.loaded_index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
+
     @commands.Cog.listener()
     async def on_ready(self):
         print(f'Conectado como {self.bot.user}')
@@ -467,16 +471,18 @@ class BOT(commands.Cog):
 
     
     pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
-    index = pinecone.Index("llama-index-intro")
-    vector_store = PineconeVectorStore(pinecone_index=index)
-    loaded_index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
-    print(vector_store)
+    
 
 
     @commands.command(name='test')
     async def test(self,ctx, *, inputText):
-        question = inputText
-        print(question)
+        query_engine = self.loaded_index.as_query_engine()
+        response = query_engine.query("dame informacion sobre el volcan calbuco")
+        print(response)
+        #await ctx.send(response)
+
+
+    
 
     @commands.command(name='commands')
     async def commands(self, ctx):
