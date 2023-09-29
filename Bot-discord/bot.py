@@ -478,8 +478,7 @@ class BOT(commands.Cog):
     async def test(self,ctx, *, inputText):
         query_engine = self.loaded_index.as_query_engine()
         response = query_engine.query(inputText)
-        print(response)
-        #await ctx.send(response)
+        await ctx.send(response)
 
 
     
