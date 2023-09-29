@@ -18,11 +18,11 @@ from discord import Embed
 TOKEN = os.environ.get('DISCORD_TOKEN')
 TOKEN_OPENAI = os.environ.get('OPENAI_API_KEY')
 
-PINECONE_API_KEY = os.environ.get('PINECONE_API_KEY')
-PINECONE_ENVIRONMENT = os.environ.get('PINECONE_ENVIRONMENT')
+hola = os.environ.get('PINECONE_API_KEY')
+chao = os.environ.get('PINECONE_ENVIRONMENT')
 
-print(PINECONE_API_KEY)
-print(PINECONE_ENVIRONMENT)
+print(hola)
+print(chao)
 
 env_vars = {TOKEN,TOKEN_OPENAI}
 openai.api_key = TOKEN_OPENAI
