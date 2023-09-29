@@ -14,6 +14,9 @@ from utils.langchainConfiguration import dbChain, QUERY
 from langchain.chat_models import ChatOpenAI
 import re
 from discord import Embed
+import pinecone
+from llama_index.vector_stores import PineconeVectorStore
+
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
 TOKEN_OPENAI = os.environ.get('OPENAI_API_KEY')
@@ -21,8 +24,6 @@ TOKEN_OPENAI = os.environ.get('OPENAI_API_KEY')
 PINECONE_API_KEY = "5db87f39-0d3c-46cd-b782-7452ac788fa3"
 PINECONE_ENVIRONMENT = "gcp-starter"
 
-print(PINECONE_API_KEY)
-print(PINECONE_ENVIRONMENT)
 
 env_vars = {TOKEN,TOKEN_OPENAI}
 openai.api_key = TOKEN_OPENAI
@@ -465,6 +466,16 @@ class BOT(commands.Cog):
         await ctx.send(response)
 
     
+    pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
+    index = pinecone.Index("llama-index-intro")
+    vector_store = PineconeVectorStore(pinecone_index=index)
+    loaded_index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
+    print(vector_store)
+
+
+    @commands.command(name='test')
+    async def test(self,ctx, *, question):
+        print("hola")
 
     @commands.command(name='commands')
     async def commands(self, ctx):
