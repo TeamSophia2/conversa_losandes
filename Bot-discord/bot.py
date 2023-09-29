@@ -477,7 +477,7 @@ class BOT(commands.Cog):
     @commands.command(name='test')
     async def test(self,ctx, *, inputText):
         query_engine = self.loaded_index.as_query_engine()
-        response = query_engine.query("dame informacion sobre el volcan calbuco")
+        response = query_engine.query(inputText)
         print(response)
         #await ctx.send(response)
 
