@@ -36,8 +36,8 @@ class BOT(commands.Cog):
         self.titulo = None
 
         self.index = pinecone.Index("llama-index-intro")
-        self.vector_store = PineconeVectorStore(pinecone_index=index)
-        self.loaded_index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
+        self.vector_store = PineconeVectorStore(pinecone_index=self.index)
+        self.loaded_index = VectorStoreIndex.from_vector_store(vector_store=self.vector_store)
 
     @commands.Cog.listener()
     async def on_ready(self):
