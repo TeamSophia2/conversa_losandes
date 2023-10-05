@@ -16,6 +16,8 @@ import re
 from discord import Embed
 import pinecone
 from llama_index.vector_stores import PineconeVectorStore
+import logging
+import sys
 
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
@@ -352,6 +354,8 @@ class BOT(commands.Cog):
 
     @commands.command(name='question')
     async def question(self,ctx, *, input_text): 
+        logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+        logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
         directory = "../../alvaro"   
         if "." in input_text:
             print("CON TITULO")
