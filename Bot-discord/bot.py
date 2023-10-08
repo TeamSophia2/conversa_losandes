@@ -454,6 +454,10 @@ class BOT(commands.Cog):
             await ctx.send(response) 
             #print(response)
 
+    @commands.command(name='test_weaviate')
+    async def test_weaviate(self,ctx):
+        client = weaviate.Client(embedded_options=weaviate.embedded.EmbeddedOptions(), additional_headers={ 'X-OpenAI-Api-Key': os.environ["OPENAI_API_KEY"]})  
+
     @commands.command(name='transcription')
     async def transcription(self,ctx):        
         file = ctx.message.attachments[0]
