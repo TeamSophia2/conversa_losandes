@@ -458,6 +458,7 @@ class BOT(commands.Cog):
     async def vectorizar(self,ctx):
         query = {
             "size": 4,  
+            "_source": ["_id"],
             "sort": ["_id"],  
             "query": {
                 "match_all": {}  
