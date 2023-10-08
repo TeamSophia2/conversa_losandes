@@ -454,6 +454,23 @@ class BOT(commands.Cog):
             await ctx.send(response) 
             #print(response)
 
+    @commands.command(name='vectorizar')
+    async def vectorizar(self,ctx):
+        query = {
+            "size": 4,  
+            "sort": ["_id"],  
+            "query": {
+                "match_all": {}  
+            }
+        }
+        response = self.es.search(index="nuevo_indice", body=query)
+
+        for hit in response['hits']['hits']:
+            documento = hit['_source']  
+            document_id = hit['_id']  
+            print(f"ID del documento: {document_id}")
+        
+
     @commands.command(name='test_weaviate')
     async def test_weaviate(self,ctx):
         client = weaviate.Client(embedded_options=weaviate.embedded.EmbeddedOptions(), additional_headers={ 'X-OpenAI-Api-Key': os.environ["OPENAI_API_KEY"]})  
@@ -470,7 +487,6 @@ class BOT(commands.Cog):
     
     
         
-
 
     @commands.command(name='query')
     async def query(self,ctx, *, question):
