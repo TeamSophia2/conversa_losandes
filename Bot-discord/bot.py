@@ -456,9 +456,11 @@ class BOT(commands.Cog):
 
     @commands.command(name='vectorizar')
     async def vectorizar(self,ctx):
+        directory = "../../alvaro" 
+        file_name = "index_store.json"
+        file_path = os.path.join(directory, file_name)
         query = {
-            "size": 4,  
-            "_source": ["_id"],
+            "size": 2,  
             "sort": ["_id"],  
             "query": {
                 "match_all": {}  
@@ -466,11 +468,22 @@ class BOT(commands.Cog):
         }
         response = self.es.search(index="nuevo_indice", body=query)
 
-        for hit in response['hits']['hits']:
-            documento = hit['_source']  
-            document_id = hit['_id']  
-            print(f"ID del documento: {document_id}")
-        
+        if "hits" in response and "hits" in response["hits"]:
+            hits = response["hits"]["hits"]
+            content_list = []
+            for hit in hits:
+                source = hit["_source"]
+                content= source.get("content", "Sin contenido")
+                content_list.append(content) 
+                content_doc = [Document(text=t) for t in content_list]
+                llm_predictor = LLMPredictor(llm=ChatOpenAI(model_name="gpt-3.5-turbo"))
+                service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
+                
+                index = VectorStoreIndex.from_documents(content_doc,service_context=service_context)
+                index.storage_context.persist(persist_dir=directory)
+
+        else:
+            print("No se encontraron resultados para los conceptos clave proporcionados.")
 
     @commands.command(name='test_weaviate')
     async def test_weaviate(self,ctx):
