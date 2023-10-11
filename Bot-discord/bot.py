@@ -10,12 +10,14 @@ from elasticsearch import Elasticsearch
 import openai
 import spacy
 from llama_index import LLMPredictor, ServiceContext, SimpleDirectoryReader,Document, VectorStoreIndex, StorageContext, load_index_from_storage
+from llama_index.node_parser import SimpleNodeParser
+from llama_index.storage.storage_context import StorageContext
 from utils.langchainConfiguration import dbChain, QUERY
 from langchain.chat_models import ChatOpenAI
 import re
 from discord import Embed
 import pinecone
-from llama_index.vector_stores import PineconeVectorStore
+from llama_index.vector_stores import PineconeVectorStore, WeaviateVectorStore
 import logging
 import sys
 import weaviate
@@ -478,7 +480,7 @@ class BOT(commands.Cog):
                 content_doc = [Document(text=t) for t in content_list]
                 llm_predictor = LLMPredictor(llm=ChatOpenAI(model_name="gpt-3.5-turbo"))
                 service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
-                
+
                 index = VectorStoreIndex.from_documents(content_doc,service_context=service_context)
                 index.storage_context.persist(persist_dir=directory)
 
@@ -487,7 +489,50 @@ class BOT(commands.Cog):
 
     @commands.command(name='test_weaviate')
     async def test_weaviate(self,ctx):
-        client = weaviate.Client(embedded_options=weaviate.embedded.EmbeddedOptions(), additional_headers={ 'X-OpenAI-Api-Key': os.environ["OPENAI_API_KEY"]})  
+        directory = "../../alvaro" 
+        #client = weaviate.Client(embedded_options=weaviate.embedded.EmbeddedOptions(), additional_headers={ 'X-OpenAI-Api-Key': os.environ["OPENAI_API_KEY"]})  
+        client = weaviate.Client(embedded_options=weaviate.EmbeddedOptions())
+        schema = {
+        "classes": [
+            {
+                "class": "vec",
+                "description": "Vectores de elastic search db",
+                "vectorizer": "text2vec-openai",
+                "moduleConfig": {
+                    "generative-openai": { 
+                            "model": "gpt-3.5-turbo"
+                        }
+                },
+                "properties": [
+                    {
+                        "name": "Content",
+                        "dataType": ["text"],
+                        "description": "Contenido de los vectores",
+                    }
+                    ]
+                }
+            ]
+        }
+
+        client.schema.delete_all()
+        client.schema.create(schema)
+        print("Schema was created.")
+        #Load data
+        vecs = SimpleDirectoryReader(directory).load_data()
+        #Crear Nodos
+        parser = SimpleNodeParser()
+        nodes = parser.get_nodes_from_documents(vecs)
+        
+        #Nodos a weaviate
+
+        # construct vector store
+        vector_store = WeaviateVectorStore(weaviate_client = client, index_name="vec", text_key="content")
+
+        # setting up the storage for the embeddings
+        storage_context = StorageContext.from_defaults(vector_store = vector_store)
+
+        # set up the index
+        index = VectorStoreIndex.from_documents(nodes, storage_context = storage_context)
 
     @commands.command(name='transcription')
     async def transcription(self,ctx):        
