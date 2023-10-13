@@ -461,7 +461,7 @@ class BOT(commands.Cog):
     @commands.command(name='vectorizar')
     async def vectorizar(self,ctx):
         directory = "../../alvaro/weaviate" 
-        client = weaviate.Client(embedded_options=weaviate.EmbeddedOptions())
+        client = weaviate.Client(embedded_options=weaviate.EmbeddedOptions(port: int = 6666))
         '''schema = {
         "classes": [
             {
