@@ -21,6 +21,7 @@ from llama_index.vector_stores import PineconeVectorStore, WeaviateVectorStore
 import logging
 import sys
 import weaviate
+import PyPDF2
 
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
@@ -456,47 +457,17 @@ class BOT(commands.Cog):
             await ctx.send(response) 
             #print(response)
 
+
     @commands.command(name='vectorizar')
     async def vectorizar(self,ctx):
-        directory = "../../alvaro" 
-        file_name = "index_store.json"
-        file_path = os.path.join(directory, file_name)
-        query = {
-            "size": 2,  
-            "sort": ["_id"],  
-            "query": {
-                "match_all": {}  
-            }
-        }
-        response = self.es.search(index="nuevo_indice", body=query)
-
-        if "hits" in response and "hits" in response["hits"]:
-            hits = response["hits"]["hits"]
-            content_list = []
-            for hit in hits:
-                source = hit["_source"]
-                content= source.get("content", "Sin contenido")
-                content_list.append(content) 
-                content_doc = [Document(text=t) for t in content_list]
-                llm_predictor = LLMPredictor(llm=ChatOpenAI(model_name="gpt-3.5-turbo"))
-                service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
-
-                index = VectorStoreIndex.from_documents(content_doc,service_context=service_context)
-                index.storage_context.persist(persist_dir=directory)
-
-        else:
-            print("No se encontraron resultados para los conceptos clave proporcionados.")
-
-    @commands.command(name='test_weaviate')
-    async def test_weaviate(self,ctx):
         directory = "../../alvaro" 
         #client = weaviate.Client(embedded_options=weaviate.embedded.EmbeddedOptions(), additional_headers={ 'X-OpenAI-Api-Key': os.environ["OPENAI_API_KEY"]})  
         client = weaviate.Client(embedded_options=weaviate.EmbeddedOptions())
         schema = {
         "classes": [
             {
-                "class": "vec",
-                "description": "Vectores de elastic search db",
+                "class": "Vec",
+                "description": "informacion de cuatro pdfs",
                 "vectorizer": "text2vec-openai",
                 "moduleConfig": {
                     "generative-openai": { 
@@ -520,19 +491,31 @@ class BOT(commands.Cog):
         #Load data
         vecs = SimpleDirectoryReader(directory).load_data()
         #Crear Nodos
-        parser = SimpleNodeParser()
+        parser = SimpleNodeParser.from_defaults(chunk_size=1024, chunk_overlap=20)
         nodes = parser.get_nodes_from_documents(vecs)
-        
+
         #Nodos a weaviate
 
         # construct vector store
-        vector_store = WeaviateVectorStore(weaviate_client = client, index_name="vec", text_key="content")
+        vector_store = WeaviateVectorStore(weaviate_client = client, index_name="Vec", text_key="content")
 
         # setting up the storage for the embeddings
         storage_context = StorageContext.from_defaults(vector_store = vector_store)
 
         # set up the index
-        index = VectorStoreIndex.from_documents(nodes, storage_context = storage_context)
+        index = VectorStoreIndex(nodes, storage_context = storage_context)
+
+    @commands.command(name='query_weaviate')
+    async def query_weaviate(self,ctx,*, question): 
+        client = weaviate.Client(embedded_options=weaviate.EmbeddedOptions())
+
+        vector_store = WeaviateVectorStore(weaviate_client=client, index_name="Vec",text_key="content")
+        loaded_index = VectorStoreIndex.from_vector_store(vector_store)
+
+        query_engine = loaded_index.as_query_engine()
+        response = query_engine.query(question)
+        #await ctx.send(response)
+        print(response)
 
     @commands.command(name='transcription')
     async def transcription(self,ctx):        
