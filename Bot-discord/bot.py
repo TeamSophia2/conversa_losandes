@@ -504,6 +504,7 @@ class BOT(commands.Cog):
 
         # set up the index
         index = VectorStoreIndex(nodes, storage_context = storage_context)
+        await ctx.send("Vectorización completada")
 
     @commands.command(name='query_weaviate')
     async def query_weaviate(self,ctx,*, question): 
