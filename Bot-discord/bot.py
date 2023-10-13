@@ -460,10 +460,9 @@ class BOT(commands.Cog):
 
     @commands.command(name='vectorizar')
     async def vectorizar(self,ctx):
-        directory = "../../alvaro" 
-        #client = weaviate.Client(embedded_options=weaviate.embedded.EmbeddedOptions(), additional_headers={ 'X-OpenAI-Api-Key': os.environ["OPENAI_API_KEY"]})  
+        directory = "../../alvaro/weaviate" 
         client = weaviate.Client(embedded_options=weaviate.EmbeddedOptions())
-        schema = {
+        '''schema = {
         "classes": [
             {
                 "class": "Vec",
@@ -504,7 +503,7 @@ class BOT(commands.Cog):
 
         # set up the index
         index = VectorStoreIndex(nodes, storage_context = storage_context)
-        await ctx.send("Vectorización completada")
+        await ctx.send("Vectorización completada")'''
 
     @commands.command(name='query_weaviate')
     async def query_weaviate(self,ctx,*, question): 
