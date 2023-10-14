@@ -461,9 +461,21 @@ class BOT(commands.Cog):
     @commands.command(name='vectorizar')
     async def vectorizar(self,ctx):
         directory = "../../alvaro/weaviate" 
-        client = weaviate.Client(embedded_options=weaviate.embedded.EmbeddedOptions(), additional_headers={ 'X-OpenAI-Api-Key': os.environ["OPENAI_API_KEY"]})
+        #client = weaviate.Client(embedded_options=weaviate.embedded.EmbeddedOptions(), additional_headers={ 'X-OpenAI-Api-Key': os.environ["OPENAI_API_KEY"]})
         #Client = weaviate.Client(embedded_options=weaviate.EmbeddedOptions(port= 6060))
-        '''schema = {
+
+        auth_config = weaviate.AuthApiKey(api_key="Ka8u1Ntp15BRKJpYCvHcbw38QHFMDoE1kXWx") 
+        client = weaviate.Client(
+            url="https://conversaconlosandes-igciqf2v.weaviate.network", 
+            auth_client_secret=auth_config,
+            additional_headers={
+                "X-OPENAI-Api-Key": "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", # Replace with your OpenAI key
+            }
+        )
+
+        client.schema.get()  # Get the schema to test connection
+
+        schema = {
         "classes": [
             {
                 "class": "Vec",
@@ -504,7 +516,7 @@ class BOT(commands.Cog):
 
         # set up the index
         index = VectorStoreIndex(nodes, storage_context = storage_context)
-        await ctx.send("Vectorización completada")'''
+        await ctx.send("Vectorización completada")
 
     @commands.command(name='query_weaviate')
     async def query_weaviate(self,ctx,*, question): 
