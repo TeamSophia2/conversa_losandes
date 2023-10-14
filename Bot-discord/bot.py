@@ -469,7 +469,7 @@ class BOT(commands.Cog):
             url="https://conversaconlosandes-igciqf2v.weaviate.network", 
             auth_client_secret=auth_config,
             additional_headers={
-                "X-OPENAI-Api-Key": "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", # Replace with your OpenAI key
+                "X-OPENAI-Api-Key": TOKEN_OPENAI, # Replace with your OpenAI key
             }
         )
 
