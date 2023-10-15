@@ -469,7 +469,7 @@ class BOT(commands.Cog):
             url="https://conversaconlosandes-igciqf2v.weaviate.network", 
             auth_client_secret=auth_config,
             additional_headers={
-                "X-OPENAI-Api-Key": TOKEN_OPENAI, # Replace with your OpenAI key
+                "X-OPENAI-Api-Key": TOKEN_OPENAI, 
             }
         )
 
@@ -520,15 +520,23 @@ class BOT(commands.Cog):
 
     @commands.command(name='query_weaviate')
     async def query_weaviate(self,ctx,*, question): 
-        client = weaviate.Client(embedded_options=weaviate.EmbeddedOptions())
+        auth_config = weaviate.AuthApiKey(api_key="Ka8u1Ntp15BRKJpYCvHcbw38QHFMDoE1kXWx") 
+        client = weaviate.Client(
+            url="https://conversaconlosandes-igciqf2v.weaviate.network", 
+            auth_client_secret=auth_config,
+            additional_headers={
+                "X-OPENAI-Api-Key": TOKEN_OPENAI, 
+            }
+        )
+
+        client.schema.get()  # Get the schema to test connection
 
         vector_store = WeaviateVectorStore(weaviate_client=client, index_name="Vec",text_key="content")
         loaded_index = VectorStoreIndex.from_vector_store(vector_store)
 
         query_engine = loaded_index.as_query_engine()
         response = query_engine.query(question)
-        #await ctx.send(response)
-        print(response)
+        await ctx.send(response)
 
     @commands.command(name='transcription')
     async def transcription(self,ctx):        
