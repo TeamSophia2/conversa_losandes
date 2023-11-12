@@ -479,15 +479,18 @@ class BOT(commands.Cog):
         query = "SELECT content FROM Document"
         results = dbConnector.retrieve_content(query)
         docs = []
+        count=0
         for row in results:
             content = row[0]
             if content is not None:
                 # Crear un objeto Document y agregarlo a la lista
                 document = Document(page_content=content)
                 docs.append(document)
+                count += 1
+            if count == 10:
+                break
             
-        #dbConnector.close()
-
+        dbConnector.close()
         text_splitter = CharacterTextSplitter(chunk_size=300, chunk_overlap=70)
         texts = text_splitter.split_documents(docs)
 
