@@ -479,6 +479,7 @@ class BOT(commands.Cog):
         query = "SELECT content FROM Document"
         results = dbConnector.execute_query(query)
         print("terminado")
+        print(results)
 
     #@commands.command(name='query_chroma')
     #async def query_chroma(self,ctx,*, question): 
