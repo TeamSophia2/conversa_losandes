@@ -471,8 +471,8 @@ class BOT(commands.Cog):
             #print(response)
 
 
-    @commands.command(name='vectorizar')
-    async def vectorizar(self,ctx):
+    #@commands.command(name='vectorizar')
+    #async def vectorizar(self,ctx):
         
 
     #@commands.command(name='query_chroma')
