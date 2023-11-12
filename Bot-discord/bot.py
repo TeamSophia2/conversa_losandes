@@ -35,6 +35,7 @@ import logging
 import sys
 import weaviate
 import PyPDF2
+import mysql.connector
 
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
@@ -471,9 +472,12 @@ class BOT(commands.Cog):
             #print(response)
 
 
-    #@commands.command(name='vectorizar')
-    #async def vectorizar(self,ctx):
-        
+    @commands.command(name='vectorizar')
+    async def vectorizar(self,ctx):
+        dbConnector = databaseConnector()
+        dbConnector.connect()
+        query = "SELECT content FROM Document"
+        results = dbConnector.execute_query(query)
 
     #@commands.command(name='query_chroma')
     #async def query_chroma(self,ctx,*, question): 
