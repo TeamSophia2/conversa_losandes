@@ -472,14 +472,21 @@ class BOT(commands.Cog):
             #print(response)
 
 
-    @commands.command(name='vectorizar')
-    async def vectorizar(self,ctx):
+    @commands.command(name='vectorize')
+    async def vectorize(self,ctx):
         dbConnector = databaseConnector()
         dbConnector.connect()
         query = "SELECT content FROM Document"
-        results = dbConnector.execute_query(query)
-        print("terminado")
-        print(results)
+        results = dbConnector.retrieve_content(query)
+        docs = []
+        for row in results:
+            content = row[0]
+            document = Document(page_content=content)
+            docs.append(document)
+            break 
+        print(docs)
+        #dbConnector.close()
+
 
     #@commands.command(name='query_chroma')
     #async def query_chroma(self,ctx,*, question): 

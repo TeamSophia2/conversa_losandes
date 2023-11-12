@@ -223,7 +223,7 @@ class databaseConnector:
             self.connection.commit()
             print(f"Nuevo documento '{title}' insertado en la base de datos.")
 
-    def execute_query(self, query):
+    def retrieve_content(self, query):
         # Ejecutar una consulta SQL y devolver los resultados
         cursor = self.connection.cursor()
         cursor.execute(query)
