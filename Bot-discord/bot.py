@@ -514,7 +514,9 @@ class BOT(commands.Cog):
 
         # load the persisted database from disk, and use it as normal. 
         vectordb = Chroma(persist_directory=persist_directory, embedding_function=embedding)
-        qa = VectorDBQA.from_chain_type(llm=OpenAI(temperature=0,model_name="gpt-3.5-turbo"), chain_type="stuff", vectorstore=vectordb,MAX_TOKENS = 500)
+        
+        qa = VectorDBQA.from_chain_type(llm=ChatOpenAI(temperature=0.5, openai_api_key=TOKEN_OPENAI,model_name="gpt-3.5-turbo", 
+        max_tokens=512), chain_type="stuff", vectorstore=vectordb)
 
         #print(qa.run(question))
         await ctx.send(qa.run(question)) 
