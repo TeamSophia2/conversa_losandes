@@ -491,6 +491,17 @@ class BOT(commands.Cog):
         text_splitter = CharacterTextSplitter(chunk_size=300, chunk_overlap=70)
         texts = text_splitter.split_documents(docs)
 
+        # Embed and store the texts
+        # Supplying a persist_directory will store the embeddings on disk
+        persist_directory = 'db'
+
+        embedding = OpenAIEmbeddings(openai_api_key=TOKEN_OPENAI)
+        vectordb = Chroma.from_documents(documents=texts, embedding=embedding, persist_directory=persist_directory)
+
+        vectordb.persist()
+        vectordb = None
+        print("vectorizado")
+
 
     #@commands.command(name='query_chroma')
     #async def query_chroma(self,ctx,*, question): 
