@@ -482,10 +482,11 @@ class BOT(commands.Cog):
         for row in results:
             content = row[0]
             document = Document(page_content=content)
-            docs.append(document)
-            break 
-        print(docs)
-        #dbConnector.close()
+            docs.append(document) 
+        dbConnector.close()
+
+        text_splitter = CharacterTextSplitter(chunk_size=300, chunk_overlap=70)
+        texts = text_splitter.split_documents(docs)
 
 
     #@commands.command(name='query_chroma')
