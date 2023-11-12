@@ -16,6 +16,19 @@ from utils.langchainConfiguration import dbChain, QUERY
 from langchain.chat_models import ChatOpenAI
 import re
 from discord import Embed
+from langchain.vectorstores import Chroma
+from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.llms import OpenAI
+from langchain.chains.question_answering import load_qa_chain
+from langchain.chains import RetrievalQA
+import chromadb
+from chromadb.utils import embedding_functions
+from langchain.vectorstores import Chroma
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.schema import Document
+from langchain.chains import VectorDBQA
+from llama_index.vector_stores import ChromaVectorStore
+from chromadb.config import Settings
 import pinecone
 from llama_index.vector_stores import PineconeVectorStore, WeaviateVectorStore
 import logging
@@ -460,97 +473,13 @@ class BOT(commands.Cog):
 
     @commands.command(name='vectorizar')
     async def vectorizar(self,ctx):
-        directory = "../../alvaro/weaviate" 
-        #client = weaviate.Client(embedded_options=weaviate.embedded.EmbeddedOptions(), additional_headers={ 'X-OpenAI-Api-Key': os.environ["OPENAI_API_KEY"]})
-        #Client = weaviate.Client(embedded_options=weaviate.EmbeddedOptions(port= 6060))
-
-        auth_config = weaviate.AuthApiKey(api_key="Ka8u1Ntp15BRKJpYCvHcbw38QHFMDoE1kXWx") 
-        client = weaviate.Client(
-            url="https://conversaconlosandes-igciqf2v.weaviate.network", 
-            auth_client_secret=auth_config,
-            additional_headers={
-                "X-OPENAI-Api-Key": TOKEN_OPENAI, 
-            }
-        )
-
-        client.schema.get()  # Get the schema to test connection
-
-        schema = {
-        "classes": [
-            {
-                "class": "Vec",
-                "description": "informacion de cuatro pdfs",
-                "vectorizer": "text2vec-openai",
-                "moduleConfig": {
-                    "generative-openai": { 
-                            "model": "gpt-3.5-turbo"
-                        }
-                },
-                "properties": [
-                    {
-                        "name": "Content",
-                        "dataType": ["text"],
-                        "description": "Contenido de los vectores",
-                    }
-                    ]
-                }
-            ]
-        }
-
-        client.schema.delete_all()
-        client.schema.create(schema)
-        print("Schema was created.")
-        #Load data
-        vecs = SimpleDirectoryReader(directory).load_data()
-        #Crear Nodos
-        parser = SimpleNodeParser.from_defaults(chunk_size=1024, chunk_overlap=20)
-        nodes = parser.get_nodes_from_documents(vecs)
-
-        #Nodos a weaviate
-
-        # construct vector store
-        vector_store = WeaviateVectorStore(weaviate_client = client, index_name="Vec", text_key="content")
-
-        # setting up the storage for the embeddings
-        storage_context = StorageContext.from_defaults(vector_store = vector_store)
-
-        # set up the index
-        index = VectorStoreIndex(nodes, storage_context = storage_context)
-        await ctx.send("Vectorización completada")
-
-    @commands.command(name='query_weaviate')
-    async def query_weaviate(self,ctx,*, question): 
-        auth_config = weaviate.AuthApiKey(api_key="Ka8u1Ntp15BRKJpYCvHcbw38QHFMDoE1kXWx") 
-        client = weaviate.Client(
-            url="https://conversaconlosandes-igciqf2v.weaviate.network", 
-            auth_client_secret=auth_config,
-            additional_headers={
-                "X-OPENAI-Api-Key": TOKEN_OPENAI, 
-            }
-        )
-
-        client.schema.get()  # Get the schema to test connection
-
-        vector_store = WeaviateVectorStore(weaviate_client=client, index_name="Vec",text_key="content")
-        loaded_index = VectorStoreIndex.from_vector_store(vector_store)
-
-        query_engine = loaded_index.as_query_engine()
-        response = query_engine.query(question)
-        await ctx.send(response)
-
-    @commands.command(name='transcription')
-    async def transcription(self,ctx):        
-        file = ctx.message.attachments[0]
-        await file.save('../../alvaro/audio.mp3')
-        audio_file = open("../../alvaro/audio.mp3", "rb")
-        transcript = openai.Audio.transcribe("whisper-1", audio_file)
-        await ctx.send(transcript)
-        #print(transcript)
-            
-    
-    
         
 
+    #@commands.command(name='query_chroma')
+    #async def query_chroma(self,ctx,*, question): 
+        
+
+            
     @commands.command(name='query')
     async def query(self,ctx, *, question):
         question_prompt = QUERY.format(question=question)
