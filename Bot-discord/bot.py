@@ -505,9 +505,18 @@ class BOT(commands.Cog):
         vectordb = None
         print("vectorizado")
 
+    @commands.command(name='query_chroma')
+    async def query_chroma(self,ctx,*, question): 
+        # Load and process the text
+        embedding = OpenAIEmbeddings(openai_api_key=TOKEN_OPENAI)
+        persist_directory = 'db'
 
-    #@commands.command(name='query_chroma')
-    #async def query_chroma(self,ctx,*, question): 
+        # load the persisted database from disk, and use it as normal. 
+        vectordb = Chroma(persist_directory=persist_directory, embedding_function=embedding)
+        qa = VectorDBQA.from_chain_type(llm=OpenAI(temperature=0, openai_api_key=TOKEN_OPENAI,model_name="gpt-3.5-turbo"), chain_type="stuff", vectorstore=vectordb)
+
+        #print(qa.run(question))
+        await ctx.send(qa.run(question))
         
 
             
