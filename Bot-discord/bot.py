@@ -487,10 +487,11 @@ class BOT(commands.Cog):
                 document = Document(page_content=content)
                 docs.append(document)
                 count += 1
-            if count == 10:
+            if count == 5:
                 break
             
         dbConnector.close()
+        print(docs)
         text_splitter = CharacterTextSplitter(chunk_size=300, chunk_overlap=70)
         texts = text_splitter.split_documents(docs)
 
