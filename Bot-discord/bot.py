@@ -492,7 +492,7 @@ class BOT(commands.Cog):
             
         dbConnector.close()
         print(docs)
-        text_splitter = CharacterTextSplitter(chunk_size=300, chunk_overlap=70)
+        text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
         texts = text_splitter.split_documents(docs)
 
         # Embed and store the texts
@@ -516,7 +516,7 @@ class BOT(commands.Cog):
         vectordb = Chroma(persist_directory=persist_directory, embedding_function=embedding)
         
         qa = VectorDBQA.from_chain_type(llm=ChatOpenAI(temperature=0.5, openai_api_key=TOKEN_OPENAI,model_name="gpt-3.5-turbo", 
-        max_tokens_limit=4097), chain_type="stuff", vectorstore=vectordb,k=1)
+        max_tokens=512), chain_type="stuff", vectorstore=vectordb,k=1)
 
         #print(qa.run(question))
         await ctx.send(qa.run(question)) 
