@@ -510,7 +510,8 @@ class BOT(commands.Cog):
         print(vectordb._collection.count())
         vectordb.persist()
         vectordb = None
-        print("vectorizado")
+        #print(f"Vectorizados {count} documentos")
+        await ctx.send(f"Se vectorizaron {count} documentos")
 
     @commands.command(name='query_chroma')
     async def query_chroma(self,ctx,*, question): 
