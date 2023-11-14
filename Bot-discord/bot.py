@@ -476,7 +476,7 @@ class BOT(commands.Cog):
             #print(response)
 
 
-    #@commands.command(name='vectorize')
+    @commands.command(name='vectorize')
     def vectorize(self, ctx):
         asyncio.run(self.vectorize_async(ctx))
 
