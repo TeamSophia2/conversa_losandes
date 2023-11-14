@@ -39,6 +39,7 @@ import mysql.connector
 from langchain.prompts import PromptTemplate
 import io
 import gc
+from memory_profiler import profile
 
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
@@ -476,6 +477,7 @@ class BOT(commands.Cog):
 
 
     @commands.command(name='vectorize')
+    @profile
     async def vectorize(self,ctx):
         dbConnector = databaseConnector()
         dbConnector.connect()
@@ -513,15 +515,18 @@ class BOT(commands.Cog):
         vectordb.persist()
         vectordb = None
 
-        # Liberar memoria
+        '''# Liberar memoria
         del docs
         del texts
         del vectordb
-        gc.collect()
+        gc.collect()'''
 
         #print(f"Vectorizados {count} documentos")
         await ctx.send(f"Se vectorizaron {count} documentos")
 
+    if __name__ == "__main__":
+        vectorize(None, None) 
+    
     @commands.command(name='query_chroma')
     async def query_chroma(self,ctx,*, question): 
         # Load and process the text
