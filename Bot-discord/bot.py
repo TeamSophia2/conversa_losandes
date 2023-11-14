@@ -36,6 +36,7 @@ import sys
 import weaviate
 import PyPDF2
 import mysql.connector
+from langchain.prompts import PromptTemplate
 
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
@@ -501,7 +502,7 @@ class BOT(commands.Cog):
 
         embedding = OpenAIEmbeddings(openai_api_key=TOKEN_OPENAI)
         vectordb = Chroma.from_documents(documents=texts, embedding=embedding, persist_directory=persist_directory)
-
+        print(vectordb._collection.count())
         vectordb.persist()
         vectordb = None
         print("vectorizado")
@@ -514,12 +515,21 @@ class BOT(commands.Cog):
 
         # load the persisted database from disk, and use it as normal. 
         vectordb = Chroma(persist_directory=persist_directory, embedding_function=embedding)
+
+        template = """Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. Use three sentences maximum. Keep the answer as concise as possible. 
+        {context}
+        Question: {question}
+        Helpful Answer:"""
+        QA_CHAIN_PROMPT = PromptTemplate.from_template(template)# Run chain
         
         qa = RetrievalQA.from_chain_type(llm=ChatOpenAI(temperature=0.5, openai_api_key=TOKEN_OPENAI,model_name="gpt-3.5-turbo", 
-        max_tokens=512), chain_type="stuff", retriever=vectordb.as_retriever())
+        max_tokens=512), chain_type="stuff", retriever=vectordb.as_retriever(),return_source_documents=True,chain_type_kwargs={"prompt": QA_CHAIN_PROMPT})
+        result = qa({"query": question})
+        print(result["result"])
+
 
         #print(qa.run(question))
-        await ctx.send(qa.run(question)) 
+        #await ctx.send(qa.run(question)) 
         
 
             
