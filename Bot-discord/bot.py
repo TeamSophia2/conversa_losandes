@@ -491,10 +491,10 @@ class BOT(commands.Cog):
                 break
             
         dbConnector.close()
-        print(docs)
+        #print(docs)
 
         buffer = io.StringIO('\n'.join(docs))
-        text_splitter = TokenTextSplitter(chunk_size=10, chunk_overlap=0)
+        text_splitter = TokenTextSplitter(chunk_size=3000, chunk_overlap=0)
         texts = text_splitter.split_text(buffer.read())
         buffer.close()
 
