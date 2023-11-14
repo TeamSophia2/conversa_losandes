@@ -487,7 +487,7 @@ class BOT(commands.Cog):
             if content is not None:
                 docs.append(content)
                 count += 1
-            if count == 5:
+            if count == 10:
                 break
             
         dbConnector.close()
@@ -523,8 +523,8 @@ class BOT(commands.Cog):
         qa = RetrievalQA.from_chain_type(llm=ChatOpenAI(temperature=0.5, openai_api_key=TOKEN_OPENAI,model_name="gpt-3.5-turbo", 
         max_tokens=512), chain_type="stuff", retriever=vectordb.as_retriever())
         result = qa({"query": question})
-        print(result["result"])
-
+        #print(result["result"])
+        await ctx.send(result["result"])
 
         #print(qa.run(question))
         #await ctx.send(qa.run(question)) 
