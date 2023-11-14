@@ -58,7 +58,7 @@ class BOT(commands.Cog):
         self.bot = bot
         self.es = Elasticsearch(["http://localhost:9200"])
         self.titulo = None
-
+        
         self.index = pinecone.Index("llama-index-intro")
         self.vector_store = PineconeVectorStore(pinecone_index=self.index)
         self.loaded_index = VectorStoreIndex.from_vector_store(vector_store=self.vector_store)
@@ -476,9 +476,13 @@ class BOT(commands.Cog):
             #print(response)
 
 
-    @commands.command(name='vectorize')
-    @profile
-    async def vectorize(self,ctx):
+    #@commands.command(name='vectorize')
+    def vectorize(self, ctx):
+        asyncio.run(self.vectorize_async(ctx))
+
+
+    @profile(precision=4)
+    async def vectorize_async(self, ctx):
         dbConnector = databaseConnector()
         dbConnector.connect()
         query = "SELECT content FROM Document"
@@ -523,9 +527,7 @@ class BOT(commands.Cog):
 
         #print(f"Vectorizados {count} documentos")
         await ctx.send(f"Se vectorizaron {count} documentos")
-
-    if __name__ == "__main__":
-        vectorize(None, None) 
+ 
     
     @commands.command(name='query_chroma')
     async def query_chroma(self,ctx,*, question): 
