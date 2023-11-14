@@ -487,8 +487,8 @@ class BOT(commands.Cog):
             if content is not None:
                 docs.append(content)
                 count += 1
-            #if count == 10:
-                #break
+            if count == 100:
+                break
             
         dbConnector.close()
         #print(docs)
