@@ -24,7 +24,7 @@ from langchain.chains import RetrievalQA
 import chromadb
 from chromadb.utils import embedding_functions
 from langchain.vectorstores import Chroma
-from langchain.text_splitter import CharacterTextSplitter
+from langchain.text_splitter import CharacterTextSplitter, TokenTextSplitter
 from langchain.schema import Document
 from langchain.chains import VectorDBQA, RetrievalQA
 from llama_index.vector_stores import ChromaVectorStore
@@ -37,6 +37,7 @@ import weaviate
 import PyPDF2
 import mysql.connector
 from langchain.prompts import PromptTemplate
+import io
 
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
@@ -484,17 +485,21 @@ class BOT(commands.Cog):
         for row in results:
             content = row[0]
             if content is not None:
-                # Crear un objeto Document y agregarlo a la lista
-                document = Document(page_content=content)
-                docs.append(document)
+                docs.append(content)
                 count += 1
-            if count == 5:
+            if count == 1:
                 break
             
         dbConnector.close()
         print(docs)
-        text_splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=0)
-        texts = text_splitter.split_documents(docs)
+
+        buffer = io.StringIO('\n'.join(docs))
+        text_splitter = TokenTextSplitter(chunk_size=10, chunk_overlap=0)
+        texts = text_splitter.split_text(buffer.read())
+        buffer.close()
+
+        #text_splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=0)
+        #texts = text_splitter.split_documents(docs)
 
         # Embed and store the texts
         # Supplying a persist_directory will store the embeddings on disk
@@ -514,16 +519,9 @@ class BOT(commands.Cog):
         persist_directory = 'db'
 
         # load the persisted database from disk, and use it as normal. 
-        vectordb = Chroma(persist_directory=persist_directory, embedding_function=embedding)
-
-        template = """Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. Use three sentences maximum. Keep the answer as concise as possible. 
-        {context}
-        Question: {question}
-        Helpful Answer:"""
-        QA_CHAIN_PROMPT = PromptTemplate.from_template(template)# Run chain
-        
+        vectordb = Chroma(persist_directory=persist_directory, embedding_function=embedding) 
         qa = RetrievalQA.from_chain_type(llm=ChatOpenAI(temperature=0.5, openai_api_key=TOKEN_OPENAI,model_name="gpt-3.5-turbo", 
-        max_tokens=512), chain_type="stuff", retriever=vectordb.as_retriever(),return_source_documents=True,chain_type_kwargs={"prompt": QA_CHAIN_PROMPT})
+        max_tokens=512), chain_type="stuff", retriever=vectordb.as_retriever())
         result = qa({"query": question})
         print(result["result"])
 
