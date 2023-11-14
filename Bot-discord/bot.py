@@ -487,7 +487,7 @@ class BOT(commands.Cog):
             if content is not None:
                 docs.append(content)
                 count += 1
-            if count == 1:
+            if count == 5:
                 break
             
         dbConnector.close()
