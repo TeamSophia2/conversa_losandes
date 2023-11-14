@@ -506,7 +506,7 @@ class BOT(commands.Cog):
         persist_directory = 'db'
 
         embedding = OpenAIEmbeddings(openai_api_key=TOKEN_OPENAI)
-        vectordb = Chroma.from_text(texts, embedding=embedding, persist_directory=persist_directory)
+        vectordb = Chroma.from_texts(texts, embedding=embedding, persist_directory=persist_directory)
         print(vectordb._collection.count())
         vectordb.persist()
         vectordb = None
