@@ -38,6 +38,7 @@ import PyPDF2
 import mysql.connector
 from langchain.prompts import PromptTemplate
 import io
+import gc
 
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
@@ -507,9 +508,17 @@ class BOT(commands.Cog):
 
         embedding = OpenAIEmbeddings(openai_api_key=TOKEN_OPENAI)
         vectordb = Chroma.from_texts(texts, embedding=embedding, persist_directory=persist_directory)
-        print(vectordb._collection.count())
+        #print(vectordb._collection.count())
+
         vectordb.persist()
         vectordb = None
+
+        # Liberar memoria
+        del docs
+        del texts
+        del vectordb
+        gc.collect()
+
         #print(f"Vectorizados {count} documentos")
         await ctx.send(f"Se vectorizaron {count} documentos")
 
