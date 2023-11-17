@@ -491,7 +491,7 @@ class BOT(commands.Cog):
             if content is not None:
                 docs.append(content)
                 count += 1
-            if count == 50:
+            if count == 30:
                 break
 
             # Procesar los documentos
