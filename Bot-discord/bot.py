@@ -508,7 +508,7 @@ class BOT(commands.Cog):
             vectordb.persist()
 
             #Liberar memoria
-            del docs
+            #del docs
             del buffer
             del texts
             del vectordb
