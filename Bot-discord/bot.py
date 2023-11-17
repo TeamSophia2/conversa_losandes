@@ -483,15 +483,15 @@ class BOT(commands.Cog):
         dbConnector.connect()
         query = "SELECT content FROM Document"
         results = dbConnector.retrieve_content(query)
-        print(results[0])
+        print(results[11])
         docs = []
         count=0
-        for row in results:
+        for row in results[10:]:
             content = row[0]
             if content is not None:
                 docs.append(content)
                 count += 1
-            if count == 10:
+            if count == 20:
                 break
 
             # Procesar los documentos
