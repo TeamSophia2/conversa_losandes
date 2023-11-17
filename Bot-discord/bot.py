@@ -478,12 +478,14 @@ class BOT(commands.Cog):
 
     @commands.command(name='vectorize')
     async def vectorize(self,ctx):
+        batch_size = 10  # Número de documentos por lote
         dbConnector = databaseConnector()
         dbConnector.connect()
         query = "SELECT content FROM Document"
         results = dbConnector.retrieve_content(query)
+        print(results[0])
         docs = []
-        count=0
+        c=0
         for row in results:
             content = row[0]
             if content is not None:
@@ -491,35 +493,27 @@ class BOT(commands.Cog):
                 count += 1
             if count == 50:
                 break
-            
-        dbConnector.close()
-        #print(docs)
 
+            # Procesar los documentos
         buffer = io.StringIO('\n'.join(docs))
         text_splitter = TokenTextSplitter(chunk_size=50, chunk_overlap=0)
         texts = text_splitter.split_text(buffer.read())
         buffer.close()
 
-        #text_splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=0)
-        #texts = text_splitter.split_documents(docs)
-
-        # Embed and store the texts
-        # Supplying a persist_directory will store the embeddings on disk
         persist_directory = 'db'
-
         embedding = OpenAIEmbeddings(openai_api_key=TOKEN_OPENAI)
         vectordb = Chroma.from_texts(texts, embedding=embedding, persist_directory=persist_directory)
-        #print(vectordb._collection.count())
-
         vectordb.persist()
-        vectordb = None
 
-        '''# Liberar memoria
+        #Liberar memoria
         del docs
+        del buffer
         del texts
         del vectordb
-        gc.collect()'''
+        gc.collect()
 
+
+        dbConnector.close()
         #print(f"Vectorizados {count} documentos")
         await ctx.send(f"Se vectorizaron {count} documentos")
 
