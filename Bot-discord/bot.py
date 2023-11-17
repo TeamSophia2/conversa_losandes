@@ -497,7 +497,7 @@ class BOT(commands.Cog):
             # Procesar los documentos
         
         for row in docs:
-            buffer = io.StringIO('\n'.join(docs[row]))
+            buffer = io.StringIO('\n'.join(row))
             text_splitter = TokenTextSplitter(chunk_size=50, chunk_overlap=0)
             texts = text_splitter.split_text(buffer.read())
             buffer.close()
