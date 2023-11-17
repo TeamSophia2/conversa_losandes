@@ -491,28 +491,28 @@ class BOT(commands.Cog):
             if content is not None:
                 docs.append(content)
                 count += 1
-            if count == 30:
+            if count == 10:
                 break
 
             # Procesar los documentos
         
-        for row in docs:
-            buffer = io.StringIO('\n'.join(row))
-            text_splitter = TokenTextSplitter(chunk_size=50, chunk_overlap=0)
-            texts = text_splitter.split_text(buffer.read())
-            buffer.close()
+        
+        buffer = io.StringIO('\n'.join(docs))
+        text_splitter = TokenTextSplitter(chunk_size=50, chunk_overlap=0)
+        texts = text_splitter.split_text(buffer.read())
+        buffer.close()
 
-            persist_directory = 'db'
-            embedding = OpenAIEmbeddings(openai_api_key=TOKEN_OPENAI)
-            vectordb = Chroma.from_texts(texts, embedding=embedding, persist_directory=persist_directory)
-            vectordb.persist()
+        persist_directory = 'db'
+        embedding = OpenAIEmbeddings(openai_api_key=TOKEN_OPENAI)
+        vectordb = Chroma.from_texts(texts, embedding=embedding, persist_directory=persist_directory)
+        vectordb.persist()
 
-            #Liberar memoria
-            #del docs
-            del buffer
-            del texts
-            del vectordb
-            gc.collect()
+        #Liberar memoria
+        del docs
+        del buffer
+        del texts
+        del vectordb
+        gc.collect()
 
 
         dbConnector.close()
