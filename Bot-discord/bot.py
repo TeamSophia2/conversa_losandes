@@ -485,7 +485,7 @@ class BOT(commands.Cog):
         results = dbConnector.retrieve_content(query)
         print(results[0])
         docs = []
-        c=0
+        count=0
         for row in results:
             content = row[0]
             if content is not None:
