@@ -486,17 +486,23 @@ class BOT(commands.Cog):
         print(results[11])
         docs = []
         count=0
-        for row in results[10:]:
-            content = row[0]
+        for row in results:
+            content = row
+            if content is not None:
+                docs.append(content)
+                count += 1
+            if count == 10:
+                break
+        
+        '''for row in results[10:]:
+            content = row
             if content is not None:
                 docs.append(content)
                 count += 1
             if count == 20:
-                break
-
-            # Procesar los documentos
+                break'''
         
-        
+        # Procesar los documentos
         buffer = io.StringIO('\n'.join(docs))
         text_splitter = TokenTextSplitter(chunk_size=50, chunk_overlap=0)
         texts = text_splitter.split_text(buffer.read())
