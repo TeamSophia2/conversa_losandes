@@ -25,7 +25,7 @@ import chromadb
 from chromadb.utils import embedding_functions
 from langchain.vectorstores import Chroma
 from langchain.text_splitter import CharacterTextSplitter, TokenTextSplitter
-from langchain.schema import Document
+#from langchain.schema import Document
 from langchain.chains import VectorDBQA, RetrievalQA
 from llama_index.vector_stores import ChromaVectorStore
 from chromadb.config import Settings
@@ -476,7 +476,7 @@ class BOT(commands.Cog):
             #print(response)
 
 
-    @commands.command(name='vectorize')
+    '''@commands.command(name='vectorize')
     async def vectorize(self,ctx):
         batch_size = 10  # Número de documentos por lote
         dbConnector = databaseConnector()
@@ -494,17 +494,11 @@ class BOT(commands.Cog):
             if count == 10:
                 break
         
-        '''for row in results[10:]:
-            content = row
-            if content is not None:
-                docs.append(content)
-                count += 1
-            if count == 20:
-                break'''
+        
         
         # Procesar los documentos
         buffer = io.StringIO('\n'.join(docs))
-        text_splitter = TokenTextSplitter(chunk_size=50, chunk_overlap=0)
+        text_splitter = TokenTextSplitter(chunk_size=200, chunk_overlap=0)
         texts = text_splitter.split_text(buffer.read())
         buffer.close()
 
@@ -523,7 +517,7 @@ class BOT(commands.Cog):
 
         dbConnector.close()
         #print(f"Vectorizados {count} documentos")
-        await ctx.send(f"Se vectorizaron {count} documentos")
+        await ctx.send(f"Se vectorizaron {count} documentos")'''
 
  
     
