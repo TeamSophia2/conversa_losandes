@@ -286,7 +286,7 @@ class BOT(commands.Cog):
         dbConnector.connect()
 
         # Construir la consulta SQL
-        query = "SELECT DISTINCT Document.title"
+        query = "SELECT DISTINCT Document.title, Document.url"
         joins = []  # Aquí guardaremos las cláusulas INNER JOIN
         conditions = []
         order_by = []
@@ -367,7 +367,6 @@ class BOT(commands.Cog):
 
         # Procesar los resultados
         total_results = len(results)
-        print("resultado consulta sql:", results)
         resultsPerPage = 5
         totalPages = (total_results + resultsPerPage - 1) // resultsPerPage
 
@@ -417,6 +416,7 @@ class BOT(commands.Cog):
                     break
             else:
                 break
+
 
 
  
