@@ -143,7 +143,7 @@ class BOT(commands.Cog):
 
                 await ctx.send('Información del archivo CSV guardado en la base de datos')
 
-                await ctx.send('Descargando documentos y guardan información en segundo plano')
+                await ctx.send('Descargando documentos y guardando información en segundo plano')
                 # Crear una instancia de la clase Scraper
 
                 scraper = Scraper()
@@ -367,6 +367,7 @@ class BOT(commands.Cog):
 
         # Procesar los resultados
         total_results = len(results)
+        print("resultado consulta sql:", results)
         resultsPerPage = 5
         totalPages = (total_results + resultsPerPage - 1) // resultsPerPage
 
