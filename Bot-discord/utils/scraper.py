@@ -2,53 +2,69 @@ import os
 import requests
 from utils.tools import Tools
 import asyncio
-import os
-
-from utils.tools import Tools
-from utils.databaseConnector import databaseConnector
+import re
+import aiohttp
 
 class Scraper:
-    def __init__(self):
-        self.tools = Tools()
-
-        self.downloadAndSaveQueue = asyncio.Queue()
-
-        # Iniciar el procesamiento de la cola en segundo plano
-        asyncio.create_task(self.processDownloadAndSaveQueue())
+    
 
     async def downloadDocument(self, title, url):
+        print("esto en downloadDocument")
         print(url)
         if url:
-            try:
-                # Utilizar asyncio.to_thread para hacer la llamada síncrona a requests.get en un subproceso
-                response = await asyncio.to_thread(requests.get, url)
-                if response.status_code == 200:
-                    pdfFile = f"../../fernando/{title}.pdf"
-                    with open(pdfFile, "wb") as file:
-                        file.write(response.content)
-                    # Agregar la tarea de descarga y guardado en la base de datos a la cola
-                    await self.downloadAndSaveQueue.put((pdfFile, title))
-
-                else:
-                    print(f"La URL '{url}' no es válida. No se puede descargar el PDF.")
-            except Exception as e:
-                print(f"Error al descargar el PDF desde '{url}': {e}")
+            if "drive.google.com" in url:
+                # Si la URL es de Google Drive, descargar desde allí
+                await self.downloadFromGoogleDrive(title, url)
+            else:
+                try:
+                    # Utilizar aiohttp para descargar de otras fuentes
+                    async with aiohttp.ClientSession() as session:
+                        async with session.get(url) as response:
+                            if response.status == 200:
+                                pdfFile = f"{title[:100]}.pdf"  # Acorta el título para el nombre de archivo
+                                with open(pdfFile, "wb") as file:
+                                    file.write(await response.read())
+                                # Leer el contenido del PDF y agregar a la base de datos
+                                tools=Tools()
+                                await tools.readPdf(pdfFile, title)
+                                os.remove(pdfFile)
+                            else:
+                                print(f"La URL '{url}' no es válida. No se puede descargar el PDF.")
+                                #self.failedDownloads.append(title)
+                except Exception as e:
+                    print(f"Error al descargar el PDF desde '{url}': {e}")
+                    
         else:
             print("El campo 'url' está vacío o contiene un valor inválido.")
 
 
+    async def downloadFromGoogleDrive(self, title, url):
+        # Extraer el ID del archivo de Google Drive de la URL
+        match = re.search(r"/d/([^/]+)/", url)
+        if match:
+            file_id = match.group(1)
+            direct_download_url = f"https://drive.google.com/uc?id={file_id}"
 
-    async def processDownloadAndSaveQueue(self):
-        while True:
-            # Esperar a que haya una tarea en la cola
-            task = await self.downloadAndSaveQueue.get()
-            if task is None:
-                # Si la tarea es None, significa que se ha terminado y se debe salir del bucle
-                break
+            # Acorta el título para el nombre de archivo
+            pdfFile = f"{title[:100]}.pdf"
 
-            pdfFile, title = task
-            # Usar asyncio.to_thread para leer el contenido del PDF en un subproceso
-            await asyncio.to_thread(self.tools.readPdf, pdfFile, title)
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(direct_download_url) as response:
+                        if response.status == 200:
+                            with open(pdfFile, "wb") as file:
+                                file.write(await response.read())
+                            # Agregar la tarea de descarga y guardar el título completo en la base de datos a la cola
+                            tools=Tools()
+                            await tools.readPdf(pdfFile, title)
+                            os.remove(pdfFile)
+                        else:
+                            print(f"La URL de Google Drive '{url}' no es válida. No se puede descargar el PDF.")
+                            #self.failedDownloads.append(title, self.failedDownloads)
+                            
+            except Exception as e:
+                print(f"Error al descargar el PDF desde Google Drive: {e}")
+                #self.failedDownloads.append(title)
 
-            # Eliminar el archivo PDF después de leer el contenido
-            os.remove(pdfFile)
+        else:
+            print(f"La URL de Google Drive '{url}' no es válida. No se pudo extraer el ID del archivo.")

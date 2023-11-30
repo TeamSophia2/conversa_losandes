@@ -125,49 +125,73 @@ class BOT(commands.Cog):
         # Verifica si se adjuntó un archivo al mensaje
         if len(message.attachments) > 0:
             file = message.attachments[0]
-
-            fileData = await file.read()
+            # Guarda el archivo en el sistema
+            with open('documento.csv', 'wb') as f:
+                await file.save(f)
 
             # Lee y valida el archivo CSV
             tools = Tools()
-            df = tools.readCsv(fileData)
+            df = tools.readCSV('documento.csv')
             if df is not None:
                 await ctx.send('El archivo CSV cumple con las columnas requeridas')
-                # print(df)
-                dbConnector = databaseConnector()
-
-                # conectarse a la base de datos y agregar
-
-                dbConnector.connect()
-                dbConnector.insertDocuments(df)
-
-                dbConnector.close()
+                
+                # Conectarse a la base de datos y agregar
+                db_connector = databaseConnector()
+                db_connector.connect()
+                await db_connector.insertsDocuments(df)
+                db_connector.close()
 
                 await ctx.send('Información del archivo CSV guardado en la base de datos')
 
-                await ctx.send('Descargando documentos..')
+                await ctx.send('Descargando documentos y guardan información en segundo plano')
+                # Crear una instancia de la clase Scraper
+
                 scraper = Scraper()
 
-                # inicia las descargas y el guardado en la base de datos en segundo plano
+                
+                # Inicia las descargas y el guardado en la base de datos en segundo plano
                 tasks = []
+
                 for _, row in df.iterrows():
                     title = row['TÍTULO']
                     url = row['Enlace']
+
                     if pd.notna(url) and url.strip().lower() != 'nan':
-                        task = asyncio.create_task(
-                            scraper.downloadDocument(title, url))
-                        tasks.append(task)
+                    # Conectar a la base de datos y verificar si el título ya existe
+                        db_connector = databaseConnector()
+                        db_connector.connect()
+                        cursor = db_connector.connection.cursor()
+
+                        cursor.execute("SELECT content FROM Document WHERE title = %s", (title,))
+                        existing_content = cursor.fetchone()
+                        print(existing_content)
+                        if existing_content == (None,):
+                            #db_connector.insertsDocuments(df)  # Conectar y agregar documentos a la base de datos
+                            #db_connector.close()  # Cierra la conexión a la base de datos
+                            # Ejecutar las operaciones de descarga y lectura en un subproceso usando run_in_executor
+                            try:
+                                print("Antes de la llamada")
+                                await asyncio.create_task(scraper.downloadDocument(title, url))
+                                print("Después de la llamada")
+                            except Exception as e:
+                                print(f"Error durante la ejecución de downloadDocument: {e}")
+                            
+                        else:
+                            # El documento ya existe en la base de datos, y 'existing_content' contiene el contenido previamente guardado.
+                            db_connector.close()  # Cierra la conexión a la base de datos
+                            print(f"El documento '{title}' ya existe en la base de datos. No es necesario descargarlo nuevamente.")
                     else:
-                        print(
-                            f"El documento '{title}' no tiene una URL válida. Se omitirá la descarga.")
+                        
+                        print(f"El documento '{title}' no tiene una URL válida. Se omitirá la descarga.")
 
-                # Esperar a que todas las tareas de descarga terminen (opcional, puede que no sea necesario)
-                await asyncio.gather(*tasks)
+                # Esperar a que todas las tareas finalicen
+              
+                 
+                await ctx.send('Documentos descargados y agregados a la base de datos.')
 
-                await ctx.send('Documentos descargados.')
 
             else:
-                await ctx.send('El archivo CSV no cumple con las columnas requeridas.')
+                await ctx.send('El archivo CSV no cumple con las columnas requeridas. Vuelva a ejecutar el comando incluyendo un archivo valido')
         else:
             await ctx.send('No se ha adjuntado ningún archivo al mensaje.')
 
@@ -248,93 +272,116 @@ class BOT(commands.Cog):
         searchParams = {}
 
         for param in params:
-            key, value = param.strip().split(":")
-            searchParams[key] = value
+            parts = param.strip().split(":", 1)
+            if len(parts) == 2:
+                key, value = parts
+                searchParams[key] = value.replace(":", "\:")
 
         print("Parámetros de búsqueda:")
         for key, value in searchParams.items():
             print(f"{key}: {value}")
 
-        # Obtener las palabras clave de los parámetros si existen
-        if "keywords" in searchParams:
-            keywords = searchParams["keywords"].split(";")
-        else:
-            keywords = []  # Si no se proporcionan keywords, inicializar como una lista vacía
+        dbConnector = databaseConnector()
+        dbConnector.connect()
 
-        # Construir una consulta de Elasticsearch
-        query = {
-            "size": 25,
-             "query": {
-                "bool": {
-                    "filter": []  # Inicializar el filtro
-                }
-            },
-            "sort": [{"_score": {"order": "desc"}}]  # Ordenar por relevancia en orden descendente
-        }
+        # Construir la consulta SQL
+        query = "SELECT DISTINCT Document.title"
+        joins = []  # Aquí guardaremos las cláusulas INNER JOIN
+        conditions = []
+        order_by = []
+        occurrences_conditions = []
+        # Iterar sobre todos los parámetros proporcionados
+        for key, value in searchParams.items():
+            if key == "year":
+                yearRange = value.split("-")
+                if len(yearRange) == 2:
+                    conditions.append(f"publicationYear BETWEEN {yearRange[0]} AND {yearRange[1]}")
+                else:
+                    conditions.append(f"publicationYear = {yearRange[0]}")
 
-        if keywords:  # Verificar si hay keywords
-            # Agregar cláusula "must" solo si hay keywords
-            query["query"]["bool"]["must"] = [{"match_phrase": {"content": keyword.strip()}} for keyword in keywords]
+            elif key == "category":
+                category = value.strip()
+                conditions.append(f"Document_Category.categoryName = '{category}'")
+                joins.append("INNER JOIN Document_Category ON Document.documentId = Document_Category.documentId")
 
-        if "year" in searchParams:
-            yearRange = searchParams["year"].split("-")
-            if len(yearRange) == 2:
-                dateRange = {
-                    "gte": yearRange[0],
-                    "lte": yearRange[1]
-                }
-                query["query"]["bool"]["filter"].append({"range": {"publicationYear": dateRange}})
+            elif key == "city":
+                city = value.strip()
+                conditions.append(f"Commune.name = '{city}'")
+                joins.append("INNER JOIN Document_Commune ON Document.documentId = Document_Commune.documentId")
+                joins.append("INNER JOIN Commune ON Document_Commune.communeId = Commune.communeId")
+
+            elif key == "region":
+                region = value.strip()
+                region_condition = f"TRIM(Commune.region) LIKE '%{region}%'"
+                conditions.append(region_condition)
+                joins.append("INNER JOIN Document_Commune ON Document.documentId = Document_Commune.documentId")
+                joins.append("INNER JOIN Commune ON Document_Commune.communeId = Commune.communeId")
+
+            elif key == "laboratory":
+                laboratory = value.strip()
+                laboratory = laboratory.replace(r"\:", ":")
+                conditions.append(f"Category.principalCategoryId = '{laboratory}'")
+                joins.append("INNER JOIN Document_Category ON Document.documentId = Document_Category.documentId")
+                joins.append("INNER JOIN Category ON Document_Category.categoryName = Category.categoryName")
+
+            elif key == "keywords":
+                keywords = [kw.strip() for kw in value.split(";")]
+                occurrences_count_expr = ", ".join([
+                    f"CAST((CHAR_LENGTH(content) - CHAR_LENGTH(REPLACE(LOWER(content), '{kw}', ''))) / CHAR_LENGTH('{kw}') AS SIGNED) AS `{kw}_occurrences`"
+                    for kw in keywords
+                ])
+                query += f", {occurrences_count_expr}"
+                order_by.extend([f"`{kw}_occurrences` DESC" for kw in keywords])
+                occurrences_conditions = [f"CAST((CHAR_LENGTH(content) - CHAR_LENGTH(REPLACE(LOWER(content), '{kw}', ''))) / CHAR_LENGTH('{kw}') > 0 AS SIGNED)" for kw in keywords]
+
+        # Continuar con la construcción de la consulta
+        query += " FROM Document"
+
+        # Combinar las cláusulas INNER JOIN
+        if joins:
+            query += " " + " ".join(joins)
+
+        # Combinar todas las condiciones
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions)
+
+        # Filtrar por coincidencias positivas en palabras clave
+
+        if occurrences_conditions:
+            if conditions:
+                query += " AND " + " AND ".join(occurrences_conditions)
             else:
-                query["query"]["bool"]["filter"].append({"term": {"publicationYear": int(yearRange[0])}})
+                query += " WHERE " + " AND ".join(occurrences_conditions)
 
-        if "category" in searchParams:
-            category = searchParams["category"]
-            # Agregar el filtro de categoría a la consulta de Elasticsearch
-            query["query"]["bool"]["filter"].append({"match_phrase": {"category": category}})
+        # Ordenar los resultados por relevancia (cantidad de palabras clave coincidentes)
+        if order_by:
+            query += " ORDER BY " + ", ".join(order_by)
 
-        if "region" in searchParams:
-            region = searchParams["region"]
-            # Agregar el filtro de categoría a la consulta de Elasticsearch
-            query["query"]["bool"]["filter"].append({"match_phrase": {"region": region}})
+        print(query)
 
-        if "topic" in searchParams:
-            topic = searchParams["topic"]
-            # Agregar el filtro de categoría a la consulta de Elasticsearch
-            query["query"]["bool"]["filter"].append({"match_phrase": {"labTematico": topic}})
+        results = dbConnector.executeQuery(query)
 
-        if "city" in searchParams:
-            city = searchParams["city"]
-            # Agregar el filtro de categoría a la consulta de Elasticsearch
-            query["query"]["bool"]["filter"].append({"match_phrase": {"commune": city}})
+       
 
-        # Agregar un filtro para asegurarse de que el campo "content" exista y no esté vacío
-        query["query"]["bool"]["filter"].append({"exists": {"field": "content"}})
-        # Realizar la búsqueda en Elasticsearch
-        response = self.es.search(index="nuevo_indice", body=query)
 
-        # Obtener los resultados
-        results = response["hits"]["hits"]
-
-        print(f"Se encontraron {len(results)} resultados en Elasticsearch.")
-
-        # Divide los resultados en páginas
+        # Procesar los resultados
+        total_results = len(results)
         resultsPerPage = 5
-        totalPages = (len(results) + resultsPerPage - 1) // resultsPerPage
+        totalPages = (total_results + resultsPerPage - 1) // resultsPerPage
 
-        page = 1  # Página inicial
+        page = 1
 
         while page <= totalPages:
             start_index = (page - 1) * resultsPerPage
-            end_index = min(start_index + resultsPerPage, len(results))
+            end_index = min(start_index + resultsPerPage, total_results)
             currentPageResults = results[start_index:end_index]
 
-            formattedPageResults = "\n".join([f"{i+1}. **{hit['_source']['title']}** - {hit['_source']['link']}\n" for i, hit in enumerate(currentPageResults)])
-
+            formattedPageResults = "\n".join([f"{i+1}. **{result[0]}** - {result[1]}\n" for i, result in enumerate(currentPageResults)])
             embed = Embed(title=f"Página {page} de {totalPages}", description=formattedPageResults)
 
             message = await ctx.send(embed=embed)
 
-            # Agrega las reacciones al mensaje
+            # Agregar las reacciones al mensaje
             reactions = []
             if totalPages > 1:
                 if page > 1:
@@ -368,6 +415,7 @@ class BOT(commands.Cog):
                     break
             else:
                 break
+
 
  
 

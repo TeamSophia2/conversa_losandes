@@ -1,14 +1,12 @@
 import pymysql
 import pandas as pd
 
-# Clase que se encarga de todo lo relacionado a la base de datos (conectarse, ingresarDatos...)
-
 
 class databaseConnector:
     def __init__(self):
         self.host = 'localhost'
         self.user = 'andes'
-        self.password = 'andes'
+        self.password = 'andes123'
         self.database = 'andes'
         self.connection = None
 
@@ -29,11 +27,8 @@ class databaseConnector:
             self.connection.close()
             print("Conexión a la base de datos cerrada.")
 
-    # Metodo encargado de insertar el df a la base de datos. Este dataframe es el documento
-    # csv ingresado al canal de discord y que ha sido validado anteriormente.
-
-    def insertDocuments(self, df):
-        communeRegionData = pd.read_csv('utils/matchComunneRegion.csv')
+    async def insertsDocuments(self, df):
+        commune_region_data = pd.read_csv('utils/matchComunneRegion.csv')
 
         cursor = self.connection.cursor()
         # Recorre el DataFrame y procesa los documentos
@@ -49,6 +44,7 @@ class databaseConnector:
             category = row['CATEGORÍA']
             author = row['AUTORES/AS']
             organization = row['REVISTA']
+            lt = row['LT']
 
             # Verifica si el valor doi es NaN y reemplázalo con None
             if pd.notna(doi):
@@ -56,7 +52,7 @@ class databaseConnector:
             else:
                 doi = None
 
-            # Inserta datos en la tabla Document
+            # Inserta el registro en la tabla Documento sin proporcionar el valor de IDDocumento
             query = "INSERT INTO Document (doi, url, documentType, publicationYear, title, content, abstract) VALUES (%s, %s, %s, %s, %s, %s, %s)"
             values = (
                 doi,
@@ -67,6 +63,7 @@ class databaseConnector:
                 content,
                 abstract
             )
+
 
             # consulta para verificar si el título del documento ya existe en la base de datos.
             cursor.execute(
@@ -97,9 +94,12 @@ class databaseConnector:
                         # Si la temática no existe, manejar el caso
                         print(w)
 
-                # Insertar datos en tabla Author
+                
+                        
+
                 authors = [author.strip() for author in author.split(';')]
                 for author in authors:
+
                     # Verifica si el autor ya existe en la tabla Author
                     query = "SELECT authorId FROM Author WHERE authorName = %s"
                     # Agrega strip() para eliminar espacios en blanco al inicio y final del nombre
@@ -110,7 +110,7 @@ class databaseConnector:
                     if result:
                         # Si el autor ya existe, no es necesario insertarlo nuevamente
                         # print(f"El autor '{author}' ya está registrado en la base de datos.")
-                        authorId = result[0]
+                        author_id = result[0]
                     else:
                         # Si el autor no existe, insertarlo en la tabla Author
                         query = "INSERT INTO Author (authorName) VALUES (%s)"
@@ -119,16 +119,18 @@ class databaseConnector:
 
                         cursor.execute(
                             "SELECT authorId FROM Author WHERE authorName = %s", (author,))
-                        authorId = cursor.fetchone()[0]
+                        author_id = cursor.fetchone()[0]
 
                     # Inserta la relación en Document_Author
                     cursor.execute(
-                        "INSERT INTO Document_Author (documentId, authorId) VALUES (%s, %s)", (documentId, authorId))
+                        "INSERT INTO Document_Author (documentId, authorId) VALUES (%s, %s)", (documentId, author_id))
                     self.connection.commit()
 
-                # Insertar datos en tabla Commune
+                # Tabla Commune
+
                 comunas = [str(c).strip() for c in str(row['COMUNAS']).split(
                     ',') if str(c).strip() and str(c).strip().lower() != 'nan']
+
                 # Verificar si las comunas ya existen en la tabla Commune
                 for comuna in comunas:
                     cursor.execute(
@@ -141,13 +143,13 @@ class databaseConnector:
 
                     else:
                         # Buscar la región correspondiente en el DataFrame commune_region_df
-                        regionMatch = communeRegionData[communeRegionData['Comuna'] == comuna]
+                        region_match = commune_region_data[commune_region_data['Comuna'] == comuna]
 
                         # match
-                        if not regionMatch.empty:
-                            region = regionMatch['Región'].iloc[0]
-                            latitude = regionMatch['Latitud (Decimal)'].iloc[0]
-                            longitude = regionMatch['Longitud (decimal)'].iloc[0]
+                        if not region_match.empty:
+                            region = region_match['Región'].iloc[0]
+                            latitude = region_match['Latitud (Decimal)'].iloc[0]
+                            longitude = region_match['Longitud (decimal)'].iloc[0]
 
                             query = "INSERT INTO Commune (name, region, latitude, longitude) VALUES (%s, %s, %s, %s)"
                             values = (comuna, region, latitude, longitude)
@@ -161,7 +163,7 @@ class databaseConnector:
                         # no match
                         else:
                             # Insertar la comuna en la tabla Commune con los campos region, latitude y longitude como NULL
-                            print(f"No se encontró la región para la comuna '{comuna}'. Se debe realizar el match manualmente.")
+                            # print(f"No se encontró la región para la comuna '{comuna}'. Se debe realizar el match manualmente.")
                             query = "INSERT INTO Commune (name, region, latitude, longitude) VALUES (%s, NULL, NULL, NULL)"
                             values = (comuna,)
                             cursor.execute(query, values)
@@ -176,6 +178,7 @@ class databaseConnector:
 
                 # Tabla Organization
                 tipo = 'Revista'
+
                 query = "SELECT organizationId FROM Organization WHERE organizationName = %s"
                 # Agrega strip() para eliminar espacios en blanco al inicio y final del nombre
                 values = (organization,)
@@ -209,19 +212,36 @@ class databaseConnector:
                 print(f"El título '{title}' existe en la base de datos.")
 
     def insertDocumentData(self, title, pdf_text):
-        #print("hola")
-        cursor = self.connection.cursor()
+        try:
+            print("hola")
+            cursor = self.connection.cursor()
 
-        # Verificar si el título del documento ya existe en la base de datos.
-        cursor.execute(
-            "SELECT COUNT(*) FROM Document WHERE title = %s", (title,))
-        if cursor.fetchone()[0] > 0:
-            # Actualizar el campo content con el contenido del PDF
-            query = "UPDATE Document SET content = %s WHERE title = %s"
-            values = (pdf_text, title)
-            cursor.execute(query, values)
-            self.connection.commit()
-            print(f"Nuevo documento '{title}' insertado en la base de datos.")
+            # Verificar si el título del documento ya existe en la base de datos.
+            cursor.execute(
+                "SELECT COUNT(*) FROM Document WHERE title = %s", (title,))
+            if cursor.fetchone()[0] > 0:
+                # Actualizar el campo content con el contenido del PDF
+                query = "UPDATE Document SET content = %s WHERE title = %s"
+                values = (pdf_text, title)
+                cursor.execute(query, values)
+                self.connection.commit()
+                print(f"Nuevo documento '{title}' insertado en la base de datos.")
+        except Exception as e:
+            print(f"Error al insertar documento en la base de datos: {e}")
+        finally:
+            cursor.close()
+
+    def executeQuery(self, query):
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(query)
+            result = cursor.fetchall()
+            cursor.close()
+            return result
+        except pymysql.Error as e:
+            print(f"Error al ejecutar la consulta: {e}")
+        finally:
+            self.close()
 
     def retrieve_content(self, query):
         # Ejecutar una consulta SQL y devolver los resultados
