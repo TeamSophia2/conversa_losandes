@@ -377,7 +377,7 @@ class BOT(commands.Cog):
             end_index = min(start_index + resultsPerPage, total_results)
             currentPageResults = results[start_index:end_index]
 
-            formattedPageResults = "\n".join([f"{i+1}. **{result[0]}** - {result[1]}\n" for i, result in enumerate(currentPageResults)])
+            formattedPageResults = "\n".join([f"{i+1}. **{result[0]}**\n" for i, result in enumerate(currentPageResults)])
             embed = Embed(title=f"Página {page} de {totalPages}", description=formattedPageResults)
 
             message = await ctx.send(embed=embed)
