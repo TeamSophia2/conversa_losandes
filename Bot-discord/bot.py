@@ -443,7 +443,6 @@ class BOT(commands.Cog):
         else:
             question = input_text
             print("SIN TITULO")
-
         print(self.titulo)
 
         file_name = "index_store.json"
@@ -454,9 +453,7 @@ class BOT(commands.Cog):
         dbConnector.connect()
         query = f"SELECT content FROM Document WHERE title = '{self.titulo}';"
         content_list = [str(dbConnector.retrieve_content(query))]
-        
-        
-        print(content_list)
+        #print(content_list)
 
         if os.path.exists(file_path):
             print("YA EXISTE INDEX")
