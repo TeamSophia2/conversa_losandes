@@ -486,10 +486,10 @@ class BOT(commands.Cog):
 
         dbConnector = databaseConnector()
         dbConnector.connect()
-        query = f"SELECT content FROM Document WHERE titulo = '{self.titulo}';"
+        query = f"SELECT content FROM Document WHERE title = '{self.titulo}';"
         content_list = []
         content_list = dbConnector.retrieve_content(query)
-        #print(content_list)
+        print(content_list)
 
         if os.path.exists(file_path):
             print("YA EXISTE INDEX")
