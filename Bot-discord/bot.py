@@ -487,7 +487,7 @@ class BOT(commands.Cog):
         dbConnector = databaseConnector()
         dbConnector.connect()
         query = f"SELECT content FROM Document WHERE title = '{self.titulo}';"
-        content = dbConnector.retrieve_content(query)
+        content = str(dbConnector.retrieve_content(query))
         content_list = []
         content_list.append(content)
         
