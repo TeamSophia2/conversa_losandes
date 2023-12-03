@@ -446,40 +446,6 @@ class BOT(commands.Cog):
 
         print(self.titulo)
 
-
-        '''# Construir la consulta de Elasticsearch
-        query = {
-            "query": {
-                "bool": {
-                    "must": [
-                        {"match": {"title": self.titulo}}
-                    ]
-                }
-            }
-        }
-        #Consulta la base de datos 
-        response = self.es.search(index="nuevo_indice", body=query)
-
-
-       
-        
-        #Procesar los resultados y enviar mensajes en Discord
-        if "hits" in response and "hits" in response["hits"]:
-            hits = response["hits"]["hits"]
-            content_list = []
-            #await ctx.send("A continuación los documentos mas relevantes:")
-            if hits:
-                hit = hits[0]
-                source = hit["_source"]
-                content= source.get("content", "Sin contenido")
-                content_list.append(content)
-                score = hit["_score"]
-                #await ctx.send(f"Resultado {i}:\nContenido: {content}\nScore: {score}\n")
-            #print(abstracts_with_high_score)        
-        else:
-            #await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
-            print("No se encontraron resultados para los conceptos clave proporcionados.")'''
-
         file_name = "index_store.json"
         file_path = os.path.join(directory, file_name)
 
@@ -492,7 +458,7 @@ class BOT(commands.Cog):
         content_list.append(content)
         
         
-        #print(content_list)
+        print(content_list)
 
         if os.path.exists(file_path):
             print("YA EXISTE INDEX")
