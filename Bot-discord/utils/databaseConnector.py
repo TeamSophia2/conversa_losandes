@@ -246,7 +246,6 @@ class databaseConnector:
             self.close()
 
     def retrieve_content(self, query):
-        # Ejecutar una consulta SQL y devolver los resultados
         cursor = self.connection.cursor()
         cursor.execute(query)
         return cursor.fetchall()

@@ -422,8 +422,6 @@ class BOT(commands.Cog):
  
 
 
-    # busca en principalCategory
-
     @commands.command(name='question')
     async def question(self,ctx, *, input_text): 
         #logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -449,7 +447,7 @@ class BOT(commands.Cog):
         print(self.titulo)
 
 
-        # Construir la consulta de Elasticsearch
+        '''# Construir la consulta de Elasticsearch
         query = {
             "query": {
                 "bool": {
@@ -462,6 +460,8 @@ class BOT(commands.Cog):
         #Consulta la base de datos 
         response = self.es.search(index="nuevo_indice", body=query)
 
+
+       
         
         #Procesar los resultados y enviar mensajes en Discord
         if "hits" in response and "hits" in response["hits"]:
@@ -480,13 +480,16 @@ class BOT(commands.Cog):
             #await ctx.send("No se encontraron resultados para los conceptos clave proporcionados.")
             print("No se encontraron resultados para los conceptos clave proporcionados.")
 
-
-        directory = "../../alvaro"  # Reemplaza con la ruta al directorio que deseas verificar
         file_name = "index_store.json"
-        file_path = os.path.join(directory, file_name)
+        file_path = os.path.join(directory, file_name)'''
 
+
+        dbConnector = databaseConnector()
+        dbConnector.connect()
+        query = f"SELECT content FROM Document WHERE titulo = '{self.titulo}';"
+        content_list = []
+        content_list = dbConnector.retrieve_content(query)
         #print(content_list)
-
 
         if os.path.exists(file_path):
             print("YA EXISTE INDEX")
