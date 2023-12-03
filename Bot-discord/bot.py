@@ -470,7 +470,6 @@ class BOT(commands.Cog):
 
             response = query_engine.query(question)
             await ctx.send(response)
-            dbConnector.close()
             #print(response) 
 
         else:
@@ -491,8 +490,8 @@ class BOT(commands.Cog):
 
             response = query_engine.query(question)
             await ctx.send(response) 
-            dbConnector.close()
             #print(response)
+        dbConnector.close()
 
 
     '''@commands.command(name='vectorize')
