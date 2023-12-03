@@ -487,8 +487,7 @@ class BOT(commands.Cog):
         dbConnector = databaseConnector()
         dbConnector.connect()
         query = f"SELECT content FROM Document WHERE title = '{self.titulo}';"
-        content_list = []
-        content_list = dbConnector.retrieve_content(query)
+        content_list = [dbConnector.retrieve_content(query)]
         print(content_list)
 
         if os.path.exists(file_path):
@@ -502,9 +501,9 @@ class BOT(commands.Cog):
 
             query_engine = new_index.as_query_engine()
 
-            await ctx.send(question)
             response = query_engine.query(question)
             await ctx.send(response)
+            dbConnector.close()
             #print(response) 
 
         else:
@@ -523,9 +522,9 @@ class BOT(commands.Cog):
             
             query_engine = index.as_query_engine()
 
-            await ctx.send(question)
             response = query_engine.query(question)
             await ctx.send(response) 
+            dbConnector.close()
             #print(response)
 
 
