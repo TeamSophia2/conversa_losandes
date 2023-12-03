@@ -488,6 +488,13 @@ class BOT(commands.Cog):
         dbConnector.connect()
         query = f"SELECT content FROM Document WHERE title = '{self.titulo}';"
         content_list = [dbConnector.retrieve_content(query)]
+        content_list = ["""El artículo habla sobre el impacto de la Reserva Biológica Huilo Huilo 
+        en la comunidad de Neltume, en el sur de Chile. Examina cómo la implementación de la 
+        reserva ha afectado a los residentes en términos socioeconómicos y socioculturales, 
+        y cómo perciben el desarrollo local. También se analizan las opiniones de los turistas que 
+        visitan la reserva. El artículo busca proporcionar una imagen inicial de los impactos 
+        percibidos de la reserva en la comunidad y cómo está moldeando el desarrollo regional 
+        de Neltume y sus alrededores."""]
         print(content_list)
 
         if os.path.exists(file_path):
