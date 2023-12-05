@@ -466,9 +466,10 @@ class BOT(commands.Cog):
 
             query_engine = new_index.as_query_engine()
 
+            response_str = str(response)
             response = query_engine.query(question)
             # Divide la respuesta en partes más pequeñas (2000 caracteres cada una)
-            partes = [response[i:i+2000] for i in range(0, len(response), 2000)]
+            partes = [response_str[i:i+2000] for i in range(0, len(response_str), 2000)]
 
             # Envia cada parte como un mensaje separado
             for parte in partes:
@@ -492,9 +493,10 @@ class BOT(commands.Cog):
             
             query_engine = index.as_query_engine()
 
+            response_str = str(response)
             response = query_engine.query(question)
             # Divide la respuesta en partes más pequeñas (2000 caracteres cada una)
-            partes = [response[i:i+2000] for i in range(0, len(response), 2000)]
+            partes = [response_str[i:i+2000] for i in range(0, len(response_str), 2000)]
 
             # Envia cada parte como un mensaje separado
             for parte in partes:
