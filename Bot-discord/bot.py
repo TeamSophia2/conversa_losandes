@@ -466,8 +466,9 @@ class BOT(commands.Cog):
 
             query_engine = new_index.as_query_engine()
 
-            response_str = str(response)
+            
             response = query_engine.query(question)
+            response_str = str(response)
             # Divide la respuesta en partes más pequeñas (2000 caracteres cada una)
             partes = [response_str[i:i+2000] for i in range(0, len(response_str), 2000)]
 
@@ -493,8 +494,9 @@ class BOT(commands.Cog):
             
             query_engine = index.as_query_engine()
 
-            response_str = str(response)
+            
             response = query_engine.query(question)
+            response_str = str(response)
             # Divide la respuesta en partes más pequeñas (2000 caracteres cada una)
             partes = [response_str[i:i+2000] for i in range(0, len(response_str), 2000)]
 
