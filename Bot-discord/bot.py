@@ -540,7 +540,10 @@ class BOT(commands.Cog):
     @commands.command(name='query_chroma')
     async def query_chroma(self,ctx,*, question): 
         # Load and process the text
-        context = "Basándote solo en el contexto dado, informaicon dada o en el artiuclo dado, responde la pregunta, si no tienes el contexto debes mencionar que no tienes informacion sobre el tema, ademas tu respuesta tiene que ser como si tuvieras la informacion internamente y no decir segun el contexto dado.."  # Puedes personalizar esto según tus necesidades
+        context = """Basándote solo en el contexto dado, informacion dada o en el artiuclo dado, 
+        responde la pregunta, si no tienes el contexto debes mencionar que no tienes informacion 
+        sobre el tema, ademas evita mencionar la frase "segun el contexto proporcionado", o 
+        "basandome en el contexto dado" o "segun el articulo proporcionado" """  
         question_with_context = context + question
         embedding = OpenAIEmbeddings(openai_api_key=TOKEN_OPENAI)
         persist_directory = 'db'
