@@ -540,11 +540,11 @@ class BOT(commands.Cog):
     @commands.command(name='query_chroma')
     async def query_chroma(self,ctx,*, question): 
         # Load and process the text
-        context = """Basándote solo en el contexto dado, informacion dada o en el artiuclo dado, 
+        '''context = """Basándote solo en el contexto dado, informacion dada o en el artiuclo dado, 
         responde la pregunta, si no tienes el contexto debes mencionar que no tienes informacion 
         sobre el tema, ademas evita mencionar la frase "segun el contexto proporcionado", o 
-        "basandome en el contexto dado" o "segun el articulo proporcionado" """  
-        question_with_context = context + question
+        "basandome en el contexto dado" o "segun el articulo proporcionado" """  '''
+        #question_with_context = context + question
         embedding = OpenAIEmbeddings(openai_api_key=TOKEN_OPENAI)
         persist_directory = 'db'
 
@@ -552,7 +552,7 @@ class BOT(commands.Cog):
         vectordb = Chroma(persist_directory=persist_directory, embedding_function=embedding) 
         qa = RetrievalQA.from_chain_type(llm=ChatOpenAI(temperature=0, openai_api_key=TOKEN_OPENAI,model_name="gpt-3.5-turbo", 
         max_tokens=512), chain_type="stuff", retriever=vectordb.as_retriever())
-        result = qa({"query": question_with_context})
+        result = qa({"query": question})
         #print(result["result"])
         await ctx.send(result["result"])
 
