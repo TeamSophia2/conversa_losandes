@@ -467,7 +467,13 @@ class BOT(commands.Cog):
             query_engine = new_index.as_query_engine()
 
             response = query_engine.query(question)
-            await ctx.send(response)
+            # Divide la respuesta en partes más pequeñas (2000 caracteres cada una)
+            partes = [response[i:i+2000] for i in range(0, len(response), 2000)]
+
+            # Envia cada parte como un mensaje separado
+            for parte in partes:
+                await ctx.send(parte)
+            #await ctx.send(response)
             #print(response) 
 
         else:
@@ -487,7 +493,13 @@ class BOT(commands.Cog):
             query_engine = index.as_query_engine()
 
             response = query_engine.query(question)
-            await ctx.send(response) 
+            # Divide la respuesta en partes más pequeñas (2000 caracteres cada una)
+            partes = [response[i:i+2000] for i in range(0, len(response), 2000)]
+
+            # Envia cada parte como un mensaje separado
+            for parte in partes:
+                await ctx.send(parte)
+            #await ctx.send(response) 
             #print(response)
         dbConnector.close()
 
