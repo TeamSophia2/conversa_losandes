@@ -540,6 +540,8 @@ class BOT(commands.Cog):
     @commands.command(name='query_chroma')
     async def query_chroma(self,ctx,*, question): 
         # Load and process the text
+        context = "Basándote solo en el contexto dado, informaicon dada o en el artiuclo dado, responde la pregunta, si no tienes el contexto debes mencionar que no tienes informacion sobre el tema"  # Puedes personalizar esto según tus necesidades
+        question_with_context = context + question
         embedding = OpenAIEmbeddings(openai_api_key=TOKEN_OPENAI)
         persist_directory = 'db'
 
@@ -547,7 +549,7 @@ class BOT(commands.Cog):
         vectordb = Chroma(persist_directory=persist_directory, embedding_function=embedding) 
         qa = RetrievalQA.from_chain_type(llm=ChatOpenAI(temperature=0, openai_api_key=TOKEN_OPENAI,model_name="gpt-3.5-turbo", 
         max_tokens=512), chain_type="stuff", retriever=vectordb.as_retriever())
-        result = qa({"query": question})
+        result = qa({"query": question_with_context})
         #print(result["result"])
         await ctx.send(result["result"])
 
