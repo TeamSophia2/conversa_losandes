@@ -238,12 +238,13 @@ class databaseConnector:
             cursor = self.connection.cursor()
             cursor.execute(query)
             result = cursor.fetchall()
-            cursor.close()
             return result
         except pymysql.Error as e:
             print(f"Error al ejecutar la consulta: {e}")
+            return None  # Otra opción es lanzar la excepción nuevamente para manejarla en el nivel superior
         finally:
-            self.close()
+            if cursor:
+                cursor.close()
 
     def retrieve_content(self, query):
         cursor = self.connection.cursor()
