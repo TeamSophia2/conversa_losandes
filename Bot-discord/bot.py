@@ -362,7 +362,9 @@ class BOT(commands.Cog):
         print(query)
 
         results = dbConnector.executeQuery(query)
-
+        if not results:
+            await ctx.send("No se encontraron resultados.")
+            return
        
 
 
