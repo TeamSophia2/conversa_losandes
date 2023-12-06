@@ -637,7 +637,8 @@ class BOT(commands.Cog):
             if file:
                 embed.set_image(url="attachment://grafico_temporal.png")  # Adjuntar gráfico al mensaje
             sent_message = await ctx.send(embed=embed, file=file)
-            os.remove("/home/fernando/grafico_temporal.png")
+            if os.path.exists("/home/fernando/grafico_temporal.png"):
+                os.remove("/home/fernando/grafico_temporal.png")
             # Agregar las reacciones al mensaje
             reactions = []
             if total_pages > 1:
