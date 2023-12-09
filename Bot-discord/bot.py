@@ -40,7 +40,8 @@ from langchain.prompts import PromptTemplate
 import io
 import gc
 from memory_profiler import profile
-
+import matplotlib.pyplot as plt
+from discord import File
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
 TOKEN_OPENAI = os.environ.get('OPENAI_API_KEY')
@@ -361,7 +362,9 @@ class BOT(commands.Cog):
         print(query)
 
         results = dbConnector.executeQuery(query)
-
+        if not results:
+            await ctx.send("No se encontraron resultados.")
+            return
        
 
 
@@ -552,7 +555,124 @@ class BOT(commands.Cog):
         await ctx.send(f"Se vectorizaron {count} documentos")'''
 
  
-    
+    @commands.command()
+    async def analisis(self, ctx):
+        dbConnector = databaseConnector()
+        dbConnector.connect()
+
+        queries = [
+            ("Número total de documentos", "SELECT COUNT(*) as Total_Documents FROM Document WHERE content is not Null;"),
+            ("Autores más prolíficos", "SELECT authorName, COUNT(documentId) as Num_Documentos FROM Document_Author JOIN Author ON Document_Author.authorId = Author.authorId GROUP BY Document_Author.authorId ORDER BY Num_Documentos DESC LIMIT 5;"),
+            ("Distribución de documentos en los laboratorios temáticos", "SELECT C.principalCategoryId, COUNT(DC.documentId) as Num_Documentos FROM Category C LEFT JOIN Document_Category DC ON C.categoryName = DC.categoryName GROUP BY C.principalCategoryId ORDER BY Num_Documentos DESC LIMIT 3;"),
+            ("Organizaciones más activas", "SELECT organizationName, COUNT(documentId) as Num_Documentos FROM Document_Organization JOIN Organization ON Document_Organization.organizationId = Organization.organizationId GROUP BY Document_Organization.organizationId ORDER BY Num_Documentos DESC LIMIT 3;"),
+            ("Evolución de la producción de documentos a lo largo de los años", "SELECT CASE WHEN publicationYear BETWEEN 1980 AND 1990 THEN '1980-1990' WHEN publicationYear BETWEEN 1991 AND 2000 THEN '1991-2000' WHEN publicationYear BETWEEN 2001 AND 2010 THEN '2001-2010' WHEN publicationYear BETWEEN 2011 AND 2020 THEN '2011-2020' WHEN publicationYear >= 2021 THEN '2021-' ELSE 'Otros' END AS Rango, COUNT(*) AS Número_de_Documentos FROM Document GROUP BY Rango ORDER BY Rango;")
+        ]
+
+        total_pages = len(queries)
+        page = 1
+
+        while page <= total_pages:
+            title, query = queries[page - 1]
+
+            # Ejecutar la consulta
+            results = dbConnector.executeQuery(query)
+
+     
+           # Construir el mensaje con los resultados
+            message = f"{page}. **{title}**:\n\n"
+            if "Número total de documentos" in title:
+                message += f" - En la base de datos existen {results[0][0]} documentos.\n"
+            elif "Autores más prolíficos" in title:
+                for result in results:
+                    message += f" - {result[0]} con {result[1]} documentos.\n"
+            elif "Distribución de documentos en los laboratorios temáticos" in title:
+                for result in results:
+                    message += f" - {result[0]} con {result[1]} documentos.\n"
+            elif "Organizaciones más activas" in title:
+                for result in results:
+                    message += f" - {result[0]} con {result[1]} documentos.\n"
+            elif "Evolución de la producción de documentos a lo largo de los años" in title:
+                for result in results:
+                    message += f" - {result[0]}: {result[1]} documentos.\n"
+
+
+
+
+
+            # Manejar gráficos (si es necesario)
+            file = None
+           
+            plt.figure(figsize=(8, 8))
+            if "laboratorios temáticos" in title.lower():
+                print("categorias")
+                categorias = [row[0] for row in results]
+                print(categorias)
+                num_documentos = [row[1] for row in results]
+                print(num_documentos)
+                plt.pie(num_documentos, labels=categorias, autopct='%1.1f%%', startangle=140)
+                plt.title("Documentos por laboratorios temáticos")
+                plt.savefig("/home/fernando/grafico_temporal.png")
+                file = File("/home/fernando/grafico_temporal.png")
+
+                # Adjuntar el gráfico al mensaje de Embed
+                message += "\nVer el gráfico a continuación:"
+                file = File("/home/fernando/grafico_temporal.png")
+
+            if "producción de documentos" in title.lower():
+                años = [row[0] for row in results]
+                num_documentos = [row[1] for row in results]
+                plt.bar(años, num_documentos)
+                plt.xlabel("Rango de Años")
+                plt.ylabel("Número de Documentos")
+                plt.title("Evolución de la Producción de Documentos a lo largo de los Años")
+
+                # Guardar el gráfico como imagen (opcional)
+                plt.savefig("/home/fernando/grafico_temporal.png")
+                file = File("/home/fernando/grafico_temporal.png")
+
+                # Adjuntar el gráfico al mensaje de Embed
+                message += "\nVer el gráfico a continuación:"
+                file = File("/home/fernando/grafico_temporal.png")
+
+            # Enviar resultados y gráficos como un único mensaje
+            embed = Embed(title=f"Página {page} de {total_pages}", description=message)
+            if file:
+                embed.set_image(url="attachment://grafico_temporal.png")  # Adjuntar gráfico al mensaje
+            sent_message = await ctx.send(embed=embed, file=file)
+            if os.path.exists("/home/fernando/grafico_temporal.png"):
+                os.remove("/home/fernando/grafico_temporal.png")
+            # Agregar las reacciones al mensaje
+            reactions = []
+            if total_pages > 1:
+                if page > 1:
+                    reactions.append('⏪')  # Botón para ir a la primera página
+                    reactions.append('⬅️')  # Botón para retroceder una página
+                if page < total_pages:
+                    reactions.append('➡️')  # Botón para avanzar una página
+                    reactions.append('⏩')  # Botón para ir a la última página
+
+            for reaction in reactions:
+                await sent_message.add_reaction(reaction)
+
+            def check(reaction, user):
+                return user == ctx.author and reaction.message == sent_message
+
+            try:
+                reaction, _ = await self.bot.wait_for('reaction_add', timeout=300.0, check=check)
+
+                if reaction.emoji == '⬅️' and page > 1:
+                    page -= 1
+                elif reaction.emoji == '➡️' and page < total_pages:
+                    page += 1
+                elif reaction.emoji == '⏪':
+                    page = 1  # Ir a la primera página
+                elif reaction.emoji == '⏩':
+                    page = total_pages  # Ir a la última página
+
+                await sent_message.delete()
+            except asyncio.TimeoutError:
+                break
+
     @commands.command(name='query_chroma')
     async def query_chroma(self,ctx,*, question): 
         # Load and process the text
