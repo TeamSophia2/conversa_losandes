@@ -566,7 +566,7 @@ class BOT(commands.Cog):
 
         # load the persisted database from disk, and use it as normal. 
         vectordb = Chroma(persist_directory=persist_directory, embedding_function=embedding) 
-        qa = RetrievalQA.from_chain_type(llm=ChatOpenAI(temperature=0, openai_api_key=TOKEN_OPENAI,model_name="gpt-3.5-turbo", 
+        qa = RetrievalQA.from_chain_type(llm=ChatOpenAI(temperature=0.4, openai_api_key=TOKEN_OPENAI,model_name="gpt-3.5-turbo", 
         max_tokens=512), chain_type="stuff", retriever=vectordb.as_retriever())
         result = qa({"query": question})
         #print(result["result"])
