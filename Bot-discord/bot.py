@@ -72,17 +72,17 @@ class BOT(commands.Cog):
     async def addManualDocument(self, ctx, *, data_str: str):
         # Parsea los datos ingresados manualmente
         inputData = data_str.split(',')
+        print("inputData:", inputData)
         if len(inputData) != 10:  # Ajusta este valor según el número de columnas en tu CSV
             await ctx.send("El formato no es válido. Asegúrate de proporcionar todos los datos requeridos.")
             return
 
         # Obtener los datos ingresados manualmente
-        lt, authors, title, año, revista, doi, categoria, region, comunas, url = map(
-            str.strip, inputData)
+        lt, authors, title, año, revista, doi, categoria, region, comunas, url = map(str.strip, inputData)
 
         # Realiza el procesamiento de los datos y agrega el documento a la base de datos
-        dbConnector = databaseConnector()
-        dbConnector.connect()
+        db_connector = databaseConnector()
+        db_connector.connect()
 
         # Creamos un DataFrame a partir de los datos ingresados manualmente
         data = {
@@ -98,27 +98,56 @@ class BOT(commands.Cog):
             "Enlace": [url if url.lower() != 'no' else None],
         }
         df = pd.DataFrame(data)
+        print(df)
         # Realizar el mismo proceso que en el comando !addDocument para guardar el documento en la base de datos
-        dbConnector.insertDocuments(df)
-        dbConnector.close()
+        await db_connector.insertsDocuments(df)
+        db_connector.close()
 
+        failedDownloads = []
         scraper = Scraper()
         tasks = []
+        failedDownloads = []
         for _, row in df.iterrows():
             title = row['TÍTULO']
             url = row['Enlace']
+
             if pd.notna(url) and url.strip().lower() != 'nan':
-                task = asyncio.create_task(
-                    scraper.downloadDocument(title, url))
-                tasks.append(task)
+            # Conectar a la base de datos y verificar si el título ya existe
+                db_connector = databaseConnector()
+                db_connector.connect()
+                cursor = db_connector.connection.cursor()
+
+                cursor.execute("SELECT content FROM Document WHERE title = %s", (title,))
+                existing_content = cursor.fetchone()
+                #print(existing_content)
+                if existing_content == (None,):
+                    #db_connector.insertsDocuments(df)  # Conectar y agregar documentos a la base de datos
+                    #db_connector.close()  # Cierra la conexión a la base de datos
+                    # Ejecutar las operaciones de descarga y lectura en un subproceso usando run_in_executor
+                    try:
+                        print("Antes de la llamada")
+                        await asyncio.create_task(scraper.downloadDocument(title, url, failedDownloads))
+                        print("Después de la llamada")
+                    except Exception as e:
+                        print(f"Error durante la ejecución de downloadDocument: {e}")
+                        failedDownloads.append(title)
+                    
+                else:
+                    # El documento ya existe en la base de datos, y 'existing_content' contiene el contenido previamente guardado.
+                    db_connector.close()  # Cierra la conexión a la base de datos
+                    print(f"El documento '{title}' ya existe en la base de datos. No es necesario descargarlo nuevamente.")
             else:
-                print(
-                    f"El documento '{title}' no tiene una URL válida. Se omitirá la descarga.")
+                failedDownloads.append(title)
+                print(f"El documento '{title}' no tiene una URL válida. Se omitirá la descarga.")
 
         # Esperar a que todas las tareas de descarga terminen
-        await asyncio.gather(*tasks)
+        
 
-        await ctx.send('Documento agregado.')
+        if failedDownloads:
+            await ctx.send('El documento no pudo ser guardado en la base de datos')
+            
+        else:     
+            await ctx.send('Documento agregado a la base de datos')
 
     @commands.command(name='addDocument')
     async def addDocument(self, ctx):
@@ -144,7 +173,7 @@ class BOT(commands.Cog):
 
                 await ctx.send('Información del archivo CSV guardado en la base de datos')
 
-                await ctx.send('Descargando documentos y guardando información en segundo plano')
+                await ctx.send('Descargando documentos y guardan información en segundo plano')
                 # Crear una instancia de la clase Scraper
 
                 scraper = Scraper()
@@ -152,7 +181,7 @@ class BOT(commands.Cog):
                 
                 # Inicia las descargas y el guardado en la base de datos en segundo plano
                 tasks = []
-
+                failedDownloads = []
                 for _, row in df.iterrows():
                     title = row['TÍTULO']
                     url = row['Enlace']
@@ -165,30 +194,83 @@ class BOT(commands.Cog):
 
                         cursor.execute("SELECT content FROM Document WHERE title = %s", (title,))
                         existing_content = cursor.fetchone()
-                        print(existing_content)
+                        #print(existing_content)
                         if existing_content == (None,):
                             #db_connector.insertsDocuments(df)  # Conectar y agregar documentos a la base de datos
                             #db_connector.close()  # Cierra la conexión a la base de datos
                             # Ejecutar las operaciones de descarga y lectura en un subproceso usando run_in_executor
                             try:
                                 print("Antes de la llamada")
-                                await asyncio.create_task(scraper.downloadDocument(title, url))
+                                await asyncio.create_task(scraper.downloadDocument(title, url, failedDownloads))
                                 print("Después de la llamada")
                             except Exception as e:
                                 print(f"Error durante la ejecución de downloadDocument: {e}")
+                                failedDownloads.append(title)
                             
                         else:
                             # El documento ya existe en la base de datos, y 'existing_content' contiene el contenido previamente guardado.
                             db_connector.close()  # Cierra la conexión a la base de datos
                             print(f"El documento '{title}' ya existe en la base de datos. No es necesario descargarlo nuevamente.")
                     else:
-                        
+                        failedDownloads.append(title)
                         print(f"El documento '{title}' no tiene una URL válida. Se omitirá la descarga.")
 
                 # Esperar a que todas las tareas finalicen
               
                  
                 await ctx.send('Documentos descargados y agregados a la base de datos.')
+                if failedDownloads:
+                    await ctx.send(f'Estos documentos no pudieron ser agregados a la base de datos:')
+
+                    resultsPerPage = 5
+                    totalPages = (len(failedDownloads) + resultsPerPage - 1) // resultsPerPage
+
+                    page = 1
+
+                    while page <= totalPages:
+                        start_index = (page - 1) * resultsPerPage
+                        end_index = min(start_index + resultsPerPage, len(failedDownloads))
+                        currentPageResults = failedDownloads[start_index:end_index]
+
+                        formattedPageResults = "\n".join([f"{i + 1}. {result}\n" for i, result in enumerate(currentPageResults)])
+                        embed = Embed(title=f"Página {page} de {totalPages}", description=formattedPageResults)
+
+                        message = await ctx.send(embed=embed)
+
+                        # Agregar las reacciones al mensaje
+                        reactions = []
+                        if totalPages > 1:
+                            if page > 1:
+                                reactions.append('⏪')  # Botón para ir a la primera página
+                                reactions.append('⬅️')  # Botón para retroceder una página
+                            if page < totalPages:
+                                reactions.append('➡️')  # Botón para avanzar una página
+                                reactions.append('⏩')  # Botón para ir a la última página
+
+                        for reaction in reactions:
+                            await message.add_reaction(reaction)
+
+                        if totalPages > 1:
+                            def check(reaction, user):
+                                return user == ctx.author and reaction.message == message
+
+                            try:
+                                reaction, _ = await self.bot.wait_for('reaction_add', timeout=300.0, check=check)
+
+                                if reaction.emoji == '⬅️' and page > 1:
+                                    page -= 1
+                                elif reaction.emoji == '➡️' and page < totalPages:
+                                    page += 1
+                                elif reaction.emoji == '⏪':
+                                    page = 1  # Ir a la primera página
+                                elif reaction.emoji == '⏩':
+                                    page = totalPages  # Ir a la última página
+
+                                await message.delete()
+                            except asyncio.TimeoutError:
+                                break
+                        else:
+                            break
 
 
             else:
