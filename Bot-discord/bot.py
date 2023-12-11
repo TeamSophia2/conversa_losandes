@@ -776,9 +776,13 @@ class BOT(commands.Cog):
 
         #print(qa.run(question))
         #await ctx.send(qa.run(question)) 
-        
 
-            
+        del embedding
+        del vectordb
+        del qa
+        del result
+        gc.collect()
+   
     @commands.command(name='query')
     async def query(self,ctx, *, question):
         question_prompt = QUERY.format(question=question)
