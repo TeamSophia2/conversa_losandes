@@ -42,6 +42,8 @@ import gc
 from memory_profiler import profile
 import matplotlib.pyplot as plt
 from discord import File
+import subprocess
+
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
 TOKEN_OPENAI = os.environ.get('OPENAI_API_KEY')
@@ -314,6 +316,30 @@ class BOT(commands.Cog):
                 await ctx.send('El archivo adjunto no es un PDF válido.')
         else:
             await ctx.send('No se ha adjuntado ningún archivo al mensaje.')
+
+    @commands.command(name='getTesis')
+    async def scrapear_tesis(self, ctx):
+        try:
+            # Ejecutar el script como un subproceso
+            proceso = subprocess.Popen(['python3', '/home/fernando/scraping.py'])
+
+            # Informar al usuario que el script se está ejecutando en segundo plano
+            await ctx.send('Iniciando scraping de tesis en segundo plano. Se notificará cuando termine.')
+            # Esperar hasta que el archivo exista
+          
+            file_path = '/home/fernando/tesis_data_listo.csv'
+            while not os.path.exists(file_path):
+                await asyncio.sleep(1)
+
+            # El archivo existe, enviarlo al canal de Discord
+            with open(file_path, 'rb') as file:
+                csv_file = discord.File(file, filename='tesis_data_listo.csv')
+                await ctx.send('Scraping de tesis completado. Aquí está el archivo CSV:', file=csv_file)
+            os.remove(file_path)
+
+        except Exception as e:
+            await ctx.send(f'Error al ejecutar el script: {e}')
+
 
     @commands.command(name='ping')
     async def ping(self, ctx):
