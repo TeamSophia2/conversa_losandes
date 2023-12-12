@@ -318,7 +318,7 @@ class BOT(commands.Cog):
             await ctx.send('No se ha adjuntado ningún archivo al mensaje.')
 
     @commands.command(name='getTesis')
-    async def getTesis(ctx):
+    async def getTesis(self, ctx):
         try:
             # Ejecutar el script como un subproceso de manera asíncrona
             proceso = await asyncio.create_subprocess_exec('python3', '/home/fernando/scraping.py')
