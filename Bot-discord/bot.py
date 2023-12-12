@@ -318,24 +318,28 @@ class BOT(commands.Cog):
             await ctx.send('No se ha adjuntado ningún archivo al mensaje.')
 
     @commands.command(name='getTesis')
-    async def scrapear_tesis(self, ctx):
+    async def getTesis(ctx):
         try:
-            # Ejecutar el script como un subproceso
-            proceso = subprocess.Popen(['python3', '/home/fernando/scraping.py'])
+            # Ejecutar el script como un subproceso de manera asíncrona
+            proceso = await asyncio.create_subprocess_exec('python3', '/home/fernando/scraping.py')
 
             # Informar al usuario que el script se está ejecutando en segundo plano
             await ctx.send('Iniciando scraping de tesis en segundo plano. Se notificará cuando termine.')
-            # Esperar hasta que el archivo exista
-          
-            file_path = '/home/fernando/tesis_data_listo.csv'
-            while not os.path.exists(file_path):
-                await asyncio.sleep(1)
 
-            # El archivo existe, enviarlo al canal de Discord
-            with open(file_path, 'rb') as file:
-                csv_file = discord.File(file, filename='tesis_data_listo.csv')
-                await ctx.send('Scraping de tesis completado. Aquí está el archivo CSV:', file=csv_file)
-            os.remove(file_path)
+            # Esperar a que el proceso secundario termine
+            await proceso.wait()
+
+            # El proceso secundario ha terminado, enviar el archivo al canal de Discord
+            file_path = '/home/fernando/tesis_data_listo.csv'
+            if os.path.exists(file_path):
+                with open(file_path, 'rb') as file:
+                    csv_file = discord.File(file, filename='tesis_data_listo.csv')
+                    await ctx.send('Scraping de tesis completado. Aquí está el archivo CSV:', file=csv_file)
+
+                # Eliminar el archivo después de enviarlo
+                os.remove(file_path)
+            else:
+                await ctx.send('No se encontró el archivo CSV generado.')
 
         except Exception as e:
             await ctx.send(f'Error al ejecutar el script: {e}')
