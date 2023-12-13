@@ -21,7 +21,7 @@ class Tools:
         else:
             return None
 
-    async def readPdf(self,pdfFile, title):
+    async def readPdf(self,pdfFile, title, failedDownloads):
         # Lee el archivo PDF
         # Utilizar PyPDF2 para extraer el texto del PDF
         try:
@@ -47,4 +47,4 @@ class Tools:
 
         except Exception as e:
             print(f"Error en la lectura del PDF '{pdfFile}': {e}")
-            #failedDownloads.append(title)
+            failedDownloads.append(title)
