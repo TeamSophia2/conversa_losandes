@@ -175,7 +175,7 @@ class BOT(commands.Cog):
 
                 await ctx.send('Información del archivo CSV guardado en la base de datos')
 
-                await ctx.send('Descargando documentos y guardan información en segundo plano')
+                await ctx.send('Descargando documentos y guardando la información en segundo plano')
                 # Crear una instancia de la clase Scraper
 
                 scraper = Scraper()
