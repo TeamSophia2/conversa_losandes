@@ -663,8 +663,8 @@ class BOT(commands.Cog):
         await ctx.send(f"Se vectorizaron {count} documentos")'''
 
  
-    @commands.command()
-    async def analisis(self, ctx):
+    @commands.command(name='analysis')
+    async def analysis(self, ctx):
         dbConnector = databaseConnector()
         dbConnector.connect()
 
