@@ -320,8 +320,9 @@ class BOT(commands.Cog):
     @commands.command(name='getTesis')
     async def getTesis(self, ctx):
         scraper = Scraper()
-        file_path = await scraper.scrapeTesis()
         await ctx.send('Iniciando obtención de tesis en segundo plano. Se notificará cuando termine.')
+
+        file_path = await scraper.scrapeTesis()
 
         # Verificar si el archivo existe antes de enviarlo
         if file_path and os.path.exists(file_path):
