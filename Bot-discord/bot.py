@@ -527,8 +527,8 @@ class BOT(commands.Cog):
  
 
 
-    @commands.command(name='question')
-    async def question(self,ctx, *, input_text): 
+    @commands.command(name='questionDocument')
+    async def questionDocument(self,ctx, *, input_text): 
         #logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
         #logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
         directory = "../../alvaro"   
@@ -775,8 +775,8 @@ class BOT(commands.Cog):
             except asyncio.TimeoutError:
                 break
 
-    @commands.command(name='query_chroma')
-    async def query_chroma(self,ctx,*, question): 
+    @commands.command(name='questionDB')
+    async def questionDB(self,ctx,*, question): 
         # Load and process the text
         '''context = """Basándote solo en el contexto dado, informacion dada o en el artiuclo dado, 
         responde la pregunta, si no tienes el contexto debes mencionar que no tienes informacion 
