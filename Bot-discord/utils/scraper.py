@@ -75,10 +75,10 @@ class Scraper:
     async def scrapeTesis(self):
         try:
             # Ejecutar el script como un subproceso
-            proceso = subprocess.Popen(['python3', '/home/fernando/Documentos/conversar_los_andes_mia/conversar_los_andes/Bot-discord/hola/scrapingListaLista.py'])
+            proceso = subprocess.Popen(['python3', '/home/fernando/scraping.py'])
 
             # Esperar hasta que el archivo exista
-            file_path = '/home/fernando/Documentos/conversar_los_andes_mia/conversar_los_andes/Bot-discord/hola/tesis_data_listo.csv'
+            file_path = '/home/fernando/tesis_data_listo.csv'
             while not os.path.exists(file_path):
                 await asyncio.sleep(1)
 
