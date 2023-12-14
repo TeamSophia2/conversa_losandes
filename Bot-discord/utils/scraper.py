@@ -4,6 +4,7 @@ from utils.tools import Tools
 import asyncio
 import re
 import aiohttp
+import subprocess
 
 class Scraper:
     
@@ -70,3 +71,19 @@ class Scraper:
         else:
             print(f"La URL de Google Drive '{url}' no es válida. No se pudo extraer el ID del archivo.")
             failedDownloads.append(title)
+
+    async def scrapeTesis(self):
+        try:
+            # Ejecutar el script como un subproceso
+            proceso = subprocess.Popen(['python3', '/home/fernando/Documentos/conversar_los_andes_mia/conversar_los_andes/Bot-discord/hola/scrapingListaLista.py'])
+
+            # Esperar hasta que el archivo exista
+            file_path = '/home/fernando/Documentos/conversar_los_andes_mia/conversar_los_andes/Bot-discord/hola/tesis_data_listo.csv'
+            while not os.path.exists(file_path):
+                await asyncio.sleep(1)
+
+            return file_path
+
+        except Exception as e:
+            print(f'Error al ejecutar el script: {e}')
+            return None
