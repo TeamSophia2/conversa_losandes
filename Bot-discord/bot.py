@@ -379,8 +379,13 @@ class BOT(commands.Cog):
             parts = param.strip().split(":", 1)
             if len(parts) == 2:
                 key, value = parts
-                searchParams[key] = value.replace(":", "\:")
-
+                validKeys = {"year", "category", "city", "region", "laboratory", "keywords"}
+                if key.strip() in validKeys:
+                    searchParams[key] = value.replace(":", "\:")
+                else:
+                # Enviar un mensaje al usuario indicando que la clave no es válida
+                    await ctx.send(f"Error: La clave '{key.strip()}' no es válida. Por favor, verifica los parámetros.")
+                    return
         print("Parámetros de búsqueda:")
         for key, value in searchParams.items():
             print(f"{key}: {value}")
