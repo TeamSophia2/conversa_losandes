@@ -108,7 +108,6 @@ class BOT(commands.Cog):
         failedDownloads = []
         scraper = Scraper()
         tasks = []
-        failedDownloads = []
         for _, row in df.iterrows():
             title = row['TÍTULO']
             url = row['Enlace']
@@ -222,57 +221,7 @@ class BOT(commands.Cog):
                  
                 await ctx.send('Documentos descargados y agregados a la base de datos.')
                 if failedDownloads:
-                    await ctx.send(f'Estos documentos no pudieron ser agregados a la base de datos:')
-
-                    resultsPerPage = 5
-                    totalPages = (len(failedDownloads) + resultsPerPage - 1) // resultsPerPage
-
-                    page = 1
-
-                    while page <= totalPages:
-                        start_index = (page - 1) * resultsPerPage
-                        end_index = min(start_index + resultsPerPage, len(failedDownloads))
-                        currentPageResults = failedDownloads[start_index:end_index]
-
-                        formattedPageResults = "\n".join([f"{i + 1}. {result}\n" for i, result in enumerate(currentPageResults)])
-                        embed = Embed(title=f"Página {page} de {totalPages}", description=formattedPageResults)
-
-                        message = await ctx.send(embed=embed)
-
-                        # Agregar las reacciones al mensaje
-                        reactions = []
-                        if totalPages > 1:
-                            if page > 1:
-                                reactions.append('⏪')  # Botón para ir a la primera página
-                                reactions.append('⬅️')  # Botón para retroceder una página
-                            if page < totalPages:
-                                reactions.append('➡️')  # Botón para avanzar una página
-                                reactions.append('⏩')  # Botón para ir a la última página
-
-                        for reaction in reactions:
-                            await message.add_reaction(reaction)
-
-                        if totalPages > 1:
-                            def check(reaction, user):
-                                return user == ctx.author and reaction.message == message
-
-                            try:
-                                reaction, _ = await self.bot.wait_for('reaction_add', timeout=300.0, check=check)
-
-                                if reaction.emoji == '⬅️' and page > 1:
-                                    page -= 1
-                                elif reaction.emoji == '➡️' and page < totalPages:
-                                    page += 1
-                                elif reaction.emoji == '⏪':
-                                    page = 1  # Ir a la primera página
-                                elif reaction.emoji == '⏩':
-                                    page = totalPages  # Ir a la última página
-
-                                await message.delete()
-                            except asyncio.TimeoutError:
-                                break
-                        else:
-                            break
+                    await Tools.paginar_resultados(ctx, failedDownloads)
 
 
             else:
@@ -476,56 +425,7 @@ class BOT(commands.Cog):
 
 
         # Procesar los resultados
-        total_results = len(results)
-        resultsPerPage = 5
-        totalPages = (total_results + resultsPerPage - 1) // resultsPerPage
-
-        page = 1
-
-        while page <= totalPages:
-            start_index = (page - 1) * resultsPerPage
-            end_index = min(start_index + resultsPerPage, total_results)
-            currentPageResults = results[start_index:end_index]
-
-            formattedPageResults = "\n".join([f"{i+1}. **{result[0]}**\n" for i, result in enumerate(currentPageResults)])
-            embed = Embed(title=f"Página {page} de {totalPages}", description=formattedPageResults)
-
-            message = await ctx.send(embed=embed)
-
-            # Agregar las reacciones al mensaje
-            reactions = []
-            if totalPages > 1:
-                if page > 1:
-                    reactions.append('⏪')  # Botón para ir a la primera página
-                    reactions.append('⬅️')  # Botón para retroceder una página
-                if page < totalPages:
-                    reactions.append('➡️')  # Botón para avanzar una página
-                    reactions.append('⏩')  # Botón para ir a la última página
-
-            for reaction in reactions:
-                await message.add_reaction(reaction)
-
-            if totalPages > 1:
-                def check(reaction, user):
-                    return user == ctx.author and reaction.message == message
-
-                try:
-                    reaction, _ = await self.bot.wait_for('reaction_add', timeout=300.0, check=check)
-
-                    if reaction.emoji == '⬅️' and page > 1:
-                        page -= 1
-                    elif reaction.emoji == '➡️' and page < totalPages:
-                        page += 1
-                    elif reaction.emoji == '⏪':
-                        page = 1  # Ir a la primera página
-                    elif reaction.emoji == '⏩':
-                        page = totalPages  # Ir a la última página
-
-                    await message.delete()
-                except asyncio.TimeoutError:
-                    break
-            else:
-                break
+        await Tools.paginar_resultados(ctx, results)
 
 
 
