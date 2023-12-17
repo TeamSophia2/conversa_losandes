@@ -467,6 +467,9 @@ class BOT(commands.Cog):
 
         print(query)
 
+        if "keywords" in searchParams:
+            await ctx.send("Buscando resultados... Los resultados estarán ordenados por coincidencia de palabras clave.")
+
         results = dbConnector.executeQuery(query)
         if not results:
             await ctx.send("No se encontraron resultados.")
@@ -727,10 +730,22 @@ class BOT(commands.Cog):
             if "producción de documentos" in title.lower():
                 años = [row[0] for row in results]
                 num_documentos = [row[1] for row in results]
-                plt.bar(años, num_documentos)
+                
+                # Obtener las categorías (LT1, LT2, LT3)
+                categorias = [row[0] for row in results]
+                
+                # Crear un diccionario para asignar colores a cada categoría
+                colores = {'LT1': 'blue', 'LT2': 'green', 'LT3': 'orange'}  # Puedes agregar más colores según sea necesario
+
+                # Crear el gráfico con barras diferenciadas por categoría y colores
+                for categoria, color in zip(categorias, colores.values()):
+                    indices = [i for i, cat in enumerate(categorias) if cat == categoria]
+                    plt.bar([años[i] for i in indices], [num_documentos[i] for i in indices], label=categoria, color=color)
+
                 plt.xlabel("Rango de Años")
                 plt.ylabel("Número de Documentos")
                 plt.title("Evolución de la Producción de Documentos a lo largo de los Años")
+                plt.legend()
 
                 # Guardar el gráfico como imagen (opcional)
                 plt.savefig("/home/fernando/grafico_temporal.png")
