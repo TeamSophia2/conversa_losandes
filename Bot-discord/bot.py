@@ -469,7 +469,6 @@ class BOT(commands.Cog):
 
         if "keywords" in searchParams:
             await ctx.send("Buscando resultados... Los resultados estarán ordenados por coincidencia de palabras clave.")
-
         results = dbConnector.executeQuery(query)
         if not results:
             await ctx.send("No se encontraron resultados.")
@@ -729,21 +728,11 @@ class BOT(commands.Cog):
 
             if "producción de documentos" in title.lower():
                 años = [row[0] for row in results]
-                
-                # Obtener la cantidad de documentos para cada línea temática (LT1, LT2, LT3)
-                lt1_documentos = [row[1] if row[0] == 'LT1' else 0 for row in results]
-                lt2_documentos = [row[1] if row[0] == 'LT2' else 0 for row in results]
-                lt3_documentos = [row[1] if row[0] == 'LT3' else 0 for row in results]
-
-                # Crear el gráfico de barras apiladas
-                plt.bar(años, lt1_documentos, label='LT1')
-                plt.bar(años, lt2_documentos, bottom=lt1_documentos, label='LT2')
-                plt.bar(años, lt3_documentos, bottom=[sum(x) for x in zip(lt1_documentos, lt2_documentos)], label='LT3')
-
+                num_documentos = [row[1] for row in results]
+                plt.bar(años, num_documentos)
                 plt.xlabel("Rango de Años")
                 plt.ylabel("Número de Documentos")
-                plt.title("Evolución de la Producción de Documentos por Línea Temática a lo largo de los Años")
-                plt.legend()
+                plt.title("Evolución de la Producción de Documentos a lo largo de los Años")
 
                 # Guardar el gráfico como imagen (opcional)
                 plt.savefig("/home/fernando/grafico_temporal.png")
