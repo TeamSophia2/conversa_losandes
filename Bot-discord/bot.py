@@ -729,22 +729,20 @@ class BOT(commands.Cog):
 
             if "producción de documentos" in title.lower():
                 años = [row[0] for row in results]
-                num_documentos = [row[1] for row in results]
                 
-                # Obtener las categorías (LT1, LT2, LT3)
-                categorias = [row[0] for row in results]
-                
-                # Crear un diccionario para asignar colores a cada categoría
-                colores = {'LT1': 'blue', 'LT2': 'green', 'LT3': 'orange'}  # Puedes agregar más colores según sea necesario
+                # Obtener la cantidad de documentos para cada línea temática (LT1, LT2, LT3)
+                lt1_documentos = [row[1] if row[0] == 'LT1' else 0 for row in results]
+                lt2_documentos = [row[1] if row[0] == 'LT2' else 0 for row in results]
+                lt3_documentos = [row[1] if row[0] == 'LT3' else 0 for row in results]
 
-                # Crear el gráfico con barras diferenciadas por categoría y colores
-                for categoria, color in zip(categorias, colores.values()):
-                    indices = [i for i, cat in enumerate(categorias) if cat == categoria]
-                    plt.bar([años[i] for i in indices], [num_documentos[i] for i in indices], label=categoria, color=color)
+                # Crear el gráfico de barras apiladas
+                plt.bar(años, lt1_documentos, label='LT1')
+                plt.bar(años, lt2_documentos, bottom=lt1_documentos, label='LT2')
+                plt.bar(años, lt3_documentos, bottom=[sum(x) for x in zip(lt1_documentos, lt2_documentos)], label='LT3')
 
                 plt.xlabel("Rango de Años")
                 plt.ylabel("Número de Documentos")
-                plt.title("Evolución de la Producción de Documentos a lo largo de los Años")
+                plt.title("Evolución de la Producción de Documentos por Línea Temática a lo largo de los Años")
                 plt.legend()
 
                 # Guardar el gráfico como imagen (opcional)
@@ -753,7 +751,7 @@ class BOT(commands.Cog):
 
                 # Adjuntar el gráfico al mensaje de Embed
                 message += "\nVer el gráfico a continuación:"
-                file = File("/home/fernando/grafico_temporal.png")
+                file = File("/home/fernando/grafico_temporal.png"
 
             # Enviar resultados y gráficos como un único mensaje
             embed = Embed(title=f"Página {page} de {total_pages}", description=message)
