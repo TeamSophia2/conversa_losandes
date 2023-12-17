@@ -751,7 +751,7 @@ class BOT(commands.Cog):
 
                 # Adjuntar el gráfico al mensaje de Embed
                 message += "\nVer el gráfico a continuación:"
-                file = File("/home/fernando/grafico_temporal.png"
+                file = File("/home/fernando/grafico_temporal.png")
 
             # Enviar resultados y gráficos como un único mensaje
             embed = Embed(title=f"Página {page} de {total_pages}", description=message)
