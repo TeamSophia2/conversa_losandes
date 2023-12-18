@@ -387,7 +387,7 @@ class BOT(commands.Cog):
                     await ctx.send(f"Error: La clave '{key.strip()}' no es válida. Por favor, verifica los parámetros.")
                     return
         print("Parámetros de búsqueda:")
-        await ctx.send("Nota: Puedes realizar búsquedas de dcumentos utilizando palabras clave en español o inglés")
+       
         for key, value in searchParams.items():
             print(f"{key}: {value}")
 
@@ -471,6 +471,7 @@ class BOT(commands.Cog):
 
         if "keywords" in searchParams:
             await ctx.send("Buscando resultados... Los resultados estarán ordenados por coincidencia de palabras clave.")
+            await ctx.send("Nota: Puedes realizar búsquedas de dcumentos utilizando keywords en español o inglés")
         results = dbConnector.executeQuery(query)
 
         if not results:
