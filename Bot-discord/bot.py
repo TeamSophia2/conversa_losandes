@@ -472,6 +472,7 @@ class BOT(commands.Cog):
         if "keywords" in searchParams:
             await ctx.send("Buscando resultados... Los resultados estarán ordenados por coincidencia de palabras clave.")
         results = dbConnector.executeQuery(query)
+
         if not results:
             await ctx.send("No se encontraron resultados.")
             return
