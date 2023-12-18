@@ -113,6 +113,7 @@ class BOT(commands.Cog):
             url = row['Enlace']
 
             if pd.notna(url) and url.strip().lower() != 'nan':
+                
             # Conectar a la base de datos y verificar si el título ya existe
                 db_connector = databaseConnector()
                 db_connector.connect()
@@ -145,7 +146,7 @@ class BOT(commands.Cog):
         
 
         if failedDownloads:
-            await ctx.send('El documento no pudo ser guardado en la base de datos')
+            await ctx.send('El documento no pudo ser guardado')
             
         else:     
             await ctx.send('Documento agregado a la base de datos')
@@ -386,6 +387,7 @@ class BOT(commands.Cog):
                     await ctx.send(f"Error: La clave '{key.strip()}' no es válida. Por favor, verifica los parámetros.")
                     return
         print("Parámetros de búsqueda:")
+        await ctx.send("Nota: Puedes realizar búsquedas de dcumentos utilizando palabras clave en español o inglés")
         for key, value in searchParams.items():
             print(f"{key}: {value}")
 
