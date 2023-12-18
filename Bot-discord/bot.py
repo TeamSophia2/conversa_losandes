@@ -676,7 +676,7 @@ class BOT(commands.Cog):
             ("Número total de documentos", "SELECT COUNT(*) as Total_Documents FROM Document WHERE content is not Null;"),
             ("Autores más prolíficos", "SELECT authorName, COUNT(documentId) as Num_Documentos FROM Document_Author JOIN Author ON Document_Author.authorId = Author.authorId GROUP BY Document_Author.authorId ORDER BY Num_Documentos DESC LIMIT 5;"),
             ("Distribución de documentos en los laboratorios temáticos", "SELECT C.principalCategoryId, COUNT(DC.documentId) as Num_Documentos FROM Category C LEFT JOIN Document_Category DC ON C.categoryName = DC.categoryName GROUP BY C.principalCategoryId ORDER BY Num_Documentos DESC LIMIT 3;"),
-            ("Organizaciones más activas", "SELECT organizationName, COUNT(documentId) as Num_Documentos FROM Document_Organization JOIN Organization ON Document_Organization.organizationId = Organization.organizationId GROUP BY Document_Organization.organizationId ORDER BY Num_Documentos DESC LIMIT 3;"),
+            ("Revistas que han publicado la mayor cantidad de documentos", "SELECT organizationName, COUNT(documentId) as Num_Documentos FROM Document_Organization JOIN Organization ON Document_Organization.organizationId = Organization.organizationId GROUP BY Document_Organization.organizationId ORDER BY Num_Documentos DESC LIMIT 3;"),
             ("Evolución de la producción de documentos a lo largo de los años", "SELECT CASE WHEN publicationYear BETWEEN 1980 AND 1990 THEN '1980-1990' WHEN publicationYear BETWEEN 1991 AND 2000 THEN '1991-2000' WHEN publicationYear BETWEEN 2001 AND 2010 THEN '2001-2010' WHEN publicationYear BETWEEN 2011 AND 2020 THEN '2011-2020' WHEN publicationYear >= 2021 THEN '2021-' ELSE 'Otros' END AS Rango, COUNT(*) AS Número_de_Documentos FROM Document GROUP BY Rango ORDER BY Rango;")
         ]
 
@@ -700,7 +700,7 @@ class BOT(commands.Cog):
             elif "Distribución de documentos en los laboratorios temáticos" in title:
                 for result in results:
                     message += f" - {result[0]} con {result[1]} documentos.\n"
-            elif "Organizaciones más activas" in title:
+            elif "Revistas que han publicado la mayor cantidad de documentos" in title:
                 for result in results:
                     message += f" - {result[0]} con {result[1]} documentos.\n"
             elif "Evolución de la producción de documentos a lo largo de los años" in title:
